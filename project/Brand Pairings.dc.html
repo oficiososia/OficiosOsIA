@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500&family=Schibsted+Grotesk:wght@600;800&family=Source+Serif+4:opsz,wght@8..60,400&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Public+Sans:wght@400;600&family=Sora:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Work+Sans:wght@400;500&display=swap">
+<link rel="stylesheet" href="_ds/modernist-dcb55299-d8f1-4435-9f35-91f931f589b7/styles.css">
+<script src="_ds/modernist-dcb55299-d8f1-4435-9f35-91f931f589b7/_ds_bundle.js"></script>
+<style>body{margin:0;background:#e2e1df;color:#201e1d;font-family:Archivo,system-ui,sans-serif}*{box-sizing:border-box}a{color:#ae1800}a:hover{color:#ec3013}</style>
+</helmet>
+<section style="padding:64px 64px 0;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:6px;border-bottom:2px solid #201e1d;padding-bottom:16px;max-width:1800px">
+<div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;font-weight:600">Ronda 3 · Unión de <a href="#2a">2a</a> y <a href="#2b">2b</a></div>
+<div style="font-size:40px;font-weight:800;letter-spacing:-0.02em;line-height:1.1">Nodo, enlace y cursor</div>
+<div style="font-size:15px;max-width:760px;text-wrap:pretty">La composición de 2b con el círculo y la barra de 2a: el anillo es el oficio, la barra ámbar es la IA y el enlace los conecta.</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:40px;max-width:1880px">
+<div id="3a" style="width:580px;background:#18191b;color:#eeece8;border:2px solid #18191b;display:flex;flex-direction:column;font-family:'IBM Plex Mono',monospace">
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:2px solid #55534f">
+<div style="background:#ffb000;color:#18191b;font-size:13px;font-weight:500;padding:3px 8px">3a</div>
+<div style="font-size:14px;font-weight:500">Enlace cursor</div>
+<div style="margin-left:auto;font-size:12px;opacity:0.7">Nodo, enlace y cursor unidos</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid #55534f">
+<div style="height:240px;display:flex;align-items:center;padding:32px;border-right:2px solid #55534f"><svg width="176" height="176" viewBox="0 0 100 100"><circle cx="28" cy="50" r="20" fill="none" stroke="#eeece8" stroke-width="12"></circle><rect x="48" y="45" width="24" height="10" fill="#eeece8"></rect><rect x="72" y="20" width="14" height="60" fill="#ffb000"></rect></svg></div>
+<div style="height:240px;display:flex;align-items:center;padding:32px;background:#ffb000"><svg width="176" height="176" viewBox="0 0 100 100"><circle cx="28" cy="50" r="20" fill="none" stroke="#18191b" stroke-width="12"></circle><rect x="48" y="45" width="24" height="10" fill="#18191b"></rect><rect x="72" y="20" width="14" height="60" fill="#18191b"></rect></svg></div>
+</div>
+<div style="padding:28px 24px;display:flex;align-items:center;gap:14px;border-bottom:2px solid #55534f"><svg width="58" height="58" viewBox="0 0 100 100"><circle cx="28" cy="50" r="20" fill="none" stroke="#eeece8" stroke-width="12"></circle><rect x="48" y="45" width="24" height="10" fill="#eeece8"></rect><rect x="72" y="20" width="14" height="60" fill="#ffb000"></rect></svg><div style="font-family:Sora,sans-serif;font-weight:700;font-size:42px;letter-spacing:-0.045em;line-height:1">OficiosOs<span style="color:#ffb000">IA</span></div></div>
+<div style="padding:28px 24px;display:flex;align-items:center;gap:14px;background:#eeece8;color:#18191b;border-bottom:2px solid #55534f"><svg width="58" height="58" viewBox="0 0 100 100"><circle cx="28" cy="50" r="20" fill="none" stroke="#18191b" stroke-width="12"></circle><rect x="48" y="45" width="24" height="10" fill="#18191b"></rect><rect x="72" y="20" width="14" height="60" fill="#c98a00"></rect></svg><div style="font-family:Sora,sans-serif;font-weight:700;font-size:42px;letter-spacing:-0.045em;line-height:1">OficiosOs<span style="color:#9a6a00">IA</span></div></div>
+<div style="padding:20px 24px;display:flex;align-items:flex-end;gap:20px"><div style="width:96px;height:96px;background:#26282b;display:flex;align-items:center;justify-content:center"><svg width="70" height="70" viewBox="0 0 100 100"><circle cx="28" cy="50" r="20" fill="none" stroke="#eeece8" stroke-width="12"></circle><rect x="48" y="45" width="24" height="10" fill="#eeece8"></rect><rect x="72" y="20" width="14" height="60" fill="#ffb000"></rect></svg></div><div style="width:64px;height:64px;background:#26282b;display:flex;align-items:center;justify-content:center"><svg width="48" height="48" viewBox="0 0 100 100"><circle cx="28" cy="50" r="20" fill="none" stroke="#eeece8" stroke-width="12"></circle><rect x="48" y="45" width="24" height="10" fill="#eeece8"></rect><rect x="72" y="20" width="14" height="60" fill="#ffb000"></rect></svg></div><div style="width:40px;height:40px;background:#26282b;display:flex;align-items:center;justify-content:center"><svg width="32" height="32" viewBox="0 0 100 100"><circle cx="28" cy="50" r="20" fill="none" stroke="#eeece8" stroke-width="14"></circle><rect x="48" y="45" width="24" height="10" fill="#eeece8"></rect><rect x="72" y="20" width="14" height="60" fill="#ffb000"></rect></svg></div><div style="width:24px;height:24px;background:#26282b;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 100 100"><circle cx="28" cy="50" r="20" fill="none" stroke="#eeece8" stroke-width="16"></circle><rect x="48" y="45" width="24" height="10" fill="#eeece8"></rect><rect x="72" y="20" width="14" height="60" fill="#ffb000"></rect></svg></div><div style="margin-left:auto;font-size:11px;opacity:0.7">96 · 64 · 40 · 24</div></div>
+</div>
+<div id="3b" style="width:580px;background:#18191b;color:#eeece8;border:2px solid #18191b;display:flex;flex-direction:column;font-family:'IBM Plex Mono',monospace">
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:2px solid #55534f">
+<div style="background:#ffb000;color:#18191b;font-size:13px;font-weight:500;padding:3px 8px">3b</div>
+<div style="font-size:14px;font-weight:500">Enlace señal</div>
+<div style="margin-left:auto;font-size:12px;opacity:0.7">Con aire entre las piezas</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid #55534f">
+<div style="height:240px;display:flex;align-items:center;padding:32px;border-right:2px solid #55534f"><svg width="176" height="176" viewBox="0 0 100 100"><circle cx="28" cy="50" r="20" fill="none" stroke="#eeece8" stroke-width="12"></circle><rect x="54" y="45" width="12" height="10" fill="#eeece8"></rect><rect x="72" y="20" width="14" height="60" fill="#ffb000"></rect></svg></div>
+<div style="height:240px;display:flex;align-items:center;padding:32px;background:#ffb000"><svg width="176" height="176" viewBox="0 0 100 100"><circle cx="28" cy="50" r="20" fill="none" stroke="#18191b" stroke-width="12"></circle><rect x="54" y="45" width="12" height="10" fill="#18191b"></rect><rect x="72" y="20" width="14" height="60" fill="#18191b"></rect></svg></div>
+</div>
+<div style="padding:28px 24px;display:flex;align-items:center;gap:14px;border-bottom:2px solid #55534f"><svg width="58" height="58" viewBox="0 0 100 100"><circle cx="28" cy="50" r="20" fill="none" stroke="#eeece8" stroke-width="12"></circle><rect x="54" y="45" width="12" height="10" fill="#eeece8"></rect><rect x="72" y="20" width="14" height="60" fill="#ffb000"></rect></svg><div style="font-family:Sora,sans-serif;font-weight:700;font-size:42px;letter-spacing:-0.045em;line-height:1">OficiosOs<span style="color:#ffb000">IA</span></div></div>
+<div style="padding:28px 24px;display:flex;align-items:center;gap:14px;background:#eeece8;color:#18191b;border-bottom:2px solid #55534f"><svg width="58" height="58" viewBox="0 0 100 100"><circle cx="28" cy="50" r="20" fill="none" stroke="#18191b" stroke-width="12"></circle><rect x="54" y="45" width="12" height="10" fill="#18191b"></rect><rect x="72" y="20" width="14" height="60" fill="#c98a00"></rect></svg><div style="font-family:Sora,sans-serif;font-weight:700;font-size:42px;letter-spacing:-0.045em;line-height:1">OficiosOs<span style="color:#9a6a00">IA</span></div></div>
+<div style="padding:20px 24px;display:flex;align-items:flex-end;gap:20px"><div style="width:96px;height:96px;background:#26282b;display:flex;align-items:center;justify-content:center"><svg width="70" height="70" viewBox="0 0 100 100"><circle cx="28" cy="50" r="20" fill="none" stroke="#eeece8" stroke-width="12"></circle><rect x="54" y="45" width="12" height="10" fill="#eeece8"></rect><rect x="72" y="20" width="14" height="60" fill="#ffb000"></rect></svg></div><div style="width:64px;height:64px;background:#26282b;display:flex;align-items:center;justify-content:center"><svg width="48" height="48" viewBox="0 0 100 100"><circle cx="28" cy="50" r="20" fill="none" stroke="#eeece8" stroke-width="12"></circle><rect x="54" y="45" width="12" height="10" fill="#eeece8"></rect><rect x="72" y="20" width="14" height="60" fill="#ffb000"></rect></svg></div><div style="width:40px;height:40px;background:#26282b;display:flex;align-items:center;justify-content:center"><svg width="32" height="32" viewBox="0 0 100 100"><circle cx="28" cy="50" r="20" fill="none" stroke="#eeece8" stroke-width="14"></circle><rect x="54" y="45" width="12" height="10" fill="#eeece8"></rect><rect x="72" y="20" width="14" height="60" fill="#ffb000"></rect></svg></div><div style="width:24px;height:24px;background:#26282b;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 100 100"><circle cx="28" cy="50" r="20" fill="none" stroke="#eeece8" stroke-width="16"></circle><rect x="54" y="45" width="12" height="10" fill="#eeece8"></rect><rect x="72" y="20" width="14" height="60" fill="#ffb000"></rect></svg></div><div style="margin-left:auto;font-size:11px;opacity:0.7">96 · 64 · 40 · 24</div></div>
+</div>
+</div>
+</section>
+<section style="padding:64px 64px 0;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:6px;border-bottom:2px solid #201e1d;padding-bottom:16px;max-width:1800px">
+<div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;font-weight:600">Ronda 2 · Desarrollo de <a href="#1e">1e</a> Turno de noche</div>
+<div style="font-size:40px;font-weight:800;letter-spacing:-0.02em;line-height:1.1">Cuatro símbolos para OficiosOsIA</div>
+<div style="font-size:15px;max-width:760px;text-wrap:pretty">Mismo sistema: Sora 700 para la marca, IBM Plex Mono para textos, fondo noche y ámbar como único acento. Cada símbolo se muestra en grande, sobre ámbar, en versión horizontal clara y oscura, y como icono de app de 96 a 24 px.</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:40px;max-width:1880px">
+
+<div id="2a" style="width:580px;background:#18191b;color:#eeece8;border:2px solid #18191b;display:flex;flex-direction:column;font-family:'IBM Plex Mono',monospace">
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:2px solid #55534f">
+<div style="background:#ffb000;color:#18191b;font-size:13px;font-weight:500;padding:3px 8px">2a</div>
+<div style="font-size:14px;font-weight:500">Cursor</div>
+<div style="margin-left:auto;font-size:12px;opacity:0.7">La O del oficio + el cursor de la IA</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid #55534f">
+<div style="height:240px;display:flex;align-items:center;padding:32px;border-right:2px solid #55534f"><svg width="160" height="160" viewBox="0 0 100 100"><circle cx="40" cy="50" r="28" fill="none" stroke="#eeece8" stroke-width="12"></circle><rect x="80" y="18" width="12" height="64" fill="#ffb000"></rect></svg></div>
+<div style="height:240px;display:flex;align-items:center;padding:32px;background:#ffb000"><svg width="160" height="160" viewBox="0 0 100 100"><circle cx="40" cy="50" r="28" fill="none" stroke="#18191b" stroke-width="12"></circle><rect x="80" y="18" width="12" height="64" fill="#18191b"></rect></svg></div>
+</div>
+<div style="padding:28px 24px;display:flex;align-items:center;gap:14px;border-bottom:2px solid #55534f">
+<svg width="52" height="52" viewBox="0 0 100 100"><circle cx="40" cy="50" r="28" fill="none" stroke="#eeece8" stroke-width="12"></circle><rect x="80" y="18" width="12" height="64" fill="#ffb000"></rect></svg>
+<div style="font-family:Sora,sans-serif;font-weight:700;font-size:42px;letter-spacing:-0.045em;line-height:1">OficiosOs<span style="color:#ffb000">IA</span></div>
+</div>
+<div style="padding:28px 24px;display:flex;align-items:center;gap:14px;background:#eeece8;color:#18191b;border-bottom:2px solid #55534f">
+<svg width="52" height="52" viewBox="0 0 100 100"><circle cx="40" cy="50" r="28" fill="none" stroke="#18191b" stroke-width="12"></circle><rect x="80" y="18" width="12" height="64" fill="#c98a00"></rect></svg>
+<div style="font-family:Sora,sans-serif;font-weight:700;font-size:42px;letter-spacing:-0.045em;line-height:1">OficiosOs<span style="color:#9a6a00">IA</span></div>
+</div>
+<div style="padding:20px 24px;display:flex;align-items:flex-end;gap:20px">
+<div style="width:96px;height:96px;background:#26282b;display:flex;align-items:center;justify-content:center"><svg width="60" height="60" viewBox="0 0 100 100"><circle cx="40" cy="50" r="28" fill="none" stroke="#eeece8" stroke-width="12"></circle><rect x="80" y="18" width="12" height="64" fill="#ffb000"></rect></svg></div>
+<div style="width:64px;height:64px;background:#26282b;display:flex;align-items:center;justify-content:center"><svg width="40" height="40" viewBox="0 0 100 100"><circle cx="40" cy="50" r="28" fill="none" stroke="#eeece8" stroke-width="12"></circle><rect x="80" y="18" width="12" height="64" fill="#ffb000"></rect></svg></div>
+<div style="width:40px;height:40px;background:#26282b;display:flex;align-items:center;justify-content:center"><svg width="26" height="26" viewBox="0 0 100 100"><circle cx="40" cy="50" r="28" fill="none" stroke="#eeece8" stroke-width="14"></circle><rect x="80" y="18" width="14" height="64" fill="#ffb000"></rect></svg></div>
+<div style="width:24px;height:24px;background:#26282b;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 100 100"><circle cx="40" cy="50" r="28" fill="none" stroke="#eeece8" stroke-width="16"></circle><rect x="80" y="18" width="16" height="64" fill="#ffb000"></rect></svg></div>
+<div style="margin-left:auto;font-size:11px;opacity:0.7">96 · 64 · 40 · 24</div>
+</div>
+</div>
+
+<div id="2b" style="width:580px;background:#18191b;color:#eeece8;border:2px solid #18191b;display:flex;flex-direction:column;font-family:'IBM Plex Mono',monospace">
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:2px solid #55534f">
+<div style="background:#ffb000;color:#18191b;font-size:13px;font-weight:500;padding:3px 8px">2b</div>
+<div style="font-size:14px;font-weight:500">Enlace</div>
+<div style="margin-left:auto;font-size:12px;opacity:0.7">Tu negocio conectado a la IA</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid #55534f">
+<div style="height:240px;display:flex;align-items:center;padding:32px;border-right:2px solid #55534f"><svg width="180" height="180" viewBox="0 0 100 100"><circle cx="24" cy="50" r="17" fill="none" stroke="#eeece8" stroke-width="10"></circle><rect x="41" y="45" width="18" height="10" fill="#eeece8"></rect><circle cx="76" cy="50" r="22" fill="#ffb000"></circle></svg></div>
+<div style="height:240px;display:flex;align-items:center;padding:32px;background:#ffb000"><svg width="180" height="180" viewBox="0 0 100 100"><circle cx="24" cy="50" r="17" fill="none" stroke="#18191b" stroke-width="10"></circle><rect x="41" y="45" width="18" height="10" fill="#18191b"></rect><circle cx="76" cy="50" r="22" fill="#18191b"></circle></svg></div>
+</div>
+<div style="padding:28px 24px;display:flex;align-items:center;gap:14px;border-bottom:2px solid #55534f">
+<svg width="60" height="60" viewBox="0 0 100 100"><circle cx="24" cy="50" r="17" fill="none" stroke="#eeece8" stroke-width="10"></circle><rect x="41" y="45" width="18" height="10" fill="#eeece8"></rect><circle cx="76" cy="50" r="22" fill="#ffb000"></circle></svg>
+<div style="font-family:Sora,sans-serif;font-weight:700;font-size:42px;letter-spacing:-0.045em;line-height:1">OficiosOs<span style="color:#ffb000">IA</span></div>
+</div>
+<div style="padding:28px 24px;display:flex;align-items:center;gap:14px;background:#eeece8;color:#18191b;border-bottom:2px solid #55534f">
+<svg width="60" height="60" viewBox="0 0 100 100"><circle cx="24" cy="50" r="17" fill="none" stroke="#18191b" stroke-width="10"></circle><rect x="41" y="45" width="18" height="10" fill="#18191b"></rect><circle cx="76" cy="50" r="22" fill="#c98a00"></circle></svg>
+<div style="font-family:Sora,sans-serif;font-weight:700;font-size:42px;letter-spacing:-0.045em;line-height:1">OficiosOs<span style="color:#9a6a00">IA</span></div>
+</div>
+<div style="padding:20px 24px;display:flex;align-items:flex-end;gap:20px">
+<div style="width:96px;height:96px;background:#26282b;display:flex;align-items:center;justify-content:center"><svg width="72" height="72" viewBox="0 0 100 100"><circle cx="24" cy="50" r="17" fill="none" stroke="#eeece8" stroke-width="10"></circle><rect x="41" y="45" width="18" height="10" fill="#eeece8"></rect><circle cx="76" cy="50" r="22" fill="#ffb000"></circle></svg></div>
+<div style="width:64px;height:64px;background:#26282b;display:flex;align-items:center;justify-content:center"><svg width="48" height="48" viewBox="0 0 100 100"><circle cx="24" cy="50" r="17" fill="none" stroke="#eeece8" stroke-width="10"></circle><rect x="41" y="45" width="18" height="10" fill="#eeece8"></rect><circle cx="76" cy="50" r="22" fill="#ffb000"></circle></svg></div>
+<div style="width:40px;height:40px;background:#26282b;display:flex;align-items:center;justify-content:center"><svg width="32" height="32" viewBox="0 0 100 100"><circle cx="24" cy="50" r="17" fill="none" stroke="#eeece8" stroke-width="12"></circle><rect x="41" y="44" width="18" height="12" fill="#eeece8"></rect><circle cx="76" cy="50" r="22" fill="#ffb000"></circle></svg></div>
+<div style="width:24px;height:24px;background:#26282b;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 100 100"><circle cx="24" cy="50" r="17" fill="none" stroke="#eeece8" stroke-width="14"></circle><rect x="41" y="43" width="18" height="14" fill="#eeece8"></rect><circle cx="76" cy="50" r="23" fill="#ffb000"></circle></svg></div>
+<div style="margin-left:auto;font-size:11px;opacity:0.7">96 · 64 · 40 · 24</div>
+</div>
+</div>
+
+<div id="2c" style="width:580px;background:#18191b;color:#eeece8;border:2px solid #18191b;display:flex;flex-direction:column;font-family:'IBM Plex Mono',monospace">
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:2px solid #55534f">
+<div style="background:#ffb000;color:#18191b;font-size:13px;font-weight:500;padding:3px 8px">2c</div>
+<div style="font-size:14px;font-weight:500">Bloque IA</div>
+<div style="margin-left:auto;font-size:12px;opacity:0.7">Monograma tipográfico, sin dibujo</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid #55534f">
+<div style="height:240px;display:flex;align-items:center;padding:32px;border-right:2px solid #55534f"><div style="width:160px;height:160px;background:#ffb000;color:#18191b;display:flex;align-items:flex-end;padding:12px 14px;font-family:Sora,sans-serif;font-weight:700;font-size:84px;letter-spacing:-0.06em;line-height:0.8">IA</div></div>
+<div style="height:240px;display:flex;align-items:center;padding:32px;background:#ffb000"><div style="width:160px;height:160px;background:#18191b;color:#ffb000;display:flex;align-items:flex-end;padding:12px 14px;font-family:Sora,sans-serif;font-weight:700;font-size:84px;letter-spacing:-0.06em;line-height:0.8">IA</div></div>
+</div>
+<div style="padding:28px 24px;display:flex;align-items:center;gap:14px;border-bottom:2px solid #55534f">
+<div style="width:52px;height:52px;background:#ffb000;color:#18191b;display:flex;align-items:flex-end;padding:4px 5px;font-family:Sora,sans-serif;font-weight:700;font-size:28px;letter-spacing:-0.06em;line-height:0.8">IA</div>
+<div style="font-family:Sora,sans-serif;font-weight:700;font-size:42px;letter-spacing:-0.045em;line-height:1">OficiosOs</div>
+</div>
+<div style="padding:28px 24px;display:flex;align-items:center;gap:14px;background:#eeece8;color:#18191b;border-bottom:2px solid #55534f">
+<div style="width:52px;height:52px;background:#18191b;color:#ffb000;display:flex;align-items:flex-end;padding:4px 5px;font-family:Sora,sans-serif;font-weight:700;font-size:28px;letter-spacing:-0.06em;line-height:0.8">IA</div>
+<div style="font-family:Sora,sans-serif;font-weight:700;font-size:42px;letter-spacing:-0.045em;line-height:1">OficiosOs</div>
+</div>
+<div style="padding:20px 24px;display:flex;align-items:flex-end;gap:20px">
+<div style="width:96px;height:96px;background:#ffb000;color:#18191b;display:flex;align-items:flex-end;padding:8px 9px;font-family:Sora,sans-serif;font-weight:700;font-size:50px;letter-spacing:-0.06em;line-height:0.8">IA</div>
+<div style="width:64px;height:64px;background:#ffb000;color:#18191b;display:flex;align-items:flex-end;padding:5px 6px;font-family:Sora,sans-serif;font-weight:700;font-size:34px;letter-spacing:-0.06em;line-height:0.8">IA</div>
+<div style="width:40px;height:40px;background:#ffb000;color:#18191b;display:flex;align-items:flex-end;padding:3px 4px;font-family:Sora,sans-serif;font-weight:700;font-size:22px;letter-spacing:-0.06em;line-height:0.8">IA</div>
+<div style="width:24px;height:24px;background:#ffb000;color:#18191b;display:flex;align-items:flex-end;padding:2px 2px;font-family:Sora,sans-serif;font-weight:700;font-size:14px;letter-spacing:-0.06em;line-height:0.8">IA</div>
+<div style="margin-left:auto;font-size:11px;opacity:0.7">96 · 64 · 40 · 24</div>
+</div>
+</div>
+
+<div id="2d" style="width:580px;background:#18191b;color:#eeece8;border:2px solid #18191b;display:flex;flex-direction:column;font-family:'IBM Plex Mono',monospace">
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:2px solid #55534f">
+<div style="background:#ffb000;color:#18191b;font-size:13px;font-weight:500;padding:3px 8px">2d</div>
+<div style="font-size:14px;font-weight:500">Enchufe</div>
+<div style="margin-left:auto;font-size:12px;opacity:0.7">Enchufa la IA a tu negocio</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid #55534f">
+<div style="height:240px;display:flex;align-items:center;padding:32px;border-right:2px solid #55534f"><svg width="160" height="160" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#ffb000"></circle><circle cx="32" cy="50" r="9" fill="#18191b"></circle><circle cx="68" cy="50" r="9" fill="#18191b"></circle></svg></div>
+<div style="height:240px;display:flex;align-items:center;padding:32px;background:#ffb000"><svg width="160" height="160" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#18191b"></circle><circle cx="32" cy="50" r="9" fill="#ffb000"></circle><circle cx="68" cy="50" r="9" fill="#ffb000"></circle></svg></div>
+</div>
+<div style="padding:28px 24px;display:flex;align-items:center;gap:14px;border-bottom:2px solid #55534f">
+<svg width="50" height="50" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#ffb000"></circle><circle cx="32" cy="50" r="9" fill="#18191b"></circle><circle cx="68" cy="50" r="9" fill="#18191b"></circle></svg>
+<div style="font-family:Sora,sans-serif;font-weight:700;font-size:42px;letter-spacing:-0.045em;line-height:1">OficiosOs<span style="color:#ffb000">IA</span></div>
+</div>
+<div style="padding:28px 24px;display:flex;align-items:center;gap:14px;background:#eeece8;color:#18191b;border-bottom:2px solid #55534f">
+<svg width="50" height="50" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#18191b"></circle><circle cx="32" cy="50" r="9" fill="#ffb000"></circle><circle cx="68" cy="50" r="9" fill="#ffb000"></circle></svg>
+<div style="font-family:Sora,sans-serif;font-weight:700;font-size:42px;letter-spacing:-0.045em;line-height:1">OficiosOs<span style="color:#9a6a00">IA</span></div>
+</div>
+<div style="padding:20px 24px;display:flex;align-items:flex-end;gap:20px">
+<div style="width:96px;height:96px;background:#26282b;display:flex;align-items:center;justify-content:center"><svg width="68" height="68" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#ffb000"></circle><circle cx="32" cy="50" r="9" fill="#26282b"></circle><circle cx="68" cy="50" r="9" fill="#26282b"></circle></svg></div>
+<div style="width:64px;height:64px;background:#26282b;display:flex;align-items:center;justify-content:center"><svg width="46" height="46" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#ffb000"></circle><circle cx="32" cy="50" r="9" fill="#26282b"></circle><circle cx="68" cy="50" r="9" fill="#26282b"></circle></svg></div>
+<div style="width:40px;height:40px;background:#26282b;display:flex;align-items:center;justify-content:center"><svg width="30" height="30" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#ffb000"></circle><circle cx="32" cy="50" r="10" fill="#26282b"></circle><circle cx="68" cy="50" r="10" fill="#26282b"></circle></svg></div>
+<div style="width:24px;height:24px;background:#26282b;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#ffb000"></circle><circle cx="31" cy="50" r="12" fill="#26282b"></circle><circle cx="69" cy="50" r="12" fill="#26282b"></circle></svg></div>
+<div style="margin-left:auto;font-size:11px;opacity:0.7">96 · 64 · 40 · 24</div>
+</div>
+</div>
+
+</div>
+</section>
+<section style="padding:64px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:6px;border-bottom:2px solid #201e1d;padding-bottom:16px;max-width:1800px">
+<div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;font-weight:600">Ronda 1 · Base: Modernist</div>
+<div style="font-size:40px;font-weight:800;letter-spacing:-0.02em;line-height:1.1">OficiosOsIA — seis pares de color y tipografía</div>
+<div style="font-size:15px;max-width:760px;text-wrap:pretty">Todas mantienen la estructura Modernist: retícula visible, reglas de 2px, esquinas rectas y todo alineado a la izquierda. Cambian la paleta y la pareja tipográfica. <a href="#1a">1a</a> es el sistema tal cual.</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:40px;max-width:1880px">
+
+<div id="1a" style="width:580px;background:#f3f2f2;color:#201e1d;border:2px solid #201e1d;display:flex;flex-direction:column;font-family:Archivo,sans-serif">
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:2px solid #201e1d">
+<div style="background:#201e1d;color:#f3f2f2;font-size:13px;font-weight:800;padding:3px 8px">1a</div>
+<div style="font-size:15px;font-weight:800">Señal</div>
+<div style="margin-left:auto;font-size:12px;opacity:0.7">Archivo 800 / Archivo 400</div>
+</div>
+<div style="padding:48px 24px 40px;border-bottom:2px solid #201e1d;display:flex;flex-direction:column;gap:10px">
+<div style="font-weight:800;font-size:68px;letter-spacing:-0.035em;line-height:1">Oficios<span>Os</span><span style="color:#ec3013">IA</span></div>
+<div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;font-weight:600">Integraciones y automatización con IA</div>
+</div>
+<div style="padding:24px;display:flex;flex-direction:column;gap:12px;border-bottom:2px solid #201e1d">
+<div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#ae1800;font-weight:600">Para el comercio local</div>
+<div style="font-weight:800;font-size:32px;line-height:1.1;letter-spacing:-0.02em;text-wrap:pretty">Automatización con IA para el comercio de tu barrio.</div>
+<div style="font-size:15px;line-height:1.55;text-wrap:pretty">Conectamos tus herramientas, respondemos a tus clientes y te devolvemos horas cada semana. Para fontaneros, electricistas y pequeñas tiendas.</div>
+<div style="font-size:14px;opacity:0.7">Aa Bb Ññ 0123456789 · 1.250 €</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr))">
+<div style="height:96px;background:#f3f2f2;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#201e1d;border-right:2px solid #201e1d"><div style="font-weight:600">Fondo</div><div>#F3F2F2</div></div>
+<div style="height:96px;background:#eae9e9;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#201e1d"><div style="font-weight:600">Superficie</div><div>#EAE9E9</div></div>
+<div style="height:96px;background:#201e1d;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#f3f2f2"><div style="font-weight:600">Tinta</div><div>#201E1D</div></div>
+<div style="height:96px;background:#ec3013;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#201e1d"><div style="font-weight:600">Acento</div><div>#EC3013</div></div>
+<div style="height:96px;background:#ae1800;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#f3f2f2"><div style="font-weight:600">Acento hondo</div><div>#AE1800</div></div>
+</div>
+</div>
+
+<div id="1b" style="width:580px;background:#f4f1ec;color:#22201c;border:2px solid #22201c;display:flex;flex-direction:column;font-family:'IBM Plex Sans',sans-serif">
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:2px solid #22201c">
+<div style="background:#22201c;color:#f4f1ec;font-size:13px;font-weight:500;padding:3px 8px">1b</div>
+<div style="font-size:15px;font-weight:500">Cobre</div>
+<div style="margin-left:auto;font-size:12px;opacity:0.7">Space Grotesk 700 / IBM Plex Sans 400</div>
+</div>
+<div style="padding:48px 24px 40px;border-bottom:2px solid #22201c;display:flex;flex-direction:column;gap:10px">
+<div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:68px;letter-spacing:-0.04em;line-height:1">Oficios<span>Os</span><span style="color:#b8541e">IA</span></div>
+<div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;font-weight:500">Integraciones y automatización con IA</div>
+</div>
+<div style="padding:24px;display:flex;flex-direction:column;gap:12px;border-bottom:2px solid #22201c">
+<div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#8a3a10;font-weight:500">Para el comercio local</div>
+<div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:32px;line-height:1.1;letter-spacing:-0.025em;text-wrap:pretty">Automatización con IA para el comercio de tu barrio.</div>
+<div style="font-size:15px;line-height:1.6;text-wrap:pretty">Conectamos tus herramientas, respondemos a tus clientes y te devolvemos horas cada semana. Para fontaneros, electricistas y pequeñas tiendas.</div>
+<div style="font-size:14px;opacity:0.7">Aa Bb Ññ 0123456789 · 1.250 €</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr))">
+<div style="height:96px;background:#f4f1ec;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#22201c;border-right:2px solid #22201c"><div style="font-weight:500">Fondo</div><div>#F4F1EC</div></div>
+<div style="height:96px;background:#e9e3d9;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#22201c"><div style="font-weight:500">Superficie</div><div>#E9E3D9</div></div>
+<div style="height:96px;background:#22201c;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#f4f1ec"><div style="font-weight:500">Tinta</div><div>#22201C</div></div>
+<div style="height:96px;background:#b8541e;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#f4f1ec"><div style="font-weight:500">Cobre</div><div>#B8541E</div></div>
+<div style="height:96px;background:#2f5d50;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#f4f1ec"><div style="font-weight:500">Verdín</div><div>#2F5D50</div></div>
+</div>
+</div>
+
+<div id="1c" style="width:580px;background:#f2f3f4;color:#1b1f24;border:2px solid #1b1f24;display:flex;flex-direction:column;font-family:'Source Serif 4',serif">
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:2px solid #1b1f24;font-family:'Schibsted Grotesk',sans-serif">
+<div style="background:#1b1f24;color:#f2f3f4;font-size:13px;font-weight:800;padding:3px 8px">1c</div>
+<div style="font-size:15px;font-weight:800">Mono de trabajo</div>
+<div style="margin-left:auto;font-size:12px;opacity:0.7;font-weight:600">Schibsted Grotesk 800 / Source Serif 4</div>
+</div>
+<div style="padding:48px 24px 40px;border-bottom:2px solid #1b1f24;display:flex;flex-direction:column;gap:10px">
+<div style="font-family:'Schibsted Grotesk',sans-serif;font-weight:800;font-size:68px;letter-spacing:-0.04em;line-height:1">Oficios<span>Os</span><span style="color:#1f4fd1">IA</span></div>
+<div style="font-family:'Schibsted Grotesk',sans-serif;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;font-weight:600">Integraciones y automatización con IA</div>
+</div>
+<div style="padding:24px;display:flex;flex-direction:column;gap:12px;border-bottom:2px solid #1b1f24">
+<div style="font-family:'Schibsted Grotesk',sans-serif;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#1a3fa6;font-weight:600">Para el comercio local</div>
+<div style="font-family:'Schibsted Grotesk',sans-serif;font-weight:800;font-size:32px;line-height:1.1;letter-spacing:-0.025em;text-wrap:pretty">Automatización con IA para el comercio de tu barrio.</div>
+<div style="font-size:16px;line-height:1.55;text-wrap:pretty">Conectamos tus herramientas, respondemos a tus clientes y te devolvemos horas cada semana. Para fontaneros, electricistas y pequeñas tiendas.</div>
+<div style="font-size:14px;opacity:0.7">Aa Bb Ññ 0123456789 · 1.250 €</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));font-family:'Schibsted Grotesk',sans-serif">
+<div style="height:96px;background:#f2f3f4;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#1b1f24;border-right:2px solid #1b1f24"><div style="font-weight:600">Fondo</div><div>#F2F3F4</div></div>
+<div style="height:96px;background:#e4e7ea;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#1b1f24"><div style="font-weight:600">Superficie</div><div>#E4E7EA</div></div>
+<div style="height:96px;background:#1b1f24;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#f2f3f4"><div style="font-weight:600">Tinta</div><div>#1B1F24</div></div>
+<div style="height:96px;background:#1f4fd1;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#f2f3f4"><div style="font-weight:600">Azul mono</div><div>#1F4FD1</div></div>
+<div style="height:96px;background:#f2b705;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#1b1f24"><div style="font-weight:600">Seguridad</div><div>#F2B705</div></div>
+</div>
+</div>
+
+<div id="1d" style="width:580px;background:#f1f3ef;color:#1c211d;border:2px solid #1c211d;display:flex;flex-direction:column;font-family:'Public Sans',sans-serif">
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:2px solid #1c211d">
+<div style="background:#1c211d;color:#f1f3ef;font-size:13px;font-weight:600;padding:3px 8px">1d</div>
+<div style="font-size:15px;font-weight:600">Huerto</div>
+<div style="margin-left:auto;font-size:12px;opacity:0.7">Bricolage Grotesque 800 / Public Sans 400</div>
+</div>
+<div style="padding:48px 24px 40px;border-bottom:2px solid #1c211d;display:flex;flex-direction:column;gap:10px">
+<div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:68px;letter-spacing:-0.04em;line-height:1">Oficios<span>Os</span><span style="color:#1d7a4f">IA</span></div>
+<div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;font-weight:600">Integraciones y automatización con IA</div>
+</div>
+<div style="padding:24px;display:flex;flex-direction:column;gap:12px;border-bottom:2px solid #1c211d">
+<div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#155c3b;font-weight:600">Para el comercio local</div>
+<div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:32px;line-height:1.1;letter-spacing:-0.025em;text-wrap:pretty">Automatización con IA para el comercio de tu barrio.</div>
+<div style="font-size:15px;line-height:1.6;text-wrap:pretty">Conectamos tus herramientas, respondemos a tus clientes y te devolvemos horas cada semana. Para fontaneros, electricistas y pequeñas tiendas.</div>
+<div style="font-size:14px;opacity:0.7">Aa Bb Ññ 0123456789 · 1.250 €</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr))">
+<div style="height:96px;background:#f1f3ef;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#1c211d;border-right:2px solid #1c211d"><div style="font-weight:600">Fondo</div><div>#F1F3EF</div></div>
+<div style="height:96px;background:#e3e8e1;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#1c211d"><div style="font-weight:600">Superficie</div><div>#E3E8E1</div></div>
+<div style="height:96px;background:#1c211d;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#f1f3ef"><div style="font-weight:600">Tinta</div><div>#1C211D</div></div>
+<div style="height:96px;background:#1d7a4f;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#f1f3ef"><div style="font-weight:600">Verde</div><div>#1D7A4F</div></div>
+<div style="height:96px;background:#e8663d;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#1c211d"><div style="font-weight:600">Mandarina</div><div>#E8663D</div></div>
+</div>
+</div>
+
+<div id="1e" style="width:580px;background:#18191b;color:#eeece8;border:2px solid #18191b;display:flex;flex-direction:column;font-family:'IBM Plex Mono',monospace">
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:2px solid #55534f">
+<div style="background:#ffb000;color:#18191b;font-size:13px;font-weight:500;padding:3px 8px">1e</div>
+<div style="font-size:14px;font-weight:500">Turno de noche</div>
+<div style="margin-left:auto;font-size:12px;opacity:0.7">Sora 700 / IBM Plex Mono 400</div>
+</div>
+<div style="padding:48px 24px 40px;border-bottom:2px solid #55534f;display:flex;flex-direction:column;gap:10px">
+<div style="font-family:Sora,sans-serif;font-weight:700;font-size:64px;letter-spacing:-0.045em;line-height:1">Oficios<span>Os</span><span style="color:#ffb000">IA</span></div>
+<div style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase">Integraciones y automatización con IA</div>
+</div>
+<div style="padding:24px;display:flex;flex-direction:column;gap:12px;border-bottom:2px solid #55534f">
+<div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#ffb000">Para el comercio local</div>
+<div style="font-family:Sora,sans-serif;font-weight:700;font-size:30px;line-height:1.12;letter-spacing:-0.03em;text-wrap:pretty">Automatización con IA para el comercio de tu barrio.</div>
+<div style="font-size:14px;line-height:1.65;text-wrap:pretty">Conectamos tus herramientas, respondemos a tus clientes y te devolvemos horas cada semana. Para fontaneros, electricistas y pequeñas tiendas.</div>
+<div style="font-size:13px;opacity:0.7">Aa Bb Ññ 0123456789 · 1.250 €</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr))">
+<div style="height:96px;background:#18191b;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#eeece8;border-right:2px solid #55534f"><div style="font-weight:500">Fondo</div><div>#18191B</div></div>
+<div style="height:96px;background:#26282b;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#eeece8"><div style="font-weight:500">Superficie</div><div>#26282B</div></div>
+<div style="height:96px;background:#eeece8;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#18191b"><div style="font-weight:500">Tinta</div><div>#EEECE8</div></div>
+<div style="height:96px;background:#ffb000;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#18191b"><div style="font-weight:500">Ámbar</div><div>#FFB000</div></div>
+<div style="height:96px;background:#5b8def;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#18191b"><div style="font-weight:500">Pantalla</div><div>#5B8DEF</div></div>
+</div>
+</div>
+
+<div id="1f" style="width:580px;background:#f5f2ea;color:#2a2622;border:2px solid #2a2622;display:flex;flex-direction:column;font-family:'Work Sans',sans-serif">
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:2px solid #2a2622">
+<div style="background:#2a2622;color:#f5f2ea;font-size:13px;font-weight:500;padding:3px 8px">1f</div>
+<div style="font-size:15px;font-weight:500">Mostrador</div>
+<div style="margin-left:auto;font-size:12px;opacity:0.7">Newsreader 600 / Work Sans 400</div>
+</div>
+<div style="padding:48px 24px 40px;border-bottom:2px solid #2a2622;display:flex;flex-direction:column;gap:10px">
+<div style="font-family:Newsreader,serif;font-weight:600;font-size:72px;letter-spacing:-0.03em;line-height:1">Oficios<span>Os</span><span style="color:#0e6b6b">IA</span></div>
+<div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;font-weight:500">Integraciones y automatización con IA</div>
+</div>
+<div style="padding:24px;display:flex;flex-direction:column;gap:12px;border-bottom:2px solid #2a2622">
+<div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#0e6b6b;font-weight:500">Para el comercio local</div>
+<div style="font-family:Newsreader,serif;font-weight:600;font-size:34px;line-height:1.08;letter-spacing:-0.015em;text-wrap:pretty">Automatización con IA para el comercio de tu barrio.</div>
+<div style="font-size:15px;line-height:1.6;text-wrap:pretty">Conectamos tus herramientas, respondemos a tus clientes y te devolvemos horas cada semana. Para fontaneros, electricistas y pequeñas tiendas.</div>
+<div style="font-size:14px;opacity:0.7">Aa Bb Ññ 0123456789 · 1.250 €</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr))">
+<div style="height:96px;background:#f5f2ea;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#2a2622;border-right:2px solid #2a2622"><div style="font-weight:500">Fondo</div><div>#F5F2EA</div></div>
+<div style="height:96px;background:#ebe5d8;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#2a2622"><div style="font-weight:500">Superficie</div><div>#EBE5D8</div></div>
+<div style="height:96px;background:#2a2622;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#f5f2ea"><div style="font-weight:500">Tinta</div><div>#2A2622</div></div>
+<div style="height:96px;background:#0e6b6b;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#f5f2ea"><div style="font-weight:500">Petróleo</div><div>#0E6B6B</div></div>
+<div style="height:96px;background:#e0a526;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;color:#2a2622"><div style="font-weight:500">Sol</div><div>#E0A526</div></div>
+</div>
+</div>
+
+</div>
+</section>
+</x-dc>
+</body>
+</html>
