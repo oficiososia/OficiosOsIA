@@ -110,9 +110,9 @@ img { display: block; max-width: 100%; }
 .member { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); border: 2px solid var(--linea); }
 .member__photo { position: relative; aspect-ratio: 4 / 3; background: var(--noche-2); }
 .member__photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.member__body { padding: 24px; display: flex; flex-direction: column; gap: 10px; border-left: 2px solid var(--linea); }
-.member__role { font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ambar); }
-.member h3 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 24px; letter-spacing: -0.025em; line-height: 1.15; }
+.member__body { padding: 24px; display: flex; flex-direction: column; gap: 6px; border-left: 2px solid var(--linea); }
+.member__role { font-size: 13px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ambar); }
+.member h3 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 28px; letter-spacing: -0.025em; line-height: 1.15; }
 .member p { margin: 0; font-size: 13px; line-height: 1.65; }
 
 /* Testimonio */
@@ -174,7 +174,7 @@ img { display: block; max-width: 100%; }
 /* Footer */
 .site-footer { background: var(--noche); }
 .site-footer__grid { padding-top: 48px; padding-bottom: 48px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px; font-size: 13px; line-height: 1.8; }
-.site-footer__brand { display: flex; flex-direction: column; gap: 14px; }
+.site-footer__brand { display: flex; flex-direction: column; gap: 8px; }
 .site-footer__brand .wordmark { font-size: 22px; }
 .site-footer__label { opacity: 0.6; }
 .site-footer__grid a { color: var(--claro); text-decoration: none; }
