@@ -38,8 +38,9 @@ export async function cargarOficina() {
 
 function pintar() {
   const lista = (datos.avisos || []).map((a) => `<div class="aviso"><strong>Notion:</strong> ${escapar(a)}</div>`);
-  if (!datos.guardable) {
-    lista.push('<div class="aviso"><strong>Equipos sin guardar.</strong> Falta la base «Proyectos» de Notion (variable NOTION_PROYECTOS_DS). Mientras tanto, cada sala muestra a los becarios que ya tienen tareas en ese proyecto.</div>');
+  // Si Notion ya ha dado un aviso, ese explica también por qué no se leen los equipos.
+  if (!datos.guardable && !lista.length) {
+    lista.push('<div class="aviso"><strong>Equipos sin guardar.</strong> El panel no encuentra la base «Proyectos» de Notion. Mientras tanto, cada sala muestra a los becarios que ya tienen tareas en ese proyecto.</div>');
   }
   if (datos.sinProyecto) {
     lista.push(`<div class="aviso">${datos.sinProyecto} ${datos.sinProyecto === 1 ? 'tarea abierta no tiene' : 'tareas abiertas no tienen'} «Proyecto relacionado» en Notion y no salen en ninguna sala.</div>`);

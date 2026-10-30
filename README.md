@@ -32,7 +32,7 @@ Se configuran en Vercel → proyecto → Settings → Environment Variables, par
 | `SESION_SECRETO` | Sí | Texto aleatorio largo para firmar las sesiones. Se genera con `openssl rand -base64 32`. Si cambia, se cierran todas las sesiones. |
 | `NOTION_TOKEN` | Para la oficina y para crear tareas | El «Internal Integration Secret» de una integración de Notion (ver abajo). |
 | `ANTHROPIC_API_KEY` | Para el equipo de producto | Clave de la API de Claude (console.anthropic.com). |
-| `NOTION_PROYECTOS_DS` | Para guardar equipos | Id de la fuente de datos de la base «Proyectos» (ver abajo). |
+| `NOTION_PROYECTOS_DS` | No | Id de la base «Proyectos». Por defecto es la de la página «Panel OficiosOsIA» (`c295eb77-c4a5-4c32-8027-f06f4412bf7d`). |
 | `NOTION_TAREAS_DS` | No | Id de la base de tareas. Por defecto es «Oficios OS» (`2ad3221d-8eb7-8065-904d-000b57a0fe2a`). |
 
 Sin `NOTION_TOKEN` el panel abre igual, con las salas vacías y un aviso. Sin `ANTHROPIC_API_KEY`, el equipo de producto avisa de que falta la clave.
@@ -40,8 +40,8 @@ Sin `NOTION_TOKEN` el panel abre igual, con las salas vacías y un aviso. Sin `A
 ## Conectar Notion
 
 1. En notion.so/profile/integrations, crea una integración interna («Panel OficiosOsIA») con permisos para leer, actualizar e insertar contenido. Copia su secreto en `NOTION_TOKEN`.
-2. Abre la base **OficiosOS** (la de las tareas) → `···` → Conexiones → añade la integración.
-3. Para guardar los equipos hace falta una base **Proyectos**, compartida también con la integración, con estas propiedades:
+2. En el espacio de equipo «Sede de Espacio de Oficios Os», añade la integración (`···` → Conexiones) a la base **OficiosOS** (tareas) y a la página **Panel OficiosOsIA**, que contiene la base **Proyectos**.
+3. La base **Proyectos** ya existe, con una fila por sala. Sus propiedades:
 
    | Propiedad | Tipo | Para qué |
    |---|---|---|
@@ -51,7 +51,7 @@ Sin `NOTION_TOKEN` el panel abre igual, con las salas vacías y un aviso. Sin `A
    | Repositorio | URL | Se enlaza en la sala y se da como contexto al CTO. |
    | Orden | Número | Orden de las salas. |
 
-   Su id de fuente de datos va en `NOTION_PROYECTOS_DS`. Mientras no exista, el panel usa la lista de proyectos de `lib/becarios.js` y en cada sala muestra solo a los becarios que ya tienen tareas en ese proyecto.
+   Para añadir un proyecto, se añade una fila. Si el panel no puede leer la base, usa la lista de proyectos de `lib/becarios.js` y en cada sala muestra solo a los becarios que ya tienen tareas en ese proyecto.
 
 ## Trabajar en local
 

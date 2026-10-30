@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, test } from 'node:test';
-import { aProyecto, aTarea, crearTarea, TAREAS_DS, tareasAbiertas } from '../lib/notion.js';
+import { aProyecto, aTarea, crearTarea, guardarEquipo, PROYECTOS_DS, TAREAS_DS, tareasAbiertas } from '../lib/notion.js';
 import { normalizarTicket } from '../lib/tickets.js';
 
 const fetchOriginal = globalThis.fetch;
@@ -75,4 +75,16 @@ test('crearTarea crea la página en Oficios OS, en Inbox y fase Preparación', a
 test('un error de Notion se convierte en un mensaje legible', async () => {
   globalThis.fetch = async () => Response.json({ message: 'Could not find data_source' }, { status: 404 });
   await assert.rejects(tareasAbiertas(), /Notion respondió 404: Could not find data_source/);
+});
+
+test('guardarEquipo solo escribe en páginas de la base «Proyectos»', async () => {
+  simularNotion([{ parent: { type: 'data_source_id', data_source_id: PROYECTOS_DS } }, { id: 'p1' }]);
+  await guardarEquipo('p1', ['cto', 'frontend']);
+  assert.equal(peticiones[1].method, 'PATCH');
+  assert.deepEqual(peticiones[1].cuerpo.properties.Becarios, { multi_select: [{ name: 'cto' }, { name: 'frontend' }] });
+
+  peticiones = [];
+  simularNotion([{ parent: { type: 'data_source_id', data_source_id: TAREAS_DS } }]);
+  await assert.rejects(guardarEquipo('t1', ['cto']), /no es un proyecto/);
+  assert.equal(peticiones.length, 1, 'no llega a modificar la página');
 });
