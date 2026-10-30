@@ -160,7 +160,6 @@
 .campo input:focus, .campo select:focus, .campo textarea:focus { border-color: var(--ambar); }
 .producto__peticion .btn { border: 0; }
 .btn:disabled { opacity: 0.6; cursor: progress; }
-.producto__equipo { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 
 .roles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); border: 2px solid var(--linea); }
 .rol { padding: 16px; display: flex; flex-direction: column; gap: 10px; border-right: 2px solid var(--linea); background: var(--noche-2); min-width: 0; }
@@ -169,36 +168,28 @@
 .rol__cabeza .sprite { width: 48px; height: 48px; flex: none; }
 .rol__nombre { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 16px; }
 .rol__papel { margin: 0; font-size: 11px; opacity: 0.7; }
-.rol__estado { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--e-libre); }
-.rol__texto { margin: 0; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
-.rol--pensando .sprite { animation: tecleo 0.7s steps(2, jump-none) infinite; }
-.rol--pensando .rol__estado { color: var(--ambar); }
-.rol--listo .rol__estado { color: #7fd18b; }
-.rol--error .rol__estado { color: var(--e-bloqueado); }
-.rol .boton-texto { align-self: flex-start; }
+.producto__lista { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.como { border: 2px solid var(--linea); background: var(--noche-2); padding: 16px 20px; font-size: 13px; line-height: 1.7; }
+.como h2, .producto__titulo { margin: 0 0 6px; font-family: var(--font-display); font-weight: 700; font-size: 18px; }
+.producto__titulo { margin: 8px 0 0; }
+.como ol { margin: 0; padding-left: 20px; }
+.panel code { font-family: var(--font-body); color: var(--ambar); background: rgba(255, 176, 0, 0.1); padding: 1px 5px; }
+.enviada { margin: 0; font-size: 12px; line-height: 1.6; color: #7fd18b; }
 
-.preguntas { border: 2px solid var(--ambar); padding: 14px 16px; font-size: 13px; line-height: 1.6; }
-.preguntas h2, .tickets h2 { margin: 0 0 8px; font-family: var(--font-display); font-weight: 700; font-size: 18px; }
-.preguntas ul { margin: 0; padding-left: 18px; }
-.tickets { display: flex; flex-direction: column; gap: 12px; }
-.tickets:empty { display: none; }
-.ticket { border: 2px solid var(--linea); background: var(--noche-2); padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
-.ticket--descartado { opacity: 0.5; }
-.ticket__fila { display: flex; gap: 12px; align-items: center; }
-.ticket__fila input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--ambar); flex: none; }
-.ticket__fila .campo { flex: 1; }
-.ticket__datos { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
-.ticket__datos .campo select, .ticket__datos .campo input { font-size: 13px; padding: 8px 10px; }
-.ticket details { font-size: 13px; line-height: 1.65; border-top: 1px solid var(--linea); padding-top: 10px; }
-.ticket summary { cursor: pointer; color: var(--ambar); font-size: 12px; }
-.ticket details h3 { margin: 14px 0 6px; font-family: var(--font-display); font-weight: 600; font-size: 14px; }
-.ticket details p, .ticket details ul, .ticket details ol { margin: 0; }
-.ticket details ul, .ticket details ol { padding-left: 18px; }
-.ticket__tecnica { white-space: pre-wrap; overflow-wrap: anywhere; font-family: inherit; margin: 0; }
-.tickets__pie { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.tickets__pie .btn { border: 0; }
-.creadas { border: 2px solid #7fd18b; padding: 14px 16px; font-size: 13px; line-height: 1.7; }
-.creadas a { color: var(--claro); }
+.peticiones { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--linea); }
+.peticion { padding: 12px 0; border-bottom: 1px solid var(--linea); display: flex; flex-direction: column; gap: 4px; }
+.peticion__cabeza { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.peticion__titulo { font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.peticion__titulo a { color: var(--claro); text-decoration-color: var(--linea); }
+.peticion__titulo a:hover { color: var(--ambar); }
+.peticion__meta { font-size: 12px; opacity: 0.7; }
+.peticion__resumen { margin: 4px 0 0; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+.estado { flex: none; font-size: 11px; padding: 1px 8px; border: 1px solid var(--linea); white-space: nowrap; }
+.estado--pendiente { color: var(--e-en-cola); border-color: var(--e-en-cola); }
+.estado--en-curso { color: var(--ambar); border-color: var(--ambar); }
+.estado--dudas { color: var(--e-bloqueado); border-color: var(--e-bloqueado); }
+.estado--hecha { color: #7fd18b; border-color: #7fd18b; }
+.estado--descartada { color: var(--e-libre); }
 
 @media (max-width: 900px) {
   .producto { grid-template-columns: minmax(0, 1fr); }

@@ -4,6 +4,7 @@ import { beforeEach, test } from 'node:test';
 import login from '../api/login.js';
 import logout from '../api/logout.js';
 import oficina from '../api/oficina.js';
+import peticiones from '../api/peticiones.js';
 import middleware, { config } from '../middleware.js';
 import { cookieSesion, firmar } from '../lib/sesion.js';
 
@@ -78,4 +79,30 @@ test('sin NOTION_TOKEN la oficina se abre vacía con un aviso', async () => {
   assert.equal(datos.usuario, 'Pablo');
   assert.match(datos.avisos[0], /NOTION_TOKEN/);
   assert.ok(datos.proyectos.some((p) => p.nombre === 'Energym'));
+});
+
+test('/api/peticiones exige sesión, valida y guarda la petición a nombre de quien la pide', async () => {
+  const sinSesion = await peticiones.fetch(new Request('https://panel.test/api/peticiones'));
+  assert.equal(sinSesion.status, 401);
+
+  const cookie = cookieSesion(await firmar('Miguel', process.env.SESION_SECRETO)).split(';')[0];
+  const pedir = (cuerpo) =>
+    peticiones.fetch(new Request('https://panel.test/api/peticiones', { method: 'POST', headers: { cookie, 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) }));
+  assert.equal((await pedir({ proyecto: { clave: 'Energym' }, peticion: '   ' })).status, 400);
+  assert.equal((await pedir({ peticion: 'Algo' })).status, 400);
+
+  process.env.NOTION_TOKEN = 'token-de-prueba';
+  const fetchOriginal = globalThis.fetch;
+  let enviado;
+  globalThis.fetch = async (_url, opciones) => {
+    enviado = JSON.parse(opciones.body);
+    return Response.json({ id: 'nueva', url: 'https://app.notion.com/p/nueva', properties: {} });
+  };
+  try {
+    const respuesta = await pedir({ proyecto: { nombre: 'Energym', clave: 'Energym' }, peticion: 'Reservas de clases' });
+    assert.equal(respuesta.status, 201);
+    assert.deepEqual(enviado.properties['Pedida por'], { rich_text: [{ text: { content: 'Miguel' } }] });
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
 });

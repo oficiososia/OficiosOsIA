@@ -11,7 +11,7 @@ const PRODUCTO = [
 const PLANTA = '<svg class="planta" viewBox="0 0 8 11" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="0" width="2" height="2" fill="#4f9a5a"/><rect x="1" y="1" width="2" height="3" fill="#3e7f48"/><rect x="5" y="1" width="2" height="3" fill="#3e7f48"/><rect x="2" y="3" width="4" height="3" fill="#4f9a5a"/><rect x="1" y="6" width="6" height="5" fill="#8a6238"/></svg>';
 
 let datos = null;
-let trabajandoProducto = false;
+let peticiones = { pendientes: 0, enCurso: 0 };
 const salas = document.querySelector('[data-salas]');
 const avisos = document.querySelector('[data-avisos]');
 const actualizado = document.querySelector('[data-actualizado]');
@@ -49,15 +49,23 @@ function pintar() {
   salas.innerHTML = htmlSalaProducto() + datos.proyectos.map(htmlSala).join('');
 }
 
+// La sala de producto refleja la cola de «Peticiones»: trabajando si /producto tiene una en curso.
 function htmlSalaProducto() {
-  const puestos = PRODUCTO.map((r) => `<li><a class="puesto puesto--${trabajandoProducto ? 'trabajando' : 'en-cola'}" href="#producto">
-      <span class="escena">${sprite(r.id)}<span class="mesa"></span><span class="portatil"></span>${trabajandoProducto ? '<span class="globo"></span>' : ''}</span>
+  const { pendientes, enCurso } = peticiones;
+  const estado = enCurso ? 'trabajando' : pendientes ? 'en-cola' : 'libre';
+  const puestos = PRODUCTO.map((r) => `<li><a class="puesto puesto--${estado}" href="#producto">
+      <span class="escena">${sprite(r.id)}<span class="mesa"></span><span class="portatil"></span><span class="globo">${estado === 'en-cola' ? pendientes : ''}</span></span>
       <span class="puesto__nombre">${r.nombre}</span></a></li>`).join('');
+  const texto = enCurso
+    ? 'El equipo está trabajando en una petición en Claude Code…'
+    : pendientes
+      ? `${pendientes} ${pendientes === 1 ? 'petición espera' : 'peticiones esperan'}. Ejecuta <code>/producto</code> en Claude Code para que la conviertan en tareas.`
+      : 'Sin peticiones pendientes. Escríbeles en texto plano y te devuelven las tareas listas para revisar.';
   return `<article class="sala sala--producto" aria-labelledby="sala-producto">
     <div class="sala__cabecera"><div><h2 class="sala__nombre" id="sala-producto">Sala de producto</h2><p class="sala__meta">PO, PM y CTO convierten lo que pides en tareas de Notion</p></div>
     <a class="sala__boton" href="#producto">Pasar una petición →</a></div>
     <div class="sala__suelo">${PLANTA}<ul class="puestos">${puestos}</ul>
-    <p>${trabajandoProducto ? 'El equipo está trabajando en tu petición…' : 'Escríbeles en texto plano y te devuelven las tareas listas para revisar.'}</p></div></article>`;
+    <p>${texto}</p></div></article>`;
 }
 
 function htmlSala(p, i) {
@@ -175,9 +183,10 @@ export function iniciarOficina() {
   dialogoEquipo.querySelector('[data-form-equipo]').addEventListener('submit', guardarEquipo);
   document.querySelector('[data-recargar]').addEventListener('click', cargarOficina);
   document.addEventListener('oficina:recargar', cargarOficina);
-  document.addEventListener('producto:trabajando', (e) => {
-    trabajandoProducto = e.detail;
-    if (datos) pintar();
+  document.addEventListener('peticiones:datos', (e) => {
+    const cambia = e.detail.pendientes !== peticiones.pendientes || e.detail.enCurso !== peticiones.enCurso;
+    peticiones = e.detail;
+    if (datos && cambia) pintar();
   });
   // Notion cambia mientras los becarios trabajan: se refresca cada minuto si se está mirando.
   setInterval(() => {

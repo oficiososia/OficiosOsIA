@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, test } from 'node:test';
-import { aProyecto, aTarea, crearTarea, guardarEquipo, PROYECTOS_DS, TAREAS_DS, tareasAbiertas } from '../lib/notion.js';
-import { normalizarTicket } from '../lib/tickets.js';
+import {
+  aPeticion, aProyecto, aTarea, crearPeticion, guardarEquipo, leerPeticiones, PETICIONES_DS, PROYECTOS_DS, TAREAS_DS, tareasAbiertas, tituloPeticion,
+} from '../lib/notion.js';
 
 const fetchOriginal = globalThis.fetch;
 let peticiones;
@@ -58,18 +59,54 @@ test('tareasAbiertas pide las que no están hechas y recorre todas las páginas'
   assert.equal(peticiones[1].cuerpo.start_cursor, 'c2');
 });
 
-test('crearTarea crea la página en Oficios OS, en Inbox y fase Preparación', async () => {
-  simularNotion([{ id: 'nueva', url: 'https://app.notion.com/p/nueva' }]);
-  const ticket = { ...normalizarTicket({ titulo: 'Reservas', prioridad: 'Alta', tipo: 'Profunda', horas: 8, becarioInicial: 'cto' }), proyecto: 'Energym' };
-  const creada = await crearTarea(ticket, '# cuerpo', 'Pablo');
-  assert.deepEqual(creada, { id: 'nueva', url: 'https://app.notion.com/p/nueva', titulo: 'Reservas' });
-  const { cuerpo } = peticiones[0];
-  assert.deepEqual(cuerpo.parent, { type: 'data_source_id', data_source_id: TAREAS_DS });
-  assert.equal(cuerpo.markdown, '# cuerpo');
-  assert.deepEqual(cuerpo.properties.Estado, { status: { name: 'Inbox' } });
-  assert.deepEqual(cuerpo.properties.Fase, { select: { name: 'Preparación' } });
-  assert.deepEqual(cuerpo.properties['Proyecto relacionado'], { rich_text: [{ text: { content: 'Energym' } }] });
-  assert.deepEqual(cuerpo.properties['Estimación (horas)'], { number: 8 });
+const paginaPeticion = (datos = {}) => ({
+  id: 'pe1',
+  url: 'https://app.notion.com/p/pe1',
+  created_time: '2026-10-30T18:00:00.000Z',
+  properties: {
+    'Petición': { title: [{ plain_text: 'Reservar clases desde el móvil' }] },
+    Proyecto: { rich_text: [{ plain_text: 'Energym' }] },
+    Estado: { status: { name: 'Hecha' } },
+    'Pedida por': { rich_text: [{ plain_text: 'Pablo' }] },
+    Resumen: { rich_text: [{ plain_text: '2 tareas: Reservas; Recordatorio' }] },
+    Tareas: { relation: [{ id: 't1' }, { id: 't2' }], has_more: false },
+  },
+  ...datos,
+});
+
+test('aPeticion lee la petición con su estado y cuántas tareas salieron de ella', () => {
+  assert.deepEqual(aPeticion(paginaPeticion()), {
+    id: 'pe1', url: 'https://app.notion.com/p/pe1', titulo: 'Reservar clases desde el móvil', proyecto: 'Energym', estado: 'Hecha',
+    pedidaPor: 'Pablo', resumen: '2 tareas: Reservas; Recordatorio', tareas: 2, creada: '2026-10-30T18:00:00.000Z',
+  });
+});
+
+test('el título de la petición es su primera línea, recortada', () => {
+  assert.equal(tituloPeticion('  Reservas de clases\ncon recordatorio'), 'Reservas de clases');
+  const larga = tituloPeticion('x'.repeat(200));
+  assert.equal(larga.length, 90);
+  assert.ok(larga.endsWith('…'));
+});
+
+test('leerPeticiones pide las más recientes de la base «Peticiones»', async () => {
+  simularNotion([{ results: [paginaPeticion()], has_more: false }]);
+  const lista = await leerPeticiones();
+  assert.equal(lista[0].estado, 'Hecha');
+  assert.equal(peticiones[0].url, `https://api.notion.com/v1/data_sources/${PETICIONES_DS}/query`);
+  assert.deepEqual(peticiones[0].cuerpo.sorts, [{ timestamp: 'created_time', direction: 'descending' }]);
+});
+
+test('crearPeticion la deja Pendiente, con el texto completo en el cuerpo', async () => {
+  simularNotion([paginaPeticion({ id: 'nueva' })]);
+  await crearPeticion({ proyecto: 'Energym', textoPeticion: 'Reservas de clases\ncon recordatorio el día antes', usuario: 'Miguel' });
+  const { cuerpo, method } = peticiones[0];
+  assert.equal(method, 'POST');
+  assert.deepEqual(cuerpo.parent, { type: 'data_source_id', data_source_id: PETICIONES_DS });
+  assert.deepEqual(cuerpo.properties['Petición'], { title: [{ text: { content: 'Reservas de clases' } }] });
+  assert.deepEqual(cuerpo.properties.Proyecto, { rich_text: [{ text: { content: 'Energym' } }] });
+  assert.deepEqual(cuerpo.properties['Pedida por'], { rich_text: [{ text: { content: 'Miguel' } }] });
+  assert.deepEqual(cuerpo.properties.Estado, { status: { name: 'Pendiente' } });
+  assert.equal(cuerpo.markdown, 'Reservas de clases\ncon recordatorio el día antes');
 });
 
 test('un error de Notion se convierte en un mensaje legible', async () => {
