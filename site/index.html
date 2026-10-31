@@ -108,6 +108,25 @@
   <div class="dialogo__cuerpo" data-cuerpo></div>
 </dialog>
 
+<dialog class="dialogo dialogo--ancho" data-dialogo-asignar aria-labelledby="dialogo-asignar-titulo">
+  <form method="dialog" data-form-asignar>
+    <div class="dialogo__cabecera">
+      <h2 id="dialogo-asignar-titulo" data-titulo></h2>
+      <button type="button" class="dialogo__cerrar" data-cerrar aria-label="Cerrar">×</button>
+    </div>
+    <div class="dialogo__cuerpo">
+      <p class="dialogo__nota" data-nota></p>
+      <ul class="asignar" data-lista-asignar></ul>
+      <p class="error" data-error-asignar role="alert" hidden></p>
+    </div>
+    <div class="dialogo__pie">
+      <span class="dialogo__cambios" data-cambios aria-live="polite"></span>
+      <button type="button" class="btn btn--ghost" data-cerrar>Cancelar</button>
+      <button type="submit" class="btn btn--amber" data-guardar-asignar disabled>Guardar asignaciones</button>
+    </div>
+  </form>
+</dialog>
+
 <dialog class="dialogo" data-dialogo-equipo aria-labelledby="dialogo-equipo-titulo">
   <form method="dialog" data-form-equipo>
     <div class="dialogo__cabecera">

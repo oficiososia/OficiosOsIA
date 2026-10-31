@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, test } from 'node:test';
 import {
-  aPeticion, aProyecto, aTarea, crearPeticion, enviarPeticion, guardarEquipo, leerPeticiones, PETICIONES_DS, PROYECTOS_DS, TAREAS_DS, tareasAbiertas,
+  aPeticion, aProyecto, aTarea, asignarTarea, crearPeticion, enviarPeticion, guardarEquipo, leerPeticiones, PETICIONES_DS, PROYECTOS_DS, TAREAS_DS, tareasAbiertas,
   tareasTablero, tituloPeticion,
 } from '../lib/notion.js';
 
@@ -158,4 +158,21 @@ test('tareasTablero pide las abiertas y las tocadas en el último mes', async ()
       { timestamp: 'last_edited_time', last_edited_time: { past_month: {} } },
     ],
   });
+});
+
+test('asignarTarea pone el becario, pasa Inbox a «Por hacer» y solo toca tareas de OficiosOS', async () => {
+  const tarea = (estado) => ({ parent: { type: 'data_source_id', data_source_id: TAREAS_DS }, properties: { Estado: { status: { name: estado } } } });
+  simularNotion([tarea('Inbox'), { id: 't1' }]);
+  await asignarTarea('t1', 'frontend');
+  assert.deepEqual(peticiones[1].cuerpo.properties, { Becario: { select: { name: 'frontend' } }, Estado: { status: { name: 'Por hacer' } } });
+
+  peticiones = [];
+  simularNotion([tarea('Por hacer'), { id: 't1' }]);
+  await asignarTarea('t1', null);
+  assert.deepEqual(peticiones[1].cuerpo.properties, { Becario: { select: null } }, 'quitar el becario no cambia el estado');
+
+  peticiones = [];
+  simularNotion([{ ...tarea('Inbox'), parent: { type: 'data_source_id', data_source_id: PROYECTOS_DS } }]);
+  await assert.rejects(asignarTarea('p1', 'cto'), /no es una tarea/);
+  assert.equal(peticiones.length, 1, 'no llega a modificar la página');
 });

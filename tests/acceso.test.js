@@ -5,6 +5,7 @@ import login from '../api/login.js';
 import logout from '../api/logout.js';
 import oficina from '../api/oficina.js';
 import peticiones from '../api/peticiones.js';
+import asignar from '../api/asignar.js';
 import middleware, { config } from '../middleware.js';
 import { cookieSesion, firmar } from '../lib/sesion.js';
 
@@ -105,4 +106,15 @@ test('/api/peticiones exige sesión, valida y guarda la petición a nombre de qu
   } finally {
     globalThis.fetch = fetchOriginal;
   }
+});
+
+test('/api/asignar exige sesión y rechaza tareas o becarios que no valen', async () => {
+  const sinSesion = await asignar.fetch(new Request('https://panel.test/api/asignar', { method: 'PUT' }));
+  assert.equal(sinSesion.status, 401);
+  const cookie = cookieSesion(await firmar('Pablo', process.env.SESION_SECRETO)).split(';')[0];
+  const pedir = (cuerpo) =>
+    asignar.fetch(new Request('https://panel.test/api/asignar', { method: 'PUT', headers: { cookie, 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) }));
+  assert.equal((await pedir({ cambios: [] })).status, 400);
+  assert.equal((await pedir({ cambios: [{ tareaId: 'no-es-un-id', becario: 'cto' }] })).status, 400);
+  assert.equal((await pedir({ cambios: [{ tareaId: '40a3221d-8eb7-81c3-bb5d-dd1359a188ee', becario: 'jefe' }] })).status, 400);
 });
