@@ -369,6 +369,17 @@
 .interruptor small { display: block; font-size: 12px; opacity: 0.75; line-height: 1.5; }
 .interruptor:has(input:checked) { border-color: var(--ambar); }
 .campo__ayuda { display: flex; justify-content: space-between; gap: 12px; font-size: 11px; opacity: 0.7; }
+.ritmos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.ritmo { position: relative; display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border: 2px solid var(--linea); background: var(--noche); cursor: pointer; }
+.ritmo input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.ritmo strong { font-weight: 500; font-size: 13px; }
+.ritmo small { font-size: 11px; opacity: 0.7; line-height: 1.4; }
+.ritmo:has(input:checked) { border-color: var(--ambar); background: rgba(255, 176, 0, 0.08); }
+.ritmo:has(input:checked) strong { color: var(--ambar); }
+.ritmo:has(input:focus-visible) { outline: 2px solid var(--ambar); outline-offset: 2px; }
+.dos-campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 4px; }
+.grupo__nota { font-size: 11px; line-height: 1.55; opacity: 0.7; }
+.etiqueta--elegida { border-color: var(--ambar); color: var(--ambar); }
 .puesto--pausado .sprite { filter: grayscale(1); opacity: 0.7; }
 
 @media (max-width: 900px) {
@@ -406,6 +417,8 @@
   .editor__vista { position: static; flex-direction: row; justify-content: center; padding: 10px; }
   .editor__sprite .sprite { width: 88px; height: 88px; }
   .colores { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ritmos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dos-campos { grid-template-columns: minmax(0, 1fr); }
   .opcion-avatar { width: calc((100% - 12px) / 3); }
   .matriz__tabla th, .matriz__tabla td { padding: 8px 6px; }
   .matriz__tabla thead th { white-space: normal; min-width: 64px; font-size: 11px; }

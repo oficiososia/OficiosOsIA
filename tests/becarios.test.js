@@ -46,3 +46,14 @@ test('validarBecario rechaza lo que no se puede guardar', () => {
   for (const [cambio, motivo] of casos) assert.match(validarBecario({ ...valida, ...cambio }).error, motivo, JSON.stringify(cambio));
   assert.ok(validarBecario(null).error);
 });
+
+test('modelo y esfuerzo: vacíos manda el plugin, y solo valen los de Claude Code', () => {
+  const [cto, frontend, datos] = combinarBecarios([{ id: 'frontend', modelo: 'haiku', esfuerzo: 'low' }, { id: 'backend-datos', modelo: 'gpt-5', esfuerzo: 'turbo' }]);
+  assert.deepEqual([cto.modelo, cto.esfuerzo, cto.plugin], [null, null, { modelo: 'opus', esfuerzo: 'high' }]);
+  assert.deepEqual([frontend.modelo, frontend.esfuerzo, frontend.plugin], ['haiku', 'low', { modelo: 'sonnet', esfuerzo: null }]);
+  assert.deepEqual([datos.modelo, datos.esfuerzo], [null, null], 'lo desconocido se ignora');
+  assert.equal(validarBecario({ ...valida, modelo: 'fable', esfuerzo: 'max' }).becario.modelo, 'fable');
+  assert.equal(validarBecario(valida).becario.esfuerzo, null, 'sin modelo ni esfuerzo, null');
+  assert.match(validarBecario({ ...valida, modelo: 'gpt-5' }).error, /Modelo/);
+  assert.match(validarBecario({ ...valida, esfuerzo: 'turbo' }).error, /Esfuerzo/);
+});

@@ -197,6 +197,8 @@ const paginaBecario = (datos = {}) => ({
     Papel: { rich_text: [{ plain_text: 'Plan y revisión' }] },
     Pausado: { checkbox: true },
     Instrucciones: { rich_text: [{ plain_text: 'Tests ' }, { plain_text: 'primero' }] },
+    Modelo: { select: { name: 'opus' } },
+    Esfuerzo: { select: null },
     Peinado: { select: { name: 'largo' } },
     Accesorios: { multi_select: [{ name: 'gafas' }] },
     Piel: { rich_text: [{ plain_text: '#e0ac69' }] },
@@ -209,7 +211,7 @@ const paginaBecario = (datos = {}) => ({
 
 test('aBecario y leerBecarios leen la ficha de la base «Becarios»', async () => {
   assert.deepEqual(aBecario(paginaBecario()), {
-    notionId: 'b1', url: 'https://app.notion.com/p/b1', id: 'cto', nombre: 'Jefa', papel: 'Plan y revisión', pausado: true, instrucciones: 'Tests primero',
+    notionId: 'b1', url: 'https://app.notion.com/p/b1', id: 'cto', nombre: 'Jefa', papel: 'Plan y revisión', pausado: true, instrucciones: 'Tests primero', modelo: 'opus', esfuerzo: null,
     avatar: { peinado: 'largo', accesorios: ['gafas'], piel: '#e0ac69', pelo: '#2b2b2b', ropa: '#7d5fc9', detalle: '#ffb000' },
   });
   simularNotion([{ results: [paginaBecario(), paginaBecario({ id: 'sin-id', properties: { Nombre: { title: [] } } })], has_more: false }]);
@@ -218,7 +220,7 @@ test('aBecario y leerBecarios leen la ficha de la base «Becarios»', async () =
   assert.equal(peticiones[0].url, `https://api.notion.com/v1/data_sources/${BECARIOS_DS}/query`);
 });
 
-const fichaCto = { id: 'cto', nombre: 'Jefa', papel: '', pausado: false, instrucciones: 'a'.repeat(2500), avatar: { peinado: 'corto', accesorios: ['gafas', 'corbata'], piel: '#e0ac69', pelo: '#2b2b2b', ropa: '#7d5fc9', detalle: '#ffb000' } };
+const fichaCto = { id: 'cto', nombre: 'Jefa', papel: '', pausado: false, instrucciones: 'a'.repeat(2500), modelo: 'haiku', esfuerzo: null, avatar: { peinado: 'corto', accesorios: ['gafas', 'corbata'], piel: '#e0ac69', pelo: '#2b2b2b', ropa: '#7d5fc9', detalle: '#ffb000' } };
 
 test('guardarBecario actualiza su fila y parte las instrucciones largas en trozos de 2000', async () => {
   simularNotion([{ results: [{ id: 'b1' }], has_more: false }, paginaBecario()]);
@@ -232,6 +234,8 @@ test('guardarBecario actualiza su fila y parte las instrucciones largas en trozo
   assert.deepEqual(p.Instrucciones.rich_text.map((t) => t.text.content.length), [2000, 500]);
   assert.deepEqual(p.Accesorios, { multi_select: [{ name: 'gafas' }, { name: 'corbata' }] });
   assert.deepEqual(p.Ropa, { rich_text: [{ text: { content: '#7d5fc9' } }] });
+  assert.deepEqual(p.Modelo, { select: { name: 'haiku' } });
+  assert.deepEqual(p.Esfuerzo, { select: null }, 'sin esfuerzo elegido se vacía: manda el plugin');
 });
 
 test('guardarBecario crea la fila si el becario aún no tiene', async () => {
