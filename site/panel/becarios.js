@@ -12,6 +12,16 @@ const errorMatriz = vista.querySelector('[data-error-matriz]');
 const cambiosMatriz = vista.querySelector('[data-cambios-matriz]');
 const deshacer = vista.querySelector('[data-deshacer-matriz]');
 const guardarMatriz = vista.querySelector('[data-guardar-matriz]');
+const equipos = vista.querySelector('[data-equipos]');
+const pieOficinas = vista.querySelector('[data-pie-oficinas]');
+const subpestanas = vista.querySelector('[data-subpestanas-becarios]');
+const numCambios = vista.querySelector('[data-num-cambios]');
+const SUBPESTANAS = ['fichas', 'equipos', 'detalle'];
+const CLAVE_SUB = 'panel-becarios';
+const CLAVE_DEP = 'panel-becarios-departamento';
+const filtroDep = vista.querySelector('[data-filtro-becarios]');
+// En Fichas y «Becario a becario» se ve un departamento cada vez (o todos), para no hacer scroll.
+let departamentoVisto = (() => { try { return localStorage.getItem(CLAVE_DEP) || 'desarrollo'; } catch { return 'desarrollo'; } })();
 const dialogo = document.querySelector('[data-dialogo-becario]');
 const form = dialogo.querySelector('[data-form-becario]');
 
@@ -68,7 +78,7 @@ export async function cargarBecarios() {
     ponerAvatares(datos.becarios);
     marcadas = new Map(datos.proyectos.map((p) => [p.id, new Set(p.equipo)]));
     pintarFichas();
-    pintarMatriz();
+    pintarOficinas();
   } catch (error) {
     avisos.innerHTML = `<div class="aviso"><strong>No se han podido cargar los becarios.</strong> ${escapar(error.message)}</div>`;
     if (!datos) fichas.innerHTML = '';
@@ -78,13 +88,27 @@ export async function cargarBecarios() {
   }
 }
 
-// Departamentos en el orden del panel, con sus becarios.
-const porDepartamento = () => (datos.departamentos || [{ id: null, nombre: 'Becarios' }]).map((d) => ({
+// Departamentos en el orden del panel, con sus becarios: el elegido en el filtro o todos.
+const todosLosDepartamentos = () => (datos.departamentos || [{ id: null, nombre: 'Becarios' }]).map((d) => ({
   ...d,
   becarios: datos.becarios.filter((b) => !d.id || b.departamento === d.id),
 })).filter((d) => d.becarios.length);
+const porDepartamento = () => {
+  const lista = todosLosDepartamentos();
+  const elegido = lista.filter((d) => d.id === departamentoVisto);
+  return departamentoVisto === 'todos' || !elegido.length ? lista : elegido;
+};
+
+function pintarFiltro() {
+  const lista = todosLosDepartamentos();
+  if (lista.length < 2) { filtroDep.innerHTML = ''; return; }
+  const visto = departamentoVisto === 'todos' || lista.some((d) => d.id === departamentoVisto) ? departamentoVisto : 'todos';
+  const boton = (id, texto, n) => `<button type="button" class="filtro-departamentos__boton" data-ver-departamento="${escapar(id)}" aria-pressed="${visto === id}">${escapar(texto)}<span>${n}</span></button>`;
+  filtroDep.innerHTML = lista.map((d) => boton(d.id, d.nombre, d.becarios.length)).join('') + boton('todos', 'Todos', datos.becarios.length);
+}
 
 function pintarFichas() {
+  pintarFiltro();
   fichas.innerHTML = porDepartamento().map((d) => `<li class="fichas__grupo"><h2>${escapar(d.nombre)}</h2>${d.papel ? `<p>${escapar(d.papel)}</p>` : ''}</li>${htmlFichas(d.becarios)}`).join('');
 }
 
@@ -104,6 +128,64 @@ function htmlFichas(becarios) {
       <div class="etiquetas">${etiquetas}</div>
       <button type="button" class="btn btn--ghost ficha__boton" data-editar="${escapar(b.id)}">Configurar</button></li>`;
   }).join('');
+}
+
+// Las dos tablas de oficinas (por equipos y becario a becario) comparten lo marcado sin guardar.
+function pintarOficinas() {
+  pintarEquipos();
+  pintarMatriz();
+}
+
+const miembros = (dep) => datos.becarios.filter((b) => b.departamento === dep).map((b) => b.id);
+
+// Oficinas × departamentos: cada casilla mete o saca a todo el departamento. A medias si solo
+// están algunos de sus becarios.
+function pintarEquipos() {
+  if (!datos.proyectos.length) {
+    equipos.innerHTML = '<p class="dialogo__nota">No se encuentra la base «Proyectos» de Notion, así que aún no se pueden elegir equipos.</p>';
+    return;
+  }
+  const deps = datos.departamentos || [];
+  const cabecera = `<th scope="col"><span class="sr-only">Oficina</span></th><th scope="col">Producto</th>${deps.map((d) => `<th scope="col">${escapar(d.nombre)}</th>`).join('')}`;
+  const filas = datos.proyectos.map((p) => {
+    const marcados = marcadas.get(p.id);
+    const celdas = deps.map((d) => {
+      const suyos = miembros(d.id);
+      const dentro = suyos.filter((id) => marcados.has(id)).length;
+      const antes = suyos.filter((id) => p.equipo.includes(id)).length;
+      const todos = dentro === suyos.length && dentro > 0;
+      return `<td class="${dentro !== antes ? 'cambiada' : ''}"><label class="celda-equipo">
+        <input type="checkbox" data-equipo-celda="${escapar(p.id)}|${escapar(d.id)}"${todos ? ' checked' : ''}${dentro && !todos ? ' data-medio="1"' : ''}
+          aria-label="${escapar(d.nombre)} en ${escapar(p.nombre)}${dentro && !todos ? ` (${dentro} de ${suyos.length})` : ''}">
+        <span class="celda-equipo__num">${dentro}/${suyos.length}</span></label></td>`;
+    }).join('');
+    return `<tr><th scope="row">${escapar(p.nombre)}</th><td class="celda-fija" title="Producto está siempre en todas las oficinas"><span aria-hidden="true">✓</span><span class="sr-only">Siempre</span></td>${celdas}</tr>`;
+  }).join('');
+  equipos.innerHTML = `<table class="tabla-equipos"><thead><tr>${cabecera}</tr></thead><tbody>${filas}</tbody></table>`;
+  equipos.querySelectorAll('[data-medio]').forEach((c) => { c.indeterminate = true; });
+}
+
+// La subpestaña sale del enlace (#becarios/equipos) o de la última que se usó.
+function leerSub() {
+  const [vistaHash, sub] = location.hash.slice(1).split('/');
+  if (vistaHash === 'becarios' && SUBPESTANAS.includes(sub)) return sub;
+  try { return SUBPESTANAS.includes(localStorage.getItem(CLAVE_SUB)) ? localStorage.getItem(CLAVE_SUB) : 'fichas'; } catch { return 'fichas'; }
+}
+
+export function mostrarSubBecarios(sub = leerSub(), enfocar = false) {
+  subpestanas.querySelectorAll('[data-sub-becarios]').forEach((b) => {
+    const activa = b.dataset.subBecarios === sub;
+    b.setAttribute('aria-selected', String(activa));
+    b.tabIndex = activa ? 0 : -1;
+    if (activa && enfocar) b.focus();
+  });
+  vista.querySelectorAll('[data-subpanel-becarios]').forEach((panel) => { panel.hidden = panel.dataset.subpanelBecarios !== sub; });
+  // El filtro por departamento sirve para Fichas y «Becario a becario», no para la tabla de equipos.
+  filtroDep.hidden = sub === 'equipos';
+  // Guardar y deshacer valen para las dos tablas de oficinas.
+  pieOficinas.hidden = sub === 'fichas';
+  try { localStorage.setItem(CLAVE_SUB, sub); } catch {}
+  if (location.hash.slice(1).split('/')[0] === 'becarios') history.replaceState(null, '', `#becarios/${sub}`);
 }
 
 function pintarMatriz() {
@@ -129,6 +211,9 @@ function pintarMatriz() {
 
 function actualizarPie() {
   const n = datos?.proyectos.length ? proyectosCambiados().length : 0;
+  numCambios.hidden = !n;
+  numCambios.textContent = n || '';
+  numCambios.title = n ? 'Oficinas con cambios sin guardar' : '';
   cambiosMatriz.textContent = n ? `${n} ${n === 1 ? 'oficina cambiada' : 'oficinas cambiadas'}` : '';
   deshacer.disabled = !n;
   guardarMatriz.disabled = !n;
@@ -166,7 +251,7 @@ async function guardarOficinas() {
     errorMatriz.hidden = false;
   }
   pintarFichas();
-  pintarMatriz();
+  pintarOficinas();
   document.dispatchEvent(new CustomEvent('oficina:recargar'));
 }
 
@@ -298,12 +383,46 @@ export function iniciarBecarios() {
     else conjunto.delete(becario);
     const original = datos.proyectos.find((p) => p.id === proyecto).equipo.includes(becario);
     celda.parentElement.classList.toggle('cambiada', celda.checked !== original);
+    pintarEquipos();
     actualizarPie();
+  });
+  equipos.addEventListener('change', (e) => {
+    const celda = e.target.closest('[data-equipo-celda]');
+    if (!celda) return;
+    const [proyecto, dep] = celda.dataset.equipoCelda.split('|');
+    const conjunto = marcadas.get(proyecto);
+    for (const id of miembros(dep)) {
+      if (celda.checked) conjunto.add(id);
+      else conjunto.delete(id);
+    }
+    pintarOficinas();
+    actualizarPie();
+    equipos.querySelector(`[data-equipo-celda="${CSS.escape(celda.dataset.equipoCelda)}"]`)?.focus();
+  });
+  filtroDep.addEventListener('click', (e) => {
+    const boton = e.target.closest('[data-ver-departamento]');
+    if (!boton) return;
+    departamentoVisto = boton.dataset.verDepartamento;
+    try { localStorage.setItem(CLAVE_DEP, departamentoVisto); } catch {}
+    pintarFichas();
+    pintarMatriz();
+    filtroDep.querySelector(`[data-ver-departamento="${CSS.escape(departamentoVisto)}"]`)?.focus();
+  });
+  subpestanas.addEventListener('click', (e) => {
+    const boton = e.target.closest('[data-sub-becarios]');
+    if (boton) mostrarSubBecarios(boton.dataset.subBecarios, true);
+  });
+  subpestanas.addEventListener('keydown', (e) => {
+    const actual = SUBPESTANAS.indexOf(subpestanas.querySelector('[aria-selected="true"]')?.dataset.subBecarios);
+    const paso = { ArrowRight: 1, ArrowLeft: -1, Home: -actual, End: SUBPESTANAS.length - 1 - actual }[e.key];
+    if (paso === undefined) return;
+    e.preventDefault();
+    mostrarSubBecarios(SUBPESTANAS[(actual + paso + SUBPESTANAS.length) % SUBPESTANAS.length], true);
   });
   deshacer.addEventListener('click', () => {
     marcadas = new Map(datos.proyectos.map((p) => [p.id, new Set(p.equipo)]));
     errorMatriz.hidden = true;
-    pintarMatriz();
+    pintarOficinas();
   });
   guardarMatriz.addEventListener('click', guardarOficinas);
   form.addEventListener('submit', guardarBecario);
