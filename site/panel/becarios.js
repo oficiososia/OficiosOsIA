@@ -22,6 +22,27 @@ let marcadas = new Map();
 const nombreAccesorio = { gafas: 'Gafas', cascos: 'Cascos', barba: 'Barba', corbata: 'Corbata', placa: 'Placa' };
 const nombrePeinado = { corto: 'Corto', largo: 'Largo', rizado: 'Rizado', mono: 'Moño', gorra: 'Gorra', gorro: 'Gorro' };
 
+// Modelo y esfuerzo con que se lanza cada becario. Vacío: lo que diga su fichero del plugin.
+const MODELOS = { haiku: 'Haiku', sonnet: 'Sonnet', opus: 'Opus', fable: 'Fable' };
+const USO_MODELO = { haiku: 'rápido, para tareas sencillas', sonnet: 'el del día a día', opus: 'para razonar lo complejo', fable: 'para lo más difícil y largo' };
+const ESFUERZOS = { low: 'bajo', medium: 'medio', high: 'alto', xhigh: 'muy alto', max: 'máximo' };
+const RITMOS = {
+  defecto: { modelo: null, esfuerzo: null },
+  rapido: { modelo: 'haiku', esfuerzo: 'low', nombre: 'Rápido' },
+  equilibrado: { modelo: 'sonnet', esfuerzo: 'medium', nombre: 'Equilibrado' },
+  fondo: { modelo: 'opus', esfuerzo: 'high', nombre: 'A fondo' },
+};
+const ritmoDe = (modelo, esfuerzo) => Object.keys(RITMOS).find((r) => RITMOS[r].modelo === modelo && RITMOS[r].esfuerzo === esfuerzo) || null;
+const textoEsfuerzo = (esfuerzo) => (esfuerzo ? `esfuerzo ${ESFUERZOS[esfuerzo]}` : 'esfuerzo de la sesión');
+
+// Lo que usará de verdad: lo elegido en el panel o, si no, lo del plugin.
+function comoTrabaja(b) {
+  const modelo = b.modelo || b.plugin?.modelo;
+  const esfuerzo = b.esfuerzo || b.plugin?.esfuerzo;
+  const ritmo = RITMOS[ritmoDe(b.modelo, b.esfuerzo)]?.nombre;
+  return `${ritmo ? `${ritmo} · ` : ''}${MODELOS[modelo] || 'Modelo de la sesión'} · ${textoEsfuerzo(esfuerzo)}`;
+}
+
 const iguales = (a, b) => a.size === b.size && [...a].every((x) => b.has(x));
 const proyectosCambiados = () => datos.proyectos.filter((p) => !iguales(new Set(p.equipo), marcadas.get(p.id)));
 
@@ -48,6 +69,7 @@ function pintarFichas() {
   fichas.innerHTML = datos.becarios.map((b) => {
     const oficinas = datos.proyectos.filter((p) => p.equipo.includes(b.id)).length;
     const etiquetas = [
+      `<span class="etiqueta${b.modelo || b.esfuerzo ? ' etiqueta--elegida' : ''}" title="Modelo y esfuerzo">${escapar(comoTrabaja(b))}</span>`,
       `<span class="etiqueta">${oficinas} ${oficinas === 1 ? 'oficina' : 'oficinas'}</span>`,
       b.instrucciones ? '<span class="etiqueta">Con instrucciones</span>' : '',
     ].join('');
@@ -161,6 +183,15 @@ function abrirEditor(id) {
   form.elements.pausado.checked = b.pausado;
   form.elements.instrucciones.value = b.instrucciones;
   for (const c of ['piel', 'pelo', 'ropa', 'detalle']) form.elements[c].value = b.avatar[c];
+  const plugin = b.plugin || { modelo: null, esfuerzo: null };
+  form.elements.modelo.innerHTML = `<option value="">Como en el plugin (${MODELOS[plugin.modelo] || 'el de la sesión'})</option>`
+    + Object.entries(MODELOS).map(([id, nombre]) => `<option value="${id}">${nombre} — ${USO_MODELO[id]}</option>`).join('');
+  form.elements.esfuerzo.innerHTML = `<option value="">Como en el plugin (${plugin.esfuerzo ? ESFUERZOS[plugin.esfuerzo] : 'el de la sesión'})</option>`
+    + Object.entries(ESFUERZOS).map(([id, nombre]) => `<option value="${id}">${nombre[0].toUpperCase()}${nombre.slice(1)}</option>`).join('');
+  form.elements.modelo.value = b.modelo || '';
+  form.elements.esfuerzo.value = b.esfuerzo || '';
+  dialogo.querySelector('[data-ritmo-defecto]').textContent = `${MODELOS[plugin.modelo] || 'Modelo de la sesión'} · ${textoEsfuerzo(plugin.esfuerzo)}`;
+  marcarRitmo();
   dialogo.querySelector('[data-ayuda-pausa]').textContent = id === 'cto'
     ? 'Las tareas entran por el CTO: si lo pausas, no se le pueden pasar tareas a ninguna oficina.'
     : 'No sale en las oficinas (salvo donde aún tenga tareas abiertas) y no se pone a trabajar.';
@@ -174,6 +205,18 @@ function abrirEditor(id) {
   dialogo.showModal();
 }
 
+// Los atajos (Rápido, Equilibrado, A fondo) rellenan modelo y esfuerzo; si se cambian a mano
+// y no coinciden con ninguno, no queda ninguno marcado.
+function marcarRitmo() {
+  const ritmo = ritmoDe(form.elements.modelo.value || null, form.elements.esfuerzo.value || null);
+  form.querySelectorAll('input[name="ritmo"]').forEach((r) => { r.checked = r.value === ritmo; });
+}
+
+function elegirRitmo(ritmo) {
+  form.elements.modelo.value = RITMOS[ritmo].modelo || '';
+  form.elements.esfuerzo.value = RITMOS[ritmo].esfuerzo || '';
+}
+
 async function guardarBecario(e) {
   e.preventDefault();
   const boton = dialogo.querySelector('[data-guardar-becario]');
@@ -184,6 +227,8 @@ async function guardarBecario(e) {
     papel: form.elements.papel.value,
     pausado: form.elements.pausado.checked,
     instrucciones: form.elements.instrucciones.value,
+    modelo: form.elements.modelo.value || null,
+    esfuerzo: form.elements.esfuerzo.value || null,
     avatar: leerAvatar(),
   };
   boton.disabled = true;
@@ -227,7 +272,11 @@ export function iniciarBecarios() {
   });
   guardarMatriz.addEventListener('click', guardarOficinas);
   form.addEventListener('submit', guardarBecario);
-  form.addEventListener('input', (e) => refrescarVista({ opciones: ['piel', 'pelo', 'ropa', 'detalle', 'peinado', 'accesorio'].includes(e.target.name) }));
+  form.addEventListener('input', (e) => {
+    if (e.target.name === 'ritmo') return elegirRitmo(e.target.value);
+    if (e.target.name === 'modelo' || e.target.name === 'esfuerzo') return marcarRitmo();
+    refrescarVista({ opciones: ['piel', 'pelo', 'ropa', 'detalle', 'peinado', 'accesorio'].includes(e.target.name) });
+  });
   dialogo.addEventListener('click', (e) => {
     if (e.target === dialogo || e.target.closest('[data-cerrar]')) dialogo.close();
   });

@@ -192,6 +192,20 @@
           <label class="campo">Papel<input name="papel" maxlength="120" autocomplete="off"></label>
           <label class="interruptor"><input type="checkbox" name="pausado"><span><strong>Pausado</strong><small data-ayuda-pausa></small></span></label>
           <fieldset class="grupo">
+            <legend>Cómo trabaja</legend>
+            <div class="ritmos">
+              <label class="ritmo"><input type="radio" name="ritmo" value="defecto"><strong>Como en el plugin</strong><small data-ritmo-defecto></small></label>
+              <label class="ritmo"><input type="radio" name="ritmo" value="rapido"><strong>Rápido</strong><small>Haiku · esfuerzo bajo</small></label>
+              <label class="ritmo"><input type="radio" name="ritmo" value="equilibrado"><strong>Equilibrado</strong><small>Sonnet · esfuerzo medio</small></label>
+              <label class="ritmo"><input type="radio" name="ritmo" value="fondo"><strong>A fondo</strong><small>Opus · esfuerzo alto</small></label>
+            </div>
+            <div class="dos-campos">
+              <label class="campo">Modelo de IA<select name="modelo"></select></label>
+              <label class="campo">Esfuerzo<select name="esfuerzo"></select></label>
+            </div>
+            <small class="grupo__nota">Más modelo y más esfuerzo razonan mejor, pero tardan más y gastan más de tu suscripción. No todos los modelos admiten todos los niveles de esfuerzo. El modo rápido de Claude Code (<code>/fast</code>) no se elige por becario: va por sesión, solo con Opus, y se paga aparte con créditos de uso.</small>
+          </fieldset>
+          <fieldset class="grupo">
             <legend>Peinado</legend>
             <div class="opciones-avatar" data-peinados></div>
           </fieldset>
