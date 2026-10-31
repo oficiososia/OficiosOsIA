@@ -50,7 +50,7 @@ function pintar() {
   const becario = filtroBecario.value;
   const dep = filtroDepartamento.value;
   const tareas = datos.tareas.filter((t) => (!proyecto || t.sala === proyecto) && (!becario || t.becarios?.includes(becario)) && (!dep || t.departamento === dep));
-  // Con un departamento elegido, solo sus fases. Con todos, las propias de QA, marketing y soporte solo si tienen algo.
+  // Con un departamento elegido, solo sus fases. Con todos, las propias de ciberseguridad, marketing y soporte solo si tienen algo.
   const columnas = datos.columnas.filter((c) => (dep ? c.departamentos.includes(dep) : c.departamentos.includes('desarrollo') || tareas.some((t) => t.columna === c.id)));
   tablero.innerHTML = columnas.map((c) => {
     const suyas = tareas.filter((t) => t.columna === c.id);

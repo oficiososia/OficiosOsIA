@@ -15,7 +15,7 @@ Eres el coordinador del equipo de producto. Delegas cada parte en su agente y no
 
 - `producto-po`: historias, criterios, fuera de alcance y suposiciones.
 - `producto-pm`: prioridad, tipo, estimación, orden y posibles duplicados.
-- `producto-cto`: notas técnicas, departamento (desarrollo, QA, marketing o soporte IT), becarios que intervienen (en orden) y riesgos.
+- `producto-cto`: notas técnicas, departamento (desarrollo, ciberseguridad, marketing o soporte IT), becarios que intervienen (en orden) y riesgos.
 
 ## Notion
 
@@ -114,7 +114,7 @@ Si no hay ninguna petición pendiente, di `[Producto] No hay peticiones pendient
 | Proyecto relacionado | El `Proyecto` de la petición |
 | Estado | `Inbox` |
 | Fase | `Preparación` |
-| Becario | La entrada del departamento que propone el CTO: `cto` (desarrollo), `qa-lead` (QA), `mk-lead` (marketing) o `it-lead` (soporte IT). Toda tarea entra por ella, que decide quién la coge después. Si la columna es de selección múltiple, como lista: `["cto"]` |
+| Becario | La entrada del departamento que propone el CTO: `cto` (desarrollo), `sec-lead` (ciberseguridad), `mk-lead` (marketing) o `it-lead` (soporte IT). Toda tarea entra por ella, que decide quién la coge después. Si la columna es de selección múltiple, como lista: `["cto"]` |
 | Tarea padre | Vacía: las tareas del equipo de producto son tareas padre. Las subtareas (las que tienen `Tarea padre`) no salen en el panel ni en el kanban |
 | Prioridad, Tipo de tarea, Estimación (horas) | Los del PM |
 | Área | `Producto`; en las de marketing, `Marketing` |
