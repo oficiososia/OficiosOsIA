@@ -8,7 +8,7 @@ const ROLES = [
   { id: 'pm', nombre: 'Project Manager', papel: 'Prioridad, tiempos, orden y duplicados' },
   { id: 'cto', nombre: 'CTO', papel: 'Plan técnico y qué becario empieza' },
 ];
-const CLASE_ESTADO = { Pendiente: 'pendiente', 'En curso': 'en-curso', 'Con dudas': 'dudas', Hecha: 'hecha', Descartada: 'descartada' };
+const CLASE_ESTADO = { Guardada: 'guardada', Pendiente: 'pendiente', 'En curso': 'en-curso', 'Con dudas': 'dudas', Hecha: 'hecha', Descartada: 'descartada' };
 
 const form = document.querySelector('[data-peticion]');
 const selector = form.elements.proyecto;
@@ -29,7 +29,8 @@ function htmlPeticion(p) {
     <div class="peticion__cabeza"><span class="peticion__titulo">${titulo}</span>
     <span class="estado estado--${CLASE_ESTADO[p.estado] || 'pendiente'}">${escapar(p.estado || 'Pendiente')}</span></div>
     <span class="peticion__meta">${meta.join(' · ')}</span>
-    ${p.resumen ? `<p class="peticion__resumen">${escapar(p.resumen)}</p>` : ''}</li>`;
+    ${p.resumen ? `<p class="peticion__resumen">${escapar(p.resumen)}</p>` : ''}
+    ${p.estado === 'Guardada' ? `<button type="button" class="boton-texto peticion__enviar" data-enviar="${escapar(p.id)}">Enviar al equipo →</button>` : ''}</li>`;
 }
 
 export async function cargarPeticiones() {
@@ -53,6 +54,8 @@ export async function cargarPeticiones() {
 
 async function enviar(e) {
   e.preventDefault();
+  // Dos botones: «Guardar para más tarde» la deja en Guardada; «Enviar al equipo», en Pendiente.
+  const guardar = e.submitter?.value === 'guardar';
   errorPeticion.hidden = true;
   enviada.hidden = true;
   const proyecto = proyectos[Number(selector.value)];
@@ -62,18 +65,31 @@ async function enviar(e) {
     errorPeticion.hidden = false;
     return;
   }
-  const boton = form.querySelector('button[type="submit"]');
-  boton.disabled = true;
+  const botones = form.querySelectorAll('button[type="submit"]');
+  botones.forEach((b) => { b.disabled = true; });
   try {
-    await api('/api/peticiones', { method: 'POST', body: { proyecto: { nombre: proyecto.nombre, clave: proyecto.clave }, peticion } });
+    await api('/api/peticiones', { method: 'POST', body: { proyecto: { nombre: proyecto.nombre, clave: proyecto.clave }, peticion, guardar } });
     form.elements.peticion.value = '';
-    enviada.textContent = `Enviada al equipo de producto de ${proyecto.nombre}. Ejecuta /producto en Claude Code para que la conviertan en tareas.`;
+    enviada.textContent = guardar
+      ? `Guardada para más tarde en ${proyecto.nombre}. Nadie la tocará hasta que pulses «Enviar al equipo» en la lista.`
+      : `Enviada al equipo de producto de ${proyecto.nombre}. Ejecuta /producto en Claude Code para que la conviertan en tareas.`;
     enviada.hidden = false;
     await cargarPeticiones();
   } catch (error) {
     errorPeticion.textContent = error.message;
     errorPeticion.hidden = false;
   } finally {
+    botones.forEach((b) => { b.disabled = false; });
+  }
+}
+
+async function enviarGuardada(boton) {
+  boton.disabled = true;
+  try {
+    await api('/api/peticiones', { method: 'PATCH', body: { id: boton.dataset.enviar } });
+    await cargarPeticiones();
+  } catch (error) {
+    avisos.innerHTML = `<div class="aviso"><strong>No se ha podido enviar.</strong> ${escapar(error.message)}</div>`;
     boton.disabled = false;
   }
 }
@@ -88,6 +104,10 @@ export function iniciarProducto() {
   document.querySelector('[data-roles]').innerHTML = ROLES.map((r) => `<li class="rol">
     <div class="rol__cabeza">${sprite(r.id)}<div><p class="rol__nombre">${r.nombre}</p><p class="rol__papel">${r.papel}</p></div></div></li>`).join('');
   form.addEventListener('submit', enviar);
+  lista.addEventListener('click', (e) => {
+    const boton = e.target.closest('[data-enviar]');
+    if (boton) enviarGuardada(boton);
+  });
   // La oficina se refresca cada minuto; las peticiones se refrescan con ella.
   document.addEventListener('oficina:datos', (e) => {
     actualizarProyectos(e.detail.proyectos);

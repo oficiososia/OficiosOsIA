@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, test } from 'node:test';
 import {
-  aPeticion, aProyecto, aTarea, crearPeticion, guardarEquipo, leerPeticiones, PETICIONES_DS, PROYECTOS_DS, TAREAS_DS, tareasAbiertas, tituloPeticion,
+  aPeticion, aProyecto, aTarea, crearPeticion, enviarPeticion, guardarEquipo, leerPeticiones, PETICIONES_DS, PROYECTOS_DS, TAREAS_DS, tareasAbiertas,
+  tareasTablero, tituloPeticion,
 } from '../lib/notion.js';
 
 const fetchOriginal = globalThis.fetch;
@@ -42,8 +43,8 @@ test('aTarea y aProyecto leen las propiedades de Notion', () => {
     id: 't1', url: 'https://app.notion.com/p/t1', titulo: 'Botones de acción', proyecto: 'Casa Tomás', becario: 'cto',
     fase: 'PR y revisión', estado: 'En progreso', prioridad: null, bloqueo: '', editada: '2026-10-30T10:00:00.000Z',
   });
-  const proyecto = aProyecto({ id: 'p1', url: 'u', properties: { Nombre: { title: [{ plain_text: 'Cristalería BV' }] }, 'Proyecto en tareas': { rich_text: [{ plain_text: 'Cristalería' }] }, Becarios: { multi_select: [{ name: 'cto' }] }, Repositorio: { url: null }, Orden: { number: 3 } } });
-  assert.deepEqual(proyecto, { id: 'p1', url: 'u', nombre: 'Cristalería BV', clave: 'Cristalería', equipo: ['cto'], repo: null, orden: 3 });
+  const proyecto = aProyecto({ id: 'p1', url: 'u', properties: { Nombre: { title: [{ plain_text: 'Cristalería BV' }] }, 'Proyecto en tareas': { rich_text: [{ plain_text: 'Cristalería' }] }, Becarios: { multi_select: [{ name: 'cto' }] }, Repositorio: { url: null }, Orden: { number: 3 }, Logo: { url: 'https://x.test/logo.png' }, Color: { rich_text: [{ plain_text: '#7ec8e3' }] } } });
+  assert.deepEqual(proyecto, { id: 'p1', url: 'u', nombre: 'Cristalería BV', clave: 'Cristalería', equipo: ['cto'], repo: null, orden: 3, logo: 'https://x.test/logo.png', color: '#7ec8e3' });
 });
 
 test('tareasAbiertas pide las que no están hechas y recorre todas las páginas', async () => {
@@ -124,4 +125,37 @@ test('guardarEquipo solo escribe en páginas de la base «Proyectos»', async ()
   simularNotion([{ parent: { type: 'data_source_id', data_source_id: TAREAS_DS } }]);
   await assert.rejects(guardarEquipo('t1', ['cto']), /no es un proyecto/);
   assert.equal(peticiones.length, 1, 'no llega a modificar la página');
+});
+
+test('una petición guardada para más tarde se crea en «Guardada»', async () => {
+  simularNotion([paginaPeticion({ id: 'guardada' })]);
+  await crearPeticion({ proyecto: 'JPR', textoPeticion: 'Idea para más adelante', usuario: 'Pablo', guardar: true });
+  assert.deepEqual(peticiones[0].cuerpo.properties.Estado, { status: { name: 'Guardada' } });
+});
+
+test('enviarPeticion pasa una guardada a «Pendiente» y no toca las demás', async () => {
+  const guardada = { parent: { type: 'data_source_id', data_source_id: PETICIONES_DS }, properties: { Estado: { status: { name: 'Guardada' } } } };
+  simularNotion([guardada, { id: 'pe1' }]);
+  await enviarPeticion('pe1');
+  assert.equal(peticiones[1].method, 'PATCH');
+  assert.deepEqual(peticiones[1].cuerpo.properties.Estado, { status: { name: 'Pendiente' } });
+
+  peticiones = [];
+  simularNotion([{ ...guardada, properties: { Estado: { status: { name: 'Hecha' } } } }]);
+  await assert.rejects(enviarPeticion('pe1'), /ya no está guardada/);
+  peticiones = [];
+  simularNotion([{ ...guardada, parent: { type: 'data_source_id', data_source_id: TAREAS_DS } }]);
+  await assert.rejects(enviarPeticion('t1'), /no es una petición/);
+  assert.equal(peticiones.length, 1, 'no llega a modificar nada');
+});
+
+test('tareasTablero pide las abiertas y las tocadas en el último mes', async () => {
+  simularNotion([{ results: [paginaTarea], has_more: false }]);
+  await tareasTablero();
+  assert.deepEqual(peticiones[0].cuerpo.filter, {
+    or: [
+      { property: 'Estado', status: { does_not_equal: 'Hecha' } },
+      { timestamp: 'last_edited_time', last_edited_time: { past_month: {} } },
+    ],
+  });
 });

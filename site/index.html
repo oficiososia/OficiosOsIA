@@ -23,7 +23,8 @@
     </a>
     <nav class="pestanas" aria-label="Secciones del panel">
       <a href="#oficina" data-pestana="oficina">Oficina</a>
-      <a href="#producto" data-pestana="producto">Equipo de producto</a>
+      <a href="#producto" data-pestana="producto"><span class="texto-largo">Equipo de producto</span><span class="texto-corto">Producto</span></a>
+      <a href="#tareas" data-pestana="tareas">Tareas</a>
     </nav>
     <div class="panel-cabecera__usuario">
       <span data-usuario></span>
@@ -33,25 +34,17 @@
 </header>
 
 <main class="panel-main">
-  <section class="vista" data-vista="oficina" aria-labelledby="titulo-oficina">
-    <div class="vista__cabecera">
-      <div>
-        <h1 id="titulo-oficina">La oficina</h1>
-        <p>Cada sala es un proyecto. Cada becario lleva lo que dice Notion: la tarea que tiene ahora y en qué fase está.</p>
-      </div>
-      <div class="vista__acciones">
+  <!-- La oficina ocupa la pantalla entera: una sala cada vez y pestañas para cambiar. -->
+  <section class="vista vista--fija" data-vista="oficina" aria-label="La oficina">
+    <div class="barra-oficina">
+      <div class="pestanas-oficina" role="tablist" aria-label="Oficinas" data-pestanas-oficina></div>
+      <div class="barra-oficina__info">
         <span class="actualizado" data-actualizado></span>
-        <button type="button" class="btn btn--ghost" data-recargar>Actualizar</button>
+        <button type="button" class="boton-texto" data-recargar>Actualizar</button>
       </div>
     </div>
-    <ul class="leyenda" aria-label="Leyenda">
-      <li><span class="leyenda__marca leyenda__marca--trabajando"></span>Trabajando</li>
-      <li><span class="leyenda__marca leyenda__marca--bloqueado"></span>En espera</li>
-      <li><span class="leyenda__marca leyenda__marca--en-cola"></span>Con tareas pendientes</li>
-      <li><span class="leyenda__marca leyenda__marca--libre"></span>Libre</li>
-    </ul>
-    <div class="avisos" data-avisos></div>
-    <div class="salas" data-salas aria-busy="true">
+    <div class="avisos avisos--compactos" data-avisos></div>
+    <div class="sala-activa" data-salas role="tabpanel" aria-busy="true">
       <p class="cargando">Abriendo la oficina…</p>
     </div>
   </section>
@@ -70,7 +63,10 @@
         <label class="campo">Qué necesitas<textarea name="peticion" rows="9" maxlength="8000" required placeholder="Ej.: en la web de Energym quiero que los socios puedan reservar clases desde el móvil y que les llegue un recordatorio el día antes."></textarea></label>
         <p class="error" data-error-peticion role="alert" hidden></p>
         <p class="enviada" data-enviada role="status" hidden></p>
-        <button type="submit" class="btn btn--amber">Enviar al equipo →</button>
+        <div class="producto__botones">
+          <button type="submit" name="accion" value="guardar" class="btn btn--ghost">Guardar para más tarde</button>
+          <button type="submit" name="accion" value="enviar" class="btn btn--amber">Enviar al equipo →</button>
+        </div>
       </form>
       <div class="producto__lista">
         <div class="como">
@@ -80,12 +76,27 @@
             <li>Escribe <code>/producto</code>. La PO, el PM y el CTO trabajan cada petición pendiente.</li>
             <li>Revisa lo que proponen y confirma: las tareas aparecen en OficiosOS, en Inbox.</li>
           </ol>
+          <p>Las que guardas para más tarde no las toca nadie hasta que pulsas «Enviar al equipo» en la lista.</p>
         </div>
         <h2 class="producto__titulo">Peticiones</h2>
         <div class="avisos" data-avisos-peticiones></div>
         <ul class="peticiones" data-peticiones aria-busy="true"><li class="cargando">Cargando peticiones…</li></ul>
       </div>
     </div>
+  </section>
+
+  <section class="vista vista--fija" data-vista="tareas" aria-labelledby="titulo-tareas" hidden>
+    <div class="barra-tablero">
+      <h1 id="titulo-tareas">Tareas</h1>
+      <label class="filtro">Proyecto<select data-filtro-proyecto><option value="">Todos</option></select></label>
+      <label class="filtro">Becario<select data-filtro-becario><option value="">Todos</option></select></label>
+      <span class="barra-tablero__info">
+        <span class="actualizado" data-actualizado-tablero></span>
+        <a href="https://app.notion.com/p/2ad3221d8eb780e98cb3d3e45b98ab27" target="_blank" rel="noopener">Abrir en Notion</a>
+      </span>
+    </div>
+    <div class="avisos avisos--compactos" data-avisos-tablero></div>
+    <div class="tablero" data-tablero aria-busy="true"><p class="cargando">Cargando el tablero…</p></div>
   </section>
 </main>
 
