@@ -129,7 +129,7 @@ function htmlSalaProducto() {
   const { pendientes, enCurso } = peticiones;
   const estado = enCurso ? 'trabajando' : pendientes ? 'en-cola' : 'libre';
   const extra = estado === 'trabajando' ? '<span class="globo"></span>' : estado === 'en-cola' ? `<span class="pila">${pendientes}</span>` : '';
-  const puestos = PRODUCTO.map((r) => `<li><a class="puesto puesto--${estado}" href="#producto">
+  const puestos = PRODUCTO.map((r) => `<li><a class="puesto puesto--${estado}" href="#producto/peticiones">
       ${escena(r.id, estado, extra)}<span class="puesto__nombre">${r.nombre}</span></a></li>`).join('');
   const texto = enCurso
     ? 'El equipo está trabajando en una petición en Claude Code…'
@@ -140,7 +140,7 @@ function htmlSalaProducto() {
   const tema = temaDe(sala);
   return `<article class="sala sala--producto sala--${tema.id}" style="${estiloTema(tema)}">
     <div class="sala__cabecera">${logoPequeno(sala, tema)}<div><h2 class="sala__nombre">Sala de producto</h2><p class="sala__meta">PO, PM y CTO convierten lo que pides en tareas de Notion</p></div>
-    ${LEYENDA}<a class="sala__boton" href="#producto">Pasar una petición →</a></div>
+    ${LEYENDA}<a class="sala__boton" href="#producto/pedir">Pasar una petición →</a></div>
     <div class="sala__suelo sala__suelo--${tema.suelo}">${decorado(sala, tema)}<ul class="puestos">${puestos}</ul>
     <p class="sala__nota">${texto}</p></div></article>`;
 }

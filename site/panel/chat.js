@@ -12,6 +12,7 @@ const selector = form.elements.proyecto;
 const estado = document.querySelector('[data-chat-estado]');
 const avisos = document.querySelector('[data-avisos-chat]');
 const error = document.querySelector('[data-error-chat]');
+const numChat = document.querySelector('[data-num-chat]');
 
 let mensajes = [];
 // Títulos de las tareas abiertas (vienen con la oficina), para enlazar las que cita el equipo.
@@ -42,6 +43,9 @@ function pintar() {
     : '<li class="cargando chat__vacio">Todavía no hay mensajes. Pregunta, por ejemplo, qué falta para cerrar una tarea.</li>';
   const pendientes = mensajes.filter((m) => !m.deEquipo && m.estado === 'Pendiente').length;
   estado.textContent = pendientes ? `${pendientes} sin contestar · ejecuta /producto en Claude Code` : '';
+  numChat.hidden = !pendientes;
+  numChat.textContent = pendientes || '';
+  numChat.title = pendientes ? `${pendientes} sin contestar` : '';
   // Si se estaba al final (o es la primera carga), se baja al último mensaje.
   if (abajo || lista.dataset.cargado !== 'si') lista.scrollTop = lista.scrollHeight;
   lista.dataset.cargado = 'si';
@@ -95,6 +99,7 @@ function actualizarDatos(oficina) {
 
 export function iniciarChat() {
   form.addEventListener('submit', enviar);
+  document.addEventListener('producto:subpestana', (e) => { if (e.detail === 'chat') bajarChat(); });
   // Ctrl/Cmd + Intro envía; Intro solo hace salto de línea.
   form.elements.texto.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) form.requestSubmit();

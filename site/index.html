@@ -51,57 +51,69 @@
   </section>
 
   <section class="vista" data-vista="producto" aria-labelledby="titulo-producto" hidden>
-    <div class="vista__cabecera">
+    <div class="vista__cabecera vista__cabecera--sin-linea">
       <div>
         <h1 id="titulo-producto">Equipo de producto</h1>
-        <p>Escribe lo que necesitas como se lo dirías a alguien. La petición se guarda en Notion y el equipo de producto la convierte en tareas de OficiosOS cuando ejecutas <code>/producto</code> en Claude Code, con tu suscripción.</p>
+        <p>Pide lo que necesitas, sigue tus peticiones y pregunta cómo van las tareas. El equipo trabaja cuando ejecutas <code>/producto</code> en Claude Code, con tu suscripción.</p>
       </div>
     </div>
-    <ol class="roles" data-roles></ol>
-    <div class="producto">
-      <form class="producto__peticion" data-peticion>
-        <label class="campo">Proyecto<select name="proyecto" required></select></label>
-        <label class="campo">Qué necesitas<textarea name="peticion" rows="9" maxlength="8000" required placeholder="Ej.: en la web de Energym quiero que los socios puedan reservar clases desde el móvil y que les llegue un recordatorio el día antes."></textarea></label>
-        <p class="error" data-error-peticion role="alert" hidden></p>
-        <p class="enviada" data-enviada role="status" hidden></p>
-        <div class="producto__botones">
-          <button type="submit" name="accion" value="guardar" class="btn btn--ghost">Guardar para más tarde</button>
-          <button type="submit" name="accion" value="enviar" class="btn btn--amber">Enviar al equipo →</button>
+    <div class="subpestanas" role="tablist" aria-label="Equipo de producto" data-subpestanas>
+      <button type="button" role="tab" id="sub-pedir" aria-controls="panel-pedir" aria-selected="true" data-sub="pedir">Nueva petición</button>
+      <button type="button" role="tab" id="sub-peticiones" aria-controls="panel-peticiones" aria-selected="false" tabindex="-1" data-sub="peticiones">Peticiones<span class="subpestana__num" data-num-peticiones hidden></span></button>
+      <button type="button" role="tab" id="sub-chat" aria-controls="panel-chat" aria-selected="false" tabindex="-1" data-sub="chat">Chat<span class="subpestana__num" data-num-chat hidden></span></button>
+    </div>
+
+    <div class="subpanel" role="tabpanel" id="panel-pedir" aria-labelledby="sub-pedir" data-subpanel="pedir">
+      <div class="producto">
+        <form class="producto__peticion" data-peticion>
+          <label class="campo">Proyecto<select name="proyecto" required></select></label>
+          <label class="campo">Qué necesitas<textarea name="peticion" rows="9" maxlength="8000" required placeholder="Ej.: en la web de Energym quiero que los socios puedan reservar clases desde el móvil y que les llegue un recordatorio el día antes."></textarea></label>
+          <p class="error" data-error-peticion role="alert" hidden></p>
+          <p class="enviada" data-enviada role="status" hidden></p>
+          <div class="producto__botones">
+            <button type="submit" name="accion" value="guardar" class="btn btn--ghost">Guardar para más tarde</button>
+            <button type="submit" name="accion" value="enviar" class="btn btn--amber">Enviar al equipo →</button>
+          </div>
+        </form>
+        <div class="producto__lista">
+          <ol class="roles" data-roles></ol>
+          <div class="como">
+            <h2>Cómo se procesan</h2>
+            <ol>
+              <li>Abre Claude Code en tu copia del repositorio OficiosOsIA.</li>
+              <li>Escribe <code>/producto</code>. La PO, el PM y el CTO trabajan cada petición pendiente.</li>
+              <li>Revisa lo que proponen y confirma: las tareas aparecen en OficiosOS, en Inbox.</li>
+            </ol>
+            <p>Las que guardas para más tarde no las toca nadie hasta que pulsas «Enviar al equipo» en la subpestaña Peticiones.</p>
+          </div>
         </div>
-      </form>
-      <div class="producto__lista">
-        <div class="como">
-          <h2>Cómo se procesan</h2>
-          <ol>
-            <li>Abre Claude Code en tu copia del repositorio OficiosOsIA.</li>
-            <li>Escribe <code>/producto</code>. La PO, el PM y el CTO trabajan cada petición pendiente.</li>
-            <li>Revisa lo que proponen y confirma: las tareas aparecen en OficiosOS, en Inbox.</li>
-          </ol>
-          <p>Las que guardas para más tarde no las toca nadie hasta que pulsas «Enviar al equipo» en la lista.</p>
-        </div>
-        <h2 class="producto__titulo">Peticiones</h2>
-        <div class="avisos" data-avisos-peticiones></div>
-        <ul class="peticiones" data-peticiones aria-busy="true"><li class="cargando">Cargando peticiones…</li></ul>
       </div>
     </div>
 
-    <section class="chat" aria-labelledby="titulo-chat">
-      <div class="chat__cabecera">
-        <div>
-          <h2 id="titulo-chat">Chat con el equipo</h2>
-          <p>Pregunta cómo van las tareas. Contesta el equipo cuando ejecutas <code>/producto</code> en Claude Code: miran las tareas en Notion y responden aquí.</p>
+    <div class="subpanel" role="tabpanel" id="panel-peticiones" aria-labelledby="sub-peticiones" data-subpanel="peticiones" hidden>
+      <div class="avisos" data-avisos-peticiones></div>
+      <ul class="peticiones" data-peticiones aria-busy="true"><li class="cargando">Cargando peticiones…</li></ul>
+    </div>
+
+    <div class="subpanel" role="tabpanel" id="panel-chat" aria-labelledby="sub-chat" data-subpanel="chat" hidden>
+      <section class="chat" aria-labelledby="titulo-chat">
+        <div class="chat__cabecera">
+          <div>
+            <h2 id="titulo-chat">Chat con el equipo</h2>
+            <p>Pregunta cómo van las tareas. Contesta el equipo cuando ejecutas <code>/producto</code> en Claude Code: miran las tareas en Notion y responden aquí.</p>
+          </div>
+          <span class="chat__estado" data-chat-estado aria-live="polite"></span>
         </div>
-        <span class="chat__estado" data-chat-estado aria-live="polite"></span>
-      </div>
-      <div class="avisos" data-avisos-chat></div>
-      <ol class="chat__mensajes" data-chat aria-busy="true" tabindex="0" aria-label="Mensajes del chat"><li class="cargando">Cargando el chat…</li></ol>
-      <form class="chat__form" data-form-chat>
-        <label class="campo chat__proyecto">Proyecto<select name="proyecto"><option value="">General</option></select></label>
-        <label class="campo chat__texto"><span class="sr-only">Mensaje</span><textarea name="texto" rows="2" maxlength="2000" required placeholder="Ej.: ¿Cómo va la reserva de clases de Energym? ¿Qué falta para producción?"></textarea></label>
-        <button type="submit" class="btn btn--amber chat__enviar">Enviar</button>
-      </form>
-      <p class="error" data-error-chat role="alert" hidden></p>
-    </section>
+        <div class="avisos" data-avisos-chat></div>
+        <ol class="chat__mensajes" data-chat aria-busy="true" tabindex="0" aria-label="Mensajes del chat"><li class="cargando">Cargando el chat…</li></ol>
+        <form class="chat__form" data-form-chat>
+          <label class="campo chat__proyecto">Proyecto<select name="proyecto"><option value="">General</option></select></label>
+          <label class="campo chat__texto"><span class="sr-only">Mensaje</span><textarea name="texto" rows="2" maxlength="2000" required placeholder="Ej.: ¿Cómo va la reserva de clases de Energym? ¿Qué falta para producción?"></textarea></label>
+          <button type="submit" class="btn btn--amber chat__enviar">Enviar</button>
+        </form>
+        <p class="error" data-error-chat role="alert" hidden></p>
+      </section>
+    </div>
   </section>
 
   <section class="vista vista--fija" data-vista="tareas" aria-labelledby="titulo-tareas" hidden>

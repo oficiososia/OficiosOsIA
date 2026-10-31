@@ -268,6 +268,21 @@
 .equipo-opcion small { opacity: 0.75; font-size: 12px; }
 
 /* Equipo de producto */
+.vista__cabecera--sin-linea { border-bottom: 0; padding-bottom: 0; }
+.subpestanas { display: flex; gap: 4px; border-bottom: 2px solid var(--linea); }
+.subpestanas [role="tab"] { display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: -2px; padding: 10px 18px; background: transparent; border: 2px solid transparent; color: var(--claro); font-size: 13px; cursor: pointer; white-space: nowrap; }
+.subpestanas [role="tab"]:hover { color: var(--ambar); }
+.subpestanas [role="tab"]:focus-visible { outline: 2px solid var(--ambar); outline-offset: -4px; }
+.subpestanas [role="tab"][aria-selected="true"] { background: var(--noche-2); border-color: var(--linea); border-bottom-color: var(--noche-2); color: var(--ambar); }
+.subpestana__num { min-width: 20px; padding: 0 6px; border: 1px solid currentColor; font-size: 11px; line-height: 18px; text-align: center; }
+.subpanel { display: flex; flex-direction: column; gap: 16px; }
+.subpanel[hidden] { display: none; }
+.subpanel .chat { border-top: 0; padding-top: 0; }
+/* Dentro de su subpestaña, el título del chat sobra (lo dice la pestaña) y la lista ocupa
+   el alto que queda en pantalla, para no hacer scroll de página. */
+.subpanel .chat__cabecera h2 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.subpanel .chat__cabecera { align-items: baseline; }
+.subpanel .chat__mensajes { height: max(240px, calc(100vh - 505px)); height: max(240px, calc(100dvh - 505px)); }
 .producto { display: grid; grid-template-columns: minmax(280px, 420px) minmax(0, 1fr); gap: 24px; align-items: start; }
 .producto__peticion { display: flex; flex-direction: column; gap: 14px; border: 2px solid var(--linea); background: var(--noche-2); padding: 20px; position: sticky; top: 84px; }
 .campo { display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
@@ -417,9 +432,14 @@
   .vista__cabecera h1 { font-size: 32px; }
   .pestanas { order: 3; width: 100%; margin-right: 0; }
   .pestanas a { flex: 1; text-align: center; }
-  .roles { grid-template-columns: minmax(0, 1fr); }
-  .rol { border-right: 0; border-bottom: 2px solid var(--linea); }
-  .rol:last-child { border-bottom: 0; }
+  /* En móvil, los tres roles en una fila compacta: avatar y nombre. */
+  .roles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .rol { padding: 10px 6px; border-right: 2px solid var(--linea); }
+  .rol:last-child { border-right: 0; }
+  .rol__cabeza { flex-direction: column; text-align: center; gap: 6px; }
+  .rol__cabeza .sprite { width: 40px; height: 40px; }
+  .rol__nombre { font-size: 13px; }
+  .rol__papel { display: none; }
   .sala .leyenda, .barra-oficina__info .actualizado { display: none; }
   .texto-largo { display: none; }
   .texto-corto { display: inline; }
@@ -440,6 +460,9 @@
   .pestanas { gap: 2px; }
   .pestanas a { padding: 8px 4px; }
   .fichas { grid-template-columns: minmax(0, 1fr); }
+  .vista__cabecera--sin-linea p { display: none; }
+  .subpestanas { gap: 2px; }
+  .subpestanas [role="tab"] { flex: 1; padding: 10px 6px; gap: 6px; }
   .chat__form { grid-template-columns: minmax(0, 1fr) auto; }
   .chat__proyecto { grid-column: 1 / -1; }
   .chat__mensajes { padding: 10px; height: 60vh; }
