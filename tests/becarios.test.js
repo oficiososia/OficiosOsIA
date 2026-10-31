@@ -1,10 +1,24 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { BECARIOS, combinarBecarios, validarBecario } from '../lib/becarios.js';
+import { BECARIOS, combinarBecarios, DEPARTAMENTOS, departamentoDe, IDS_BECARIOS, IDS_DEPARTAMENTOS, miembrosDe, validarBecario } from '../lib/becarios.js';
 
 test('sin fichas en Notion, los becarios son los de por defecto', () => {
   assert.deepEqual(combinarBecarios([]), BECARIOS);
-  assert.deepEqual(combinarBecarios().map((b) => b.id), ['cto', 'frontend', 'backend-datos', 'backend-servicios', 'qa-funcional', 'qa-tecnico', 'delivery']);
+  assert.deepEqual(combinarBecarios().filter((b) => b.departamento === 'desarrollo').map((b) => b.id), ['cto', 'frontend', 'backend-datos', 'backend-servicios', 'qa-funcional', 'qa-tecnico', 'delivery']);
+  assert.deepEqual(miembrosDe('qa'), ['qa-lead', 'qa-automatizacion', 'qa-accesibilidad', 'qa-rendimiento', 'qa-seguridad', 'qa-visual', 'qa-exploratorio']);
+  assert.deepEqual(miembrosDe('marketing'), ['mk-lead', 'mk-seo', 'mk-contenidos', 'mk-rrss', 'mk-local', 'mk-analitica']);
+});
+
+test('cada departamento entra por uno de los suyos y todos los becarios tienen departamento', () => {
+  assert.deepEqual(DEPARTAMENTOS.map((d) => [d.id, d.entrada]), [['desarrollo', 'cto'], ['qa', 'qa-lead'], ['marketing', 'mk-lead']]);
+  for (const d of DEPARTAMENTOS) {
+    assert.equal(departamentoDe(d.entrada), d.id);
+    assert.equal(d.fases[0], 'Preparación', 'todos empiezan en Preparación');
+    assert.ok(d.fases.includes('PR y revisión'), 'y todos pasan por el PR');
+  }
+  assert.ok(BECARIOS.every((b) => IDS_DEPARTAMENTOS.includes(b.departamento)));
+  assert.equal(new Set(IDS_BECARIOS).size, IDS_BECARIOS.length, 'sin ids repetidos');
+  assert.equal(departamentoDe('inventado'), null);
 });
 
 test('la ficha de Notion manda, pero lo que no vale se queda como estaba', () => {

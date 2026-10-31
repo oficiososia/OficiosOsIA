@@ -1,6 +1,6 @@
 // La pestaña «Becarios»: la ficha de cada becario (base «Becarios» de Notion) y en qué
 // oficinas trabaja (columna «Becarios» de la base «Proyectos», que guarda /api/equipos).
-import { combinarBecarios, validarBecario } from '../lib/becarios.js';
+import { combinarBecarios, DEPARTAMENTOS, validarBecario } from '../lib/becarios.js';
 import { ErrorConfiguracion, ErrorPeticion, json, leerJson, rutaPanel } from '../lib/http.js';
 import { ErrorNotion, guardarBecario, leerBecarios, leerProyectos } from '../lib/notion.js';
 import { proyectosBase } from '../lib/oficina.js';
@@ -23,6 +23,7 @@ export default rutaPanel({
     const lista = proyectos.status === 'fulfilled' && Array.isArray(proyectos.value) ? proyectosBase(proyectos.value) : [];
     return json({
       becarios: combinarBecarios(fichas.status === 'fulfilled' ? fichas.value : []),
+      departamentos: DEPARTAMENTOS.map(({ id, nombre, entrada, papel }) => ({ id, nombre, entrada, papel })),
       proyectos: lista.map(({ id, nombre, equipo }) => ({ id, nombre, equipo })),
       fichasGuardables: !sinFichas,
       avisos,
