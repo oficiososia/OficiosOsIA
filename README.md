@@ -1,10 +1,11 @@
 # Panel de OficiosOsIA
 
-Panel interno de Miguel y Pablo, con tres pestañas:
+Panel interno de Miguel y Pablo, con cuatro pestañas:
 
 - **La oficina** (`/`). Cada proyecto es una sala, a pantalla completa y sin scroll, y se cambia de una a otra con pestañas. Cada becario se sienta en su mesa con su avatar pixel-art. Los becarios son los agentes de IA del plugin `becarios`: cto, frontend, backend-datos, backend-servicios, qa-funcional, qa-tecnico y delivery. Lo que hace cada uno sale de las tareas de Notion: la tarea que tiene ahora (propiedad «Becario»), su fase y su estado. Si está En progreso aparece trabajando y si está En espera sale con una alerta. Si no tiene nada en marcha, duerme en su mesa (ojos cerrados y zetas); el montón de papeles azul indica cuántas tareas tiene pendientes. Cada oficina tiene el aspecto de su proyecto: color, suelo, mesas, objetos del sector y el logo o un cartel con el nombre en la pared (`site/panel/temas.js`). Desde cada sala se elige qué equipo de becarios trabaja en ese proyecto («Equipo») y qué tareas por hacer pasan a ese equipo («Asignar tareas»). La asignación sigue siempre el flujo del equipo entero: la tarea la recibe el `cto` en Preparación (columnas «Becario» y «Fase» de Notion; las de Inbox pasan a «Por hacer») y es él quien decide qué becario la coge después. Desde el panel no se elige becario, y las tareas que ya tienen uno no se tocan.
 - **El equipo de producto** (`/#producto`). Escribes en texto plano lo que necesitas para un proyecto y la petición se guarda en la base «Peticiones» de Notion. Después, en Claude Code y con tu suscripción, `/producto` la pasa por tres agentes. La **PO** escribe las historias de usuario con sus criterios de aceptación. El **PM** las prioriza, las estima, las ordena y avisa si alguna ya existe en Notion. El **CTO** añade el plan técnico y qué becarios intervienen. Tú confirmas y se crean en «Oficios OS», en Inbox, fase Preparación y con becario `cto`: toda tarea entra al equipo por el CTO, que decide quién la coge después. El panel muestra cada petición con su estado (Guardada, Pendiente, En curso, Con dudas, Hecha o Descartada). Con «Guardar para más tarde» la petición queda en `Guardada` y `/producto` no la toca hasta que se pulsa «Enviar al equipo» en la lista.
 - **Tareas** (`/#tareas`). El kanban de «OficiosOS» dentro del panel. Tiene una columna por fase del flujo de los becarios (Preparación, Desarrollo y unitarias, Despliegue DEMO, QA DEMO, PR y revisión, Despliegue PROD, QA PROD), más «Sin empezar» delante y «Cerrada» al final, con las del último mes. Se filtra por proyecto y por becario. En Notion está la misma vista: «Flujo de becarios».
+- **Becarios** (`/#becarios`). Una ficha por becario. Desde «Configurar» se cambian su nombre y su papel, su avatar (peinado, accesorios y colores, con vista previa), sus instrucciones y si está pausado. Debajo hay una tabla becario × oficina para elegir en qué oficinas trabaja cada uno; es lo mismo que el botón «Equipo» de cada sala. Las fichas se guardan en la base «Becarios» de Notion y las oficinas en «Proyectos». Un becario pausado no tiene mesa en las oficinas, salvo donde aún tenga tareas abiertas. Si el CTO está pausado no se pueden pasar tareas a ninguna oficina, porque todas entran por él (el panel lo avisa y la API responde 409). Las instrucciones las tienen que leer los propios becarios: ver «Instrucciones y pausa en el plugin».
 
 Siguen públicas, sin login, `/entrenos` y `/legal`: son la «Website URL» y la política de privacidad que revisan intervals.icu y Garmin.
 
@@ -16,10 +17,11 @@ Es un sitio estático en Vercel, sin paso de build, con funciones en `api/`:
 |---|---|
 | `middleware.js` | Exige sesión en todo salvo `/login`, `/entrenos`, `/legal`, `/logo/` y `styles.css`. |
 | `api/login.js`, `api/logout.js` | Crean y borran la cookie de sesión (`panel_sesion`, firmada con HMAC, 7 días). |
-| `api/oficina.js` | Lee de Notion las tareas abiertas y los proyectos, y monta las salas (`lib/oficina.js`). |
+| `api/oficina.js` | Lee de Notion las tareas abiertas, los proyectos y las fichas de los becarios, y monta las salas (`lib/oficina.js`). |
 | `api/equipos.js` | Guarda el equipo de becarios de un proyecto en la base «Proyectos» de Notion. |
 | `api/asignar.js` | Pasa tareas por hacer al equipo: las recibe el `cto` en Preparación (solo páginas de la base de tareas sin becario). |
 | `api/peticiones.js` | Lista las peticiones al equipo de producto, guarda las nuevas en la base «Peticiones» de Notion y envía al equipo las guardadas. |
+| `api/becarios.js` | Lee las fichas de los becarios y las oficinas de cada uno, y guarda una ficha en la base «Becarios» (crea la fila si falta). |
 | `api/tablero.js` | Devuelve las tareas para el kanban, repartidas por fase (`lib/tablero.js`). |
 
 El frontend está en `site/`: `index.html` y `site/panel/` (el panel), y `login.html`. Los avatares son propios (`site/panel/sprites.js`) y no usan sprites de terceros.
@@ -37,6 +39,7 @@ Se configuran en Vercel → proyecto → Settings → Environment Variables, par
 | `NOTION_TOKEN` | Para la oficina y las peticiones | El token de la conexión interna de Notion (ver abajo). |
 | `NOTION_PROYECTOS_DS` | No | Id de la base «Proyectos». Por defecto es la de la página «Panel OficiosOsIA» (`c295eb77-c4a5-4c32-8027-f06f4412bf7d`). |
 | `NOTION_TAREAS_DS` | No | Id de la base de tareas. Por defecto es «Oficios OS» (`2ad3221d-8eb7-8065-904d-000b57a0fe2a`). |
+| `NOTION_BECARIOS_DS` | No | Id de la base «Becarios». Por defecto es la de la página «Panel OficiosOsIA» (`7d90c32f-ede0-42ca-8732-2c80134f885b`). |
 | `NOTION_PETICIONES_DS` | No | Id de la base «Peticiones». Por defecto es la de la página «Panel OficiosOsIA» (`7faed1fa-0f84-4078-8800-9350d4746262`). |
 
 Sin `NOTION_TOKEN` el panel abre igual, con las salas vacías y un aviso. El panel no usa la API de Claude: el equipo de producto trabaja en Claude Code con tu suscripción.
@@ -44,7 +47,7 @@ Sin `NOTION_TOKEN` el panel abre igual, con las salas vacías y un aviso. El pan
 ## Conectar Notion
 
 1. En Notion → Configuración → Conexiones → «Añadir conexión» → «Conexión de desarrollador», crea una conexión interna («Panel OficiosOsIA») con permisos para leer, actualizar e insertar contenido. Su token va en `NOTION_TOKEN`.
-2. En la pestaña «Content access» de la conexión (o con `···` → Conexiones en cada página), dale acceso a la base **OficiosOS** (tareas) y a la página **Panel OficiosOsIA**, que contiene las bases **Proyectos** y **Peticiones**.
+2. En la pestaña «Content access» de la conexión (o con `···` → Conexiones en cada página), dale acceso a la base **OficiosOS** (tareas) y a la página **Panel OficiosOsIA**, que contiene las bases **Proyectos**, **Peticiones** y **Becarios**.
 3. La base **Proyectos** ya existe, con una fila por sala. Sus propiedades:
 
    | Propiedad | Tipo | Para qué |
@@ -59,6 +62,39 @@ Sin `NOTION_TOKEN` el panel abre igual, con las salas vacías y un aviso. El pan
 
    Para añadir un proyecto, se añade una fila. Si el panel no puede leer la base, usa la lista de proyectos de `lib/becarios.js` y en cada sala muestra solo a los becarios que ya tienen tareas en ese proyecto.
 4. La base **Peticiones** también existe. Columnas: Petición (título, la primera línea), Proyecto, Estado, Pedida por, Resumen, Tareas (relación con OficiosOS) y Creada. El texto completo de cada petición va en el cuerpo de la página.
+5. La base **Becarios** también existe, con una fila por becario. Se edita desde la pestaña «Becarios», pero también se puede cambiar a mano:
+
+   | Propiedad | Tipo | Para qué |
+   |---|---|---|
+   | Nombre | Título | Nombre que sale en el panel. |
+   | Id | Selección | El agente del plugin (`cto`, `frontend`…). No se cambia. |
+   | Papel | Texto | Qué hace, en una línea. |
+   | Pausado | Casilla | Fuera de las oficinas y sin trabajo nuevo. |
+   | Instrucciones | Texto | Reglas extra que el becario sigue en todas sus tareas (hasta 6000 caracteres). |
+   | Peinado | Selección | corto, largo, rizado, mono, gorra o gorro. |
+   | Accesorios | Selección múltiple | gafas, cascos, barba, corbata, placa. |
+   | Piel, Pelo, Ropa, Detalle | Texto | Colores del avatar en `#rrggbb`. Detalle es el color de la gorra, el gorro, los cascos, la corbata o la placa. |
+
+   Lo que falte o esté mal escrito se queda como viene por defecto (`lib/becarios.js`). Si el panel no puede leer la base, los becarios salen como vienen por defecto, con un aviso.
+
+## Instrucciones y pausa en el plugin
+
+El panel guarda las instrucciones y la pausa en Notion, pero quien trabaja es el plugin `becarios`, en tu ordenador. Para que las tenga en cuenta, añade esto al final de `.claude/becarios/reference/notion.md` en el plugin (o en cada repositorio que lo lleve):
+
+```markdown
+## Ficha del becario (panel OficiosOsIA)
+
+Antes de empezar cualquier tarea, busca tu fila en la base «Becarios» de Notion
+(data source `7d90c32f-ede0-42ca-8732-2c80134f885b`, en la página «Panel OficiosOsIA»): la que tiene
+en la columna `Id` tu nombre de agente (`cto`, `frontend`, `backend-datos`, `backend-servicios`,
+`qa-funcional`, `qa-tecnico` o `delivery`).
+
+- Si `Pausado` está marcado, no trabajes: termina con resultado BLOQUEADO y el motivo
+  «Becario pausado en el panel».
+- Si hay `Instrucciones`, síguelas en toda la tarea, salvo que contradigan `proceso.md`
+  o las reglas del repositorio (CLAUDE.md); en ese caso mandan esas y lo dices en tu informe.
+- Si no encuentras la base o tu fila, sigue como siempre.
+```
 
 ## Tickets de demostración
 

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, test } from 'node:test';
 import {
-  aPeticion, aProyecto, aTarea, crearPeticion, enviarPeticion, guardarEquipo, leerPeticiones, pasarAlEquipo, PETICIONES_DS, PROYECTOS_DS, TAREAS_DS, tareasAbiertas,
+  aBecario, aPeticion, aProyecto, aTarea, BECARIOS_DS, crearPeticion, guardarBecario, enviarPeticion, guardarEquipo, leerBecarios, leerPeticiones, pasarAlEquipo, PETICIONES_DS, PROYECTOS_DS, TAREAS_DS, tareasAbiertas,
   tareasTablero, tituloPeticion,
 } from '../lib/notion.js';
 
@@ -186,4 +186,59 @@ test('pasarAlEquipo la deja al CTO en Preparación, pasa Inbox a «Por hacer» y
   simularNotion([{ ...tarea('Inbox'), parent: { type: 'data_source_id', data_source_id: PROYECTOS_DS } }]);
   await assert.rejects(pasarAlEquipo('p1'), /no es una tarea/);
   assert.equal(peticiones.length, 1, 'no llega a modificar la página');
+});
+
+const paginaBecario = (datos = {}) => ({
+  id: 'b1',
+  url: 'https://app.notion.com/p/b1',
+  properties: {
+    Nombre: { title: [{ plain_text: 'Jefa' }] },
+    Id: { select: { name: 'cto' } },
+    Papel: { rich_text: [{ plain_text: 'Plan y revisión' }] },
+    Pausado: { checkbox: true },
+    Instrucciones: { rich_text: [{ plain_text: 'Tests ' }, { plain_text: 'primero' }] },
+    Peinado: { select: { name: 'largo' } },
+    Accesorios: { multi_select: [{ name: 'gafas' }] },
+    Piel: { rich_text: [{ plain_text: '#e0ac69' }] },
+    Pelo: { rich_text: [{ plain_text: '#2b2b2b' }] },
+    Ropa: { rich_text: [{ plain_text: '#7d5fc9' }] },
+    Detalle: { rich_text: [{ plain_text: '#ffb000' }] },
+  },
+  ...datos,
+});
+
+test('aBecario y leerBecarios leen la ficha de la base «Becarios»', async () => {
+  assert.deepEqual(aBecario(paginaBecario()), {
+    notionId: 'b1', url: 'https://app.notion.com/p/b1', id: 'cto', nombre: 'Jefa', papel: 'Plan y revisión', pausado: true, instrucciones: 'Tests primero',
+    avatar: { peinado: 'largo', accesorios: ['gafas'], piel: '#e0ac69', pelo: '#2b2b2b', ropa: '#7d5fc9', detalle: '#ffb000' },
+  });
+  simularNotion([{ results: [paginaBecario(), paginaBecario({ id: 'sin-id', properties: { Nombre: { title: [] } } })], has_more: false }]);
+  const lista = await leerBecarios();
+  assert.deepEqual(lista.map((b) => b.id), ['cto'], 'se ignoran las filas sin Id');
+  assert.equal(peticiones[0].url, `https://api.notion.com/v1/data_sources/${BECARIOS_DS}/query`);
+});
+
+const fichaCto = { id: 'cto', nombre: 'Jefa', papel: '', pausado: false, instrucciones: 'a'.repeat(2500), avatar: { peinado: 'corto', accesorios: ['gafas', 'corbata'], piel: '#e0ac69', pelo: '#2b2b2b', ropa: '#7d5fc9', detalle: '#ffb000' } };
+
+test('guardarBecario actualiza su fila y parte las instrucciones largas en trozos de 2000', async () => {
+  simularNotion([{ results: [{ id: 'b1' }], has_more: false }, paginaBecario()]);
+  await guardarBecario(fichaCto);
+  assert.deepEqual(peticiones[0].cuerpo.filter, { property: 'Id', select: { equals: 'cto' } });
+  assert.equal(peticiones[1].method, 'PATCH');
+  assert.match(peticiones[1].url, /\/pages\/b1$/);
+  const p = peticiones[1].cuerpo.properties;
+  assert.deepEqual(p.Pausado, { checkbox: false });
+  assert.deepEqual(p.Papel, { rich_text: [] });
+  assert.deepEqual(p.Instrucciones.rich_text.map((t) => t.text.content.length), [2000, 500]);
+  assert.deepEqual(p.Accesorios, { multi_select: [{ name: 'gafas' }, { name: 'corbata' }] });
+  assert.deepEqual(p.Ropa, { rich_text: [{ text: { content: '#7d5fc9' } }] });
+});
+
+test('guardarBecario crea la fila si el becario aún no tiene', async () => {
+  simularNotion([{ results: [], has_more: false }, paginaBecario()]);
+  await guardarBecario({ ...fichaCto, instrucciones: '' });
+  assert.equal(peticiones[1].method, 'POST');
+  assert.deepEqual(peticiones[1].cuerpo.parent, { type: 'data_source_id', data_source_id: BECARIOS_DS });
+  assert.deepEqual(peticiones[1].cuerpo.properties.Instrucciones, { rich_text: [] });
+  assert.deepEqual(peticiones[1].cuerpo.properties.Id, { select: { name: 'cto' } });
 });

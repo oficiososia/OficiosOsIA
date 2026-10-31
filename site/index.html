@@ -25,6 +25,7 @@
       <a href="#oficina" data-pestana="oficina">Oficina</a>
       <a href="#producto" data-pestana="producto"><span class="texto-largo">Equipo de producto</span><span class="texto-corto">Producto</span></a>
       <a href="#tareas" data-pestana="tareas">Tareas</a>
+      <a href="#becarios" data-pestana="becarios">Becarios</a>
     </nav>
     <div class="panel-cabecera__usuario">
       <span data-usuario></span>
@@ -98,6 +99,35 @@
     <div class="avisos avisos--compactos" data-avisos-tablero></div>
     <div class="tablero" data-tablero aria-busy="true"><p class="cargando">Cargando el tablero…</p></div>
   </section>
+
+  <section class="vista" data-vista="becarios" aria-labelledby="titulo-becarios" hidden>
+    <div class="vista__cabecera">
+      <div>
+        <h1 id="titulo-becarios">Becarios</h1>
+        <p>Los agentes del plugin <code>becarios</code>. Aquí eliges su nombre, su papel, su aspecto, las instrucciones que siguen en todas sus tareas, si están pausados y en qué oficinas trabajan. Todo se guarda en Notion.</p>
+      </div>
+      <div class="vista__acciones">
+        <a class="boton-texto" data-notion-becarios href="https://app.notion.com/p/9b1af9d367e446b4bd62b4018677721b" target="_blank" rel="noopener">Abrir en Notion</a>
+      </div>
+    </div>
+    <div class="avisos" data-avisos-becarios></div>
+    <ul class="fichas" data-fichas aria-busy="true"><li class="cargando">Cargando becarios…</li></ul>
+
+    <div class="matriz">
+      <div class="matriz__cabecera">
+        <h2>Quién trabaja en cada oficina</h2>
+        <p>Marca en qué oficinas trabaja cada becario. Es lo mismo que el botón «Equipo» de cada sala. Sin CTO no se le pueden pasar tareas a esa oficina, porque todas entran por él.</p>
+      </div>
+      <div class="matriz__tabla" data-matriz></div>
+      <p class="matriz__aviso" data-matriz-aviso hidden></p>
+      <p class="error" data-error-matriz role="alert" hidden></p>
+      <div class="matriz__pie">
+        <span class="dialogo__cambios" data-cambios-matriz aria-live="polite"></span>
+        <button type="button" class="btn btn--ghost" data-deshacer-matriz disabled>Deshacer</button>
+        <button type="button" class="btn btn--amber" data-guardar-matriz disabled>Guardar oficinas</button>
+      </div>
+    </div>
+  </section>
 </main>
 
 <dialog class="dialogo" data-dialogo-puesto aria-labelledby="dialogo-puesto-titulo">
@@ -141,6 +171,52 @@
     <div class="dialogo__pie">
       <button type="button" class="btn btn--ghost" data-cerrar>Cancelar</button>
       <button type="submit" class="btn btn--amber" data-guardar>Guardar equipo</button>
+    </div>
+  </form>
+</dialog>
+<dialog class="dialogo dialogo--ancho" data-dialogo-becario aria-labelledby="dialogo-becario-titulo">
+  <form method="dialog" data-form-becario>
+    <div class="dialogo__cabecera">
+      <h2 id="dialogo-becario-titulo" data-titulo></h2>
+      <button type="button" class="dialogo__cerrar" data-cerrar aria-label="Cerrar">×</button>
+    </div>
+    <div class="dialogo__cuerpo">
+      <p class="dialogo__nota" data-nota hidden></p>
+      <div class="editor">
+        <div class="editor__vista" aria-hidden="true">
+          <span class="editor__sprite" data-vista-previa></span>
+          <span class="editor__nombre" data-vista-nombre></span>
+        </div>
+        <div class="editor__campos">
+          <label class="campo">Nombre<input name="nombre" maxlength="40" required autocomplete="off"></label>
+          <label class="campo">Papel<input name="papel" maxlength="120" autocomplete="off"></label>
+          <label class="interruptor"><input type="checkbox" name="pausado"><span><strong>Pausado</strong><small data-ayuda-pausa></small></span></label>
+          <fieldset class="grupo">
+            <legend>Peinado</legend>
+            <div class="opciones-avatar" data-peinados></div>
+          </fieldset>
+          <fieldset class="grupo">
+            <legend>Accesorios</legend>
+            <div class="opciones-avatar" data-accesorios></div>
+          </fieldset>
+          <fieldset class="grupo">
+            <legend>Colores</legend>
+            <div class="colores">
+              <label class="color">Piel<input type="color" name="piel"></label>
+              <label class="color">Pelo<input type="color" name="pelo"></label>
+              <label class="color">Ropa<input type="color" name="ropa"></label>
+              <label class="color">Detalle<input type="color" name="detalle"></label>
+            </div>
+          </fieldset>
+          <label class="campo">Instrucciones<textarea name="instrucciones" rows="6" maxlength="6000" placeholder="Ej.: escribe los tests antes que el código; los textos de la interfaz, siempre en español de España."></textarea>
+            <small class="campo__ayuda"><span>Reglas extra que este becario sigue en todas sus tareas.</span><span data-contador></span></small></label>
+        </div>
+      </div>
+      <p class="error" data-error-becario role="alert" hidden></p>
+    </div>
+    <div class="dialogo__pie">
+      <button type="button" class="btn btn--ghost" data-cerrar>Cancelar</button>
+      <button type="submit" class="btn btn--amber" data-guardar-becario>Guardar</button>
     </div>
   </form>
 </dialog>

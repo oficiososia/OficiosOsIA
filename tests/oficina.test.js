@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { combinarBecarios } from '../lib/becarios.js';
 import { construirOficina, estadoBecario, ordenarTareas } from '../lib/oficina.js';
 
 const tarea = (datos) => ({ id: datos.titulo, url: 'https://app.notion.com/p/x', fase: null, prioridad: null, bloqueo: '', editada: null, ...datos });
@@ -84,4 +85,20 @@ test('sin base «Proyectos», Atletas y Nexo son la misma sala', () => {
   assert.equal(oficina.proyectos.filter((p) => p.nombre === 'Nexo').length, 1);
   assert.equal(oficina.proyectos.find((p) => p.nombre === 'Nexo').abiertas, 1);
   assert.ok(!oficina.proyectos.some((p) => p.nombre === 'Atletas'));
+});
+
+test('un becario pausado no tiene mesa, salvo donde aún tiene tareas abiertas', () => {
+  const becarios = combinarBecarios([{ id: 'frontend', pausado: true, instrucciones: 'secretas' }, { id: 'cto', nombre: 'Jefa', avatar: { peinado: 'largo' } }]);
+  const proyectosNotion = [
+    { id: 'p1', nombre: 'Energym', clave: 'Energym', equipo: ['cto', 'frontend'], orden: 1 },
+    { id: 'p2', nombre: 'JPR', clave: 'JPR', equipo: ['cto', 'frontend'], orden: 2 },
+  ];
+  const oficina = construirOficina({ proyectosNotion, becarios, tareas: [tarea({ titulo: 'Menú', proyecto: 'JPR', becario: 'frontend', estado: 'En progreso' })] });
+  const [energym, jpr] = oficina.proyectos;
+  assert.deepEqual(energym.puestos.map((p) => p.becario), ['cto'], 'sin tareas, el pausado no sale');
+  assert.deepEqual(energym.equipo, ['cto', 'frontend'], 'sigue en el equipo');
+  assert.deepEqual(jpr.puestos.map((p) => [p.becario, p.pausado]), [['cto', false], ['frontend', true]]);
+  assert.equal(oficina.becarios[0].nombre, 'Jefa');
+  assert.equal(oficina.becarios[0].avatar.peinado, 'largo');
+  assert.ok(oficina.becarios.every((b) => !('instrucciones' in b)), 'las instrucciones no van a la oficina');
 });
