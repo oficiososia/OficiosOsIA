@@ -1,28 +1,25 @@
-// Asigna tareas por hacer a los becarios desde la oficina: cambia «Becario» en Notion.
-import { IDS_BECARIOS } from '../lib/becarios.js';
+// Pasa tareas por hacer al equipo de becarios desde la oficina. Siempre entran por el CTO,
+// en Preparación: él hace el plan y decide qué becario sigue (ver lib/notion.js).
 import { ErrorPeticion, json, leerJson, rutaPanel } from '../lib/http.js';
-import { asignarTarea } from '../lib/notion.js';
+import { pasarAlEquipo } from '../lib/notion.js';
 
 const ID = /^[0-9a-f-]{32,36}$/i;
 
 export default rutaPanel({
   async PUT(request) {
-    const { cambios } = await leerJson(request);
-    if (!Array.isArray(cambios) || !cambios.length) throw new ErrorPeticion('No hay asignaciones que guardar.');
-    if (cambios.length > 40) throw new ErrorPeticion('Como mucho 40 tareas de una vez.');
-    for (const c of cambios) {
-      if (typeof c?.tareaId !== 'string' || !ID.test(c.tareaId)) throw new ErrorPeticion('Hay una tarea sin identificar.');
-      if (c.becario !== null && !IDS_BECARIOS.includes(c.becario)) throw new ErrorPeticion('Hay un becario desconocido.');
-    }
+    const { tareas } = await leerJson(request);
+    if (!Array.isArray(tareas) || !tareas.length) throw new ErrorPeticion('No hay tareas que pasar al equipo.');
+    if (tareas.length > 40) throw new ErrorPeticion('Como mucho 40 tareas de una vez.');
+    if (tareas.some((id) => typeof id !== 'string' || !ID.test(id))) throw new ErrorPeticion('Hay una tarea sin identificar.');
     const hechas = [];
     // De una en una: Notion limita a unas 3 peticiones por segundo.
-    for (const c of cambios) {
+    for (const id of new Set(tareas)) {
       try {
-        await asignarTarea(c.tareaId, c.becario);
-        hechas.push(c.tareaId);
+        await pasarAlEquipo(id);
+        hechas.push(id);
       } catch (error) {
         console.error(error);
-        return json({ hechas, error: `Se han guardado ${hechas.length} de ${cambios.length}. Falló una tarea: ${error.message}` }, 502);
+        return json({ hechas, error: `Se han pasado ${hechas.length} de ${tareas.length}. Falló una tarea: ${error.message}` }, 502);
       }
     }
     return json({ hechas });

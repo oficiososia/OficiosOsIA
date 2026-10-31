@@ -206,69 +206,72 @@ function abrirPuesto(i, j) {
   dialogoPuesto.showModal();
 }
 
-// Tareas por hacer (Inbox o Por hacer) del proyecto, primero las que no tienen becario.
+// Tareas por hacer (Inbox o Por hacer) del proyecto: las que aún no están en el equipo y las
+// que ya están en su flujo esperando a quien las tiene.
 function tareasPorHacer(proyecto) {
-  const todas = [
-    ...proyecto.sinBecario.map((t) => ({ ...t, becario: null })),
-    ...proyecto.puestos.flatMap((pu) => pu.tareas.map((t) => ({ ...t, becario: pu.becario }))),
-  ];
   const prioridad = { Alta: 0, Media: 1, Baja: 2 };
-  return todas
-    .filter((t) => POR_HACER.has(t.estado))
-    .sort((a, b) => Number(Boolean(a.becario)) - Number(Boolean(b.becario)) || (prioridad[a.prioridad] ?? 9) - (prioridad[b.prioridad] ?? 9));
+  const ordenar = (lista) => lista.sort((a, b) => (prioridad[a.prioridad] ?? 9) - (prioridad[b.prioridad] ?? 9));
+  return {
+    libres: ordenar(proyecto.sinBecario.filter((t) => POR_HACER.has(t.estado))),
+    enFlujo: ordenar(proyecto.puestos.flatMap((pu) => pu.tareas.filter((t) => POR_HACER.has(t.estado)).map((t) => ({ ...t, becario: pu.becario })))),
+  };
 }
 
+function filaTarea(t, control) {
+  const titulo = enlace(t.url) ? `<a href="${enlace(t.url)}" target="_blank" rel="noopener">${escapar(t.titulo)}</a>` : escapar(t.titulo);
+  const etiquetas = [`<span class="etiqueta">${escapar(t.estado)}</span>`];
+  if (t.prioridad) etiquetas.push(`<span class="etiqueta">Prioridad ${escapar(t.prioridad.toLowerCase())}</span>`);
+  return `<li class="asignar__fila">${control}<div class="asignar__tarea">${titulo}<span class="etiquetas">${etiquetas.join('')}</span></div></li>`;
+}
+
+// La asignación pasa siempre por el equipo entero: la tarea entra por el CTO, en Preparación,
+// y él decide qué becario la coge después. Aquí no se elige becario.
 function abrirAsignar(i) {
   const proyecto = datos.proyectos[i];
-  const tareas = tareasPorHacer(proyecto);
-  // Se elige entre el equipo de la sala; sin equipo, entre todos los becarios.
-  const equipo = proyecto.equipo.length ? datos.becarios.filter((b) => proyecto.equipo.includes(b.id)) : datos.becarios;
+  const { libres, enFlujo } = tareasPorHacer(proyecto);
+  const conCto = !proyecto.equipo.length || proyecto.equipo.includes('cto');
   dialogoAsignar.dataset.indice = i;
   dialogoAsignar.querySelector('[data-titulo]').textContent = `Asignar tareas · ${proyecto.nombre}`;
-  dialogoAsignar.querySelector('[data-nota]').textContent = tareas.length
-    ? 'Elige qué becario coge cada tarea. Se guarda en Notion (columna «Becario»); las que estén en Inbox pasan a «Por hacer».'
-    : 'Este proyecto no tiene tareas por hacer: todo está en marcha, en espera o hecho.';
-  dialogoAsignar.querySelector('[data-lista-asignar]').innerHTML = tareas.map((t) => {
-    const opciones = [...equipo];
-    if (t.becario && !opciones.some((b) => b.id === t.becario)) opciones.push(becario(t.becario));
-    const titulo = enlace(t.url) ? `<a href="${enlace(t.url)}" target="_blank" rel="noopener">${escapar(t.titulo)}</a>` : escapar(t.titulo);
-    const etiquetas = [`<span class="etiqueta">${escapar(t.estado)}</span>`];
-    if (t.prioridad) etiquetas.push(`<span class="etiqueta">Prioridad ${escapar(t.prioridad.toLowerCase())}</span>`);
-    return `<li class="asignar__fila${t.becario ? '' : ' asignar__fila--libre'}">
-      <div class="asignar__tarea">${titulo}<span class="etiquetas">${etiquetas.join('')}</span></div>
-      <label class="asignar__becario"><span class="sr-only">Becario para «${escapar(t.titulo)}»</span>
-        <select data-tarea="${escapar(t.id)}" data-actual="${escapar(t.becario || '')}">
-          <option value="">Sin asignar</option>
-          ${opciones.map((b) => `<option value="${escapar(b.id)}"${b.id === t.becario ? ' selected' : ''}>${escapar(b.nombre)}</option>`).join('')}
-        </select></label></li>`;
-  }).join('');
+  dialogoAsignar.querySelector('[data-nota]').innerHTML = !conCto
+    ? '<strong>Este equipo no tiene CTO.</strong> Las tareas siempre entran por el CTO, que decide quién las coge: añádelo con el botón «Equipo».'
+    : libres.length
+      ? 'Marca las tareas que pasan al equipo. Las recibe el <strong>CTO</strong> en <strong>Preparación</strong>: hace el plan técnico y decide qué becario sigue (datos, servicios, interfaz, despliegue, QA). Las que estén en Inbox pasan a «Por hacer».'
+      : 'No quedan tareas por hacer fuera del equipo.';
+  const lista = [];
+  if (libres.length) {
+    lista.push(`<li class="asignar__titulo">Sin equipo · ${libres.length}</li>`);
+    lista.push(...libres.map((t) => filaTarea(t, `<input type="checkbox" data-tarea="${escapar(t.id)}" aria-label="Pasar «${escapar(t.titulo)}» al equipo"${conCto ? '' : ' disabled'}>`)));
+  }
+  if (enFlujo.length) {
+    lista.push(`<li class="asignar__titulo">Ya en el flujo del equipo · ${enFlujo.length}</li>`);
+    lista.push(...enFlujo.map((t) => filaTarea(t, `<span class="asignar__quien">${sprite(t.becario)}${escapar(becario(t.becario).nombre)}${t.fase ? ` · ${escapar(t.fase)}` : ''}</span>`)));
+  }
+  dialogoAsignar.querySelector('[data-lista-asignar]').innerHTML = lista.join('');
   dialogoAsignar.querySelector('[data-error-asignar]').hidden = true;
   contarCambios();
   dialogoAsignar.showModal();
 }
 
-function cambiosAsignar() {
-  return [...dialogoAsignar.querySelectorAll('select[data-tarea]')]
-    .filter((s) => s.value !== s.dataset.actual)
-    .map((s) => ({ tareaId: s.dataset.tarea, becario: s.value || null }));
-}
+const marcadas = () => [...dialogoAsignar.querySelectorAll('input[data-tarea]:checked')].map((c) => c.dataset.tarea);
 
 function contarCambios() {
-  const n = cambiosAsignar().length;
-  dialogoAsignar.querySelector('[data-cambios]').textContent = n ? `${n} ${n === 1 ? 'cambio' : 'cambios'} sin guardar` : '';
-  dialogoAsignar.querySelector('[data-guardar-asignar]').disabled = !n;
+  const n = marcadas().length;
+  dialogoAsignar.querySelector('[data-cambios]').textContent = n ? `${n} ${n === 1 ? 'tarea marcada' : 'tareas marcadas'}` : '';
+  const boton = dialogoAsignar.querySelector('[data-guardar-asignar]');
+  boton.disabled = !n;
+  boton.textContent = n ? `Pasar ${n} al equipo →` : 'Pasar al equipo →';
 }
 
 async function guardarAsignaciones(e) {
   e.preventDefault();
-  const cambios = cambiosAsignar();
-  if (!cambios.length) return;
+  const tareas = marcadas();
+  if (!tareas.length) return;
   const boton = dialogoAsignar.querySelector('[data-guardar-asignar]');
   const error = dialogoAsignar.querySelector('[data-error-asignar]');
   boton.disabled = true;
   error.hidden = true;
   try {
-    await api('/api/asignar', { method: 'PUT', body: { cambios } });
+    await api('/api/asignar', { method: 'PUT', body: { tareas } });
     dialogoAsignar.close();
   } catch (err) {
     error.textContent = err.message;
@@ -350,7 +353,7 @@ export function iniciarOficina() {
   }
   dialogoEquipo.querySelector('[data-form-equipo]').addEventListener('submit', guardarEquipo);
   dialogoAsignar.querySelector('[data-form-asignar]').addEventListener('submit', guardarAsignaciones);
-  dialogoAsignar.addEventListener('change', (e) => { if (e.target.matches('select[data-tarea]')) contarCambios(); });
+  dialogoAsignar.addEventListener('change', (e) => { if (e.target.matches('input[data-tarea]')) contarCambios(); });
   document.querySelector('[data-recargar]').addEventListener('click', cargarOficina);
   document.addEventListener('oficina:recargar', cargarOficina);
   document.addEventListener('peticiones:datos', (e) => {
