@@ -29,22 +29,24 @@ function tarjeta(t) {
     etiquetas.push(`<span class="etiqueta${clase}">${escapar(t.estado)}</span>`);
   }
   if (t.prioridad) etiquetas.push(`<span class="etiqueta">Prioridad ${escapar(t.prioridad.toLowerCase())}</span>`);
-  const becario = t.becario
-    ? `<span class="tarjeta__becario">${sprite(t.becario, { dormido: t.estado !== 'En progreso' })}${escapar(nombres[t.becario] || t.becario)}</span>`
+  // Una tarea padre puede tenerla uno o varios becarios a la vez.
+  const becarios = t.becarios?.length
+    ? `<span class="tarjeta__becarios">${t.becarios.map((id) => `<span class="tarjeta__becario">${sprite(id, { dormido: t.estado !== 'En progreso' })}${escapar(nombres[id] || id)}</span>`).join('')}</span>`
     : '';
+  const subtareas = t.subtareas ? `<span class="tarjeta__subtareas" title="Subtareas en Notion: no salen en el tablero">↳ ${t.subtareas} ${t.subtareas === 1 ? 'subtarea' : 'subtareas'}</span>` : '';
   const acento = temaDe({ nombre: t.sala || t.proyecto, claves: [t.proyecto] }).acento;
   return `<li class="tarjeta${t.estado === 'En espera' ? ' tarjeta--bloqueada' : ''}" style="--acento:${acento}">
     <span class="tarjeta__titulo">${titulo}</span>
     <span class="tarjeta__proyecto">${escapar(t.sala || 'Sin proyecto')}</span>
     ${etiquetas.length ? `<span class="etiquetas">${etiquetas.join('')}</span>` : ''}
     ${t.bloqueo && t.estado === 'En espera' ? `<span class="tarjeta__bloqueo">${escapar(t.bloqueo)}</span>` : ''}
-    ${becario}</li>`;
+    ${subtareas}${becarios}</li>`;
 }
 
 function pintar() {
   const proyecto = filtroProyecto.value;
   const becario = filtroBecario.value;
-  const tareas = datos.tareas.filter((t) => (!proyecto || t.sala === proyecto) && (!becario || t.becario === becario));
+  const tareas = datos.tareas.filter((t) => (!proyecto || t.sala === proyecto) && (!becario || t.becarios?.includes(becario)));
   tablero.innerHTML = datos.columnas.map((c) => {
     const suyas = tareas.filter((t) => t.columna === c.id);
     return `<section class="columna columna--${slug(c.id)}" aria-label="${escapar(c.nombre)}">
@@ -61,7 +63,7 @@ export async function cargarTablero() {
     datos = await api('/api/tablero');
     avisos.innerHTML = '';
     opciones(filtroProyecto, [...new Set(datos.tareas.map((t) => t.sala).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es')));
-    opciones(filtroBecario, [...new Set(datos.tareas.map((t) => t.becario).filter(Boolean))].sort(), (id) => nombres[id] || id);
+    opciones(filtroBecario, [...new Set(datos.tareas.flatMap((t) => t.becarios || []))].sort(), (id) => nombres[id] || id);
     pintar();
     actualizado.textContent = `Actualizado a las ${hora()}`;
   } catch (error) {

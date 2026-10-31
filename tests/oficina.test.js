@@ -102,3 +102,16 @@ test('un becario pausado no tiene mesa, salvo donde aún tiene tareas abiertas',
   assert.equal(oficina.becarios[0].avatar.peinado, 'largo');
   assert.ok(oficina.becarios.every((b) => !('instrucciones' in b)), 'las instrucciones no van a la oficina');
 });
+
+test('una tarea con varios becarios sale en la mesa de cada uno, y no como «sin becario»', () => {
+  const oficina = construirOficina({
+    proyectosNotion: [{ id: 'p1', nombre: 'Energym', clave: 'Energym', equipo: ['cto', 'backend-datos', 'frontend'], orden: 1 }],
+    tareas: [tarea({ titulo: 'Reservas', proyecto: 'Energym', becarios: ['backend-datos', 'frontend'], estado: 'En progreso', fase: 'Desarrollo y unitarias' })],
+  });
+  const [energym] = oficina.proyectos;
+  const trabajando = energym.puestos.filter((p) => p.estado === 'trabajando').map((p) => p.becario).sort();
+  assert.deepEqual(trabajando, ['backend-datos', 'frontend']);
+  assert.equal(energym.sinBecario.length, 0);
+  assert.equal(energym.abiertas, 1, 'cuenta una tarea, no dos');
+  assert.deepEqual(energym.puestos.find((p) => p.becario === 'frontend').actual.becarios, ['backend-datos', 'frontend']);
+});

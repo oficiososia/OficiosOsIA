@@ -217,7 +217,9 @@
 .tarjeta__titulo a:hover { color: var(--ambar); text-decoration: underline; }
 .tarjeta__proyecto { opacity: 0.7; }
 .tarjeta__bloqueo { color: var(--e-bloqueado); }
+.tarjeta__becarios { display: flex; flex-wrap: wrap; gap: 4px 12px; }
 .tarjeta__becario { display: flex; align-items: center; gap: 6px; }
+.tarjeta__subtareas { font-size: 11px; opacity: 0.65; }
 .tarjeta__becario .sprite { width: 22px; height: 22px; }
 
 /* Diálogos */
