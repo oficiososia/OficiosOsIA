@@ -78,8 +78,18 @@ export async function cargarBecarios() {
   }
 }
 
+// Departamentos en el orden del panel, con sus becarios.
+const porDepartamento = () => (datos.departamentos || [{ id: null, nombre: 'Becarios' }]).map((d) => ({
+  ...d,
+  becarios: datos.becarios.filter((b) => !d.id || b.departamento === d.id),
+})).filter((d) => d.becarios.length);
+
 function pintarFichas() {
-  fichas.innerHTML = datos.becarios.map((b) => {
+  fichas.innerHTML = porDepartamento().map((d) => `<li class="fichas__grupo"><h2>${escapar(d.nombre)}</h2>${d.papel ? `<p>${escapar(d.papel)}</p>` : ''}</li>${htmlFichas(d.becarios)}`).join('');
+}
+
+function htmlFichas(becarios) {
+  return becarios.map((b) => {
     const oficinas = datos.proyectos.filter((p) => p.equipo.includes(b.id)).length;
     const etiquetas = [
       `<span class="etiqueta${b.modelo || b.esfuerzo ? ' etiqueta--elegida' : ''}" title="Modelo y esfuerzo">${escapar(comoTrabaja(b))}</span>`,
@@ -103,7 +113,7 @@ function pintarMatriz() {
     return;
   }
   const cabecera = datos.proyectos.map((p) => `<th scope="col">${escapar(p.nombre)}</th>`).join('');
-  const filas = datos.becarios.map((b) => {
+  const fila = (b) => {
     const celdas = datos.proyectos.map((p) => {
       const marcada = marcadas.get(p.id).has(b.id);
       const cambiada = marcada !== p.equipo.includes(b.id);
@@ -111,7 +121,8 @@ function pintarMatriz() {
         aria-label="${escapar(b.nombre)} trabaja en ${escapar(p.nombre)}"></td>`;
     }).join('');
     return `<tr${b.pausado ? ' class="pausado"' : ''}><th scope="row"><span class="matriz__becario">${sprite(b.id, { dormido: b.pausado })}${escapar(b.nombre)}${b.pausado ? '<small>Pausado</small>' : ''}</span></th>${celdas}</tr>`;
-  }).join('');
+  };
+  const filas = porDepartamento().map((d) => `<tr class="matriz__grupo"><th scope="rowgroup" colspan="${datos.proyectos.length + 1}">${escapar(d.nombre)}</th></tr>${d.becarios.map(fila).join('')}`).join('');
   matriz.innerHTML = `<table><thead><tr><th scope="col"><span class="sr-only">Becario</span></th>${cabecera}</tr></thead><tbody>${filas}</tbody></table>`;
   actualizarPie();
 }
@@ -121,9 +132,17 @@ function actualizarPie() {
   cambiosMatriz.textContent = n ? `${n} ${n === 1 ? 'oficina cambiada' : 'oficinas cambiadas'}` : '';
   deshacer.disabled = !n;
   guardarMatriz.disabled = !n;
-  const sinCto = (datos?.proyectos || []).filter((p) => !marcadas.get(p.id).has('cto')).map((p) => p.nombre);
-  avisoMatriz.hidden = !sinCto.length;
-  avisoMatriz.textContent = sinCto.length ? `Sin CTO: ${sinCto.join(', ')}. A esas oficinas no se les pueden pasar tareas.` : '';
+  // Un departamento con gente pero sin su entrada no puede recibir tareas.
+  const sinEntrada = [];
+  for (const p of datos?.proyectos || []) {
+    const marcados = marcadas.get(p.id);
+    for (const d of datos.departamentos || []) {
+      const conGente = datos.becarios.some((b) => b.departamento === d.id && marcados.has(b.id));
+      if (conGente && !marcados.has(d.entrada)) sinEntrada.push(`${p.nombre} (${d.nombre})`);
+    }
+  }
+  avisoMatriz.hidden = !sinEntrada.length;
+  avisoMatriz.textContent = sinEntrada.length ? `Sin su entrada: ${sinEntrada.join(', ')}. A esos departamentos no se les pueden pasar tareas.` : '';
 }
 
 async function guardarOficinas() {
@@ -206,8 +225,9 @@ function abrirEditor(id) {
   form.elements.esfuerzo.value = b.esfuerzo || '';
   dialogo.querySelector('[data-ritmo-defecto]').textContent = `${MODELOS[plugin.modelo] || 'Modelo de la sesión'} · ${textoEsfuerzo(plugin.esfuerzo)}`;
   marcarRitmo();
-  dialogo.querySelector('[data-ayuda-pausa]').textContent = id === 'cto'
-    ? 'Las tareas entran por el CTO: si lo pausas, no se le pueden pasar tareas a ninguna oficina.'
+  const entradaDe = (datos.departamentos || []).find((d) => d.entrada === id);
+  dialogo.querySelector('[data-ayuda-pausa]').textContent = entradaDe
+    ? `Las tareas de ${entradaDe.nombre} entran por su mesa: si lo pausas, no se le pueden pasar tareas de ${entradaDe.nombre} a ninguna oficina.`
     : 'No sale en las oficinas (salvo donde aún tenga tareas abiertas) y no se pone a trabajar.';
   const nota = dialogo.querySelector('[data-nota]');
   nota.hidden = datos.fichasGuardables;

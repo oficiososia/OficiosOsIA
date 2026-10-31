@@ -2,7 +2,7 @@
 // La PO, el PM y el CTO la procesan en Claude Code con el skill /producto.
 // Tres subpestañas para no hacer scroll: Nueva petición, Peticiones y Chat.
 import { sprite } from './sprites.js';
-import { api, enlace, escapar } from './util.js';
+import { api, enlace, escapar, normalizar } from './util.js';
 
 const ROLES = [
   { id: 'po', nombre: 'Product Owner', papel: 'Historias y criterios de aceptación' },
@@ -50,10 +50,19 @@ export async function cargarPeticiones() {
     numPeticiones.hidden = !activas;
     numPeticiones.textContent = activas || '';
     numPeticiones.title = activas ? `${activas} en marcha` : '';
+    // También por proyecto: cada oficina tiene su habitación de producto.
+    const porProyecto = {};
+    for (const p of peticiones) {
+      const clave = normalizar(p.proyecto);
+      porProyecto[clave] ??= { pendientes: 0, enCurso: 0 };
+      if (p.estado === 'Pendiente') porProyecto[clave].pendientes++;
+      if (p.estado === 'En curso') porProyecto[clave].enCurso++;
+    }
     document.dispatchEvent(new CustomEvent('peticiones:datos', {
       detail: {
         pendientes: peticiones.filter((p) => p.estado === 'Pendiente').length,
         enCurso: peticiones.filter((p) => p.estado === 'En curso').length,
+        porProyecto,
       },
     }));
   } catch (error) {

@@ -41,7 +41,7 @@ const paginaTarea = {
 test('aTarea y aProyecto leen las propiedades de Notion', () => {
   assert.deepEqual(aTarea(paginaTarea), {
     id: 't1', url: 'https://app.notion.com/p/t1', titulo: 'Botones de acción', proyecto: 'Casa Tomás', becarios: ['cto'],
-    fase: 'PR y revisión', estado: 'En progreso', prioridad: null, bloqueo: '', editada: '2026-10-30T10:00:00.000Z', subtareas: 0,
+    fase: 'PR y revisión', estado: 'En progreso', prioridad: null, bloqueo: '', pr: null, editada: '2026-10-30T10:00:00.000Z', subtareas: 0,
   });
   const proyecto = aProyecto({ id: 'p1', url: 'u', properties: { Nombre: { title: [{ plain_text: 'Cristalería BV' }] }, 'Proyecto en tareas': { rich_text: [{ plain_text: 'Cristalería' }] }, Becarios: { multi_select: [{ name: 'cto' }] }, Repositorio: { url: null }, Orden: { number: 3 }, Logo: { url: 'https://x.test/logo.png' }, Color: { rich_text: [{ plain_text: '#7ec8e3' }] } } });
   assert.deepEqual(proyecto, { id: 'p1', url: 'u', nombre: 'Cristalería BV', clave: 'Cristalería', equipo: ['cto'], repo: null, orden: 3, logo: 'https://x.test/logo.png', color: '#7ec8e3' });

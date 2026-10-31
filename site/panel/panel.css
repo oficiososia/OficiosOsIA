@@ -426,8 +426,89 @@
 .etiqueta--elegida { border-color: var(--ambar); color: var(--ambar); }
 .puesto--pausado .sprite { filter: grayscale(1); opacity: 0.7; }
 
+/* Habitaciones: cada sala se divide en producto y los departamentos de su equipo. El tamaño
+   de cada una lo calcula oficina.js (distribuir) para que todo quepa sin scroll. */
+.habitaciones { position: relative; z-index: 2; height: 100%; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 10px; }
+.habitacion { --pared-cuarto: color-mix(in srgb, var(--acento) 35%, #18191b); flex: none; min-width: 0; min-height: 0; display: flex; flex-direction: column; padding: 4px 8px 6px; border: 3px solid var(--pared-cuarto); background: rgba(10, 10, 12, 0.22); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3); }
+.habitacion--producto { --pared-cuarto: #6c5a8a; }
+.habitacion--qa { --pared-cuarto: #2f7f78; }
+.habitacion--marketing { --pared-cuarto: #9a4f73; }
+.habitacion--fuera { border-style: dashed; }
+.habitacion--vacia { border-style: dashed; --pared-cuarto: var(--linea); }
+.habitacion__cartel { flex: none; margin: 0 0 4px; height: 24px; display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; min-width: 0; }
+.habitacion__cartel span { background: #18191b; border-left: 4px solid var(--pared-cuarto); padding: 2px 8px; white-space: nowrap; }
+.habitacion--trabajando .habitacion__cartel span { border-left-color: var(--e-trabajando); }
+.habitacion__cartel small { font-size: 10px; letter-spacing: 0.04em; text-transform: none; opacity: 0.75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.habitacion__fuera { color: var(--e-bloqueado); opacity: 1 !important; }
+.habitacion .puestos { flex: 1; min-height: 0; height: auto; }
+/* Apiladas: cada habitación a lo ancho, con su altura, y el suelo se desplaza. */
+.sala__suelo:has(.habitaciones--apiladas) { overflow-y: auto; padding-bottom: 12px; }
+.habitaciones--apiladas { height: auto; }
+.habitaciones--apiladas .puestos { grid-template-rows: repeat(var(--filas, 1), auto); }
+.sala__suelo:has(.habitaciones--apiladas) .esquina { display: none; }
+.sala__suelo:has(.habitaciones--apiladas) .bandeja { position: sticky; left: auto; bottom: 0; margin-top: 10px; }
+.habitacion__vacia { margin: auto; padding: 8px; font-size: 12px; line-height: 1.5; text-align: center; opacity: 0.85; }
+.sala__nube { flex: none; font-size: 12px; padding: 6px 10px; border: 2px solid #7fd18b; color: #7fd18b; white-space: nowrap; }
+.sala__boton--nube { border-style: dashed; }
+
+/* Lanzar en la nube */
+.boton-nube { flex: none; background: transparent; border: 2px solid var(--ambar); color: var(--ambar); font: inherit; font-size: 12px; padding: 3px 8px; cursor: pointer; white-space: nowrap; }
+.boton-nube:hover, .boton-nube:focus-visible { background: rgba(255, 176, 0, 0.12); }
+.asignar__fila .boton-nube { order: 3; }
+.lista-tareas__fila { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.lista-tareas__fila > a { min-width: 0; overflow-wrap: anywhere; }
+.etiqueta--enlace { color: var(--ambar); text-decoration: none; border-color: var(--ambar); }
+.ritmos--tres { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ritmo--apagado { opacity: 0.5; cursor: not-allowed; }
+.ritmo--apagado input { cursor: not-allowed; }
+.dialogo__cuerpo > .grupo, .dialogo__cuerpo > .interruptor, .dialogo__cuerpo > .campo { margin-bottom: 12px; }
+.dialogo__cuerpo .campo textarea { min-height: 64px; }
+.dialogo--hecho .dialogo__cuerpo > :not(.resultado) { display: none; }
+.resultado { margin: 12px 0; padding: 12px 14px; border: 2px solid #7fd18b; font-size: 13px; line-height: 1.6; }
+.resultado p { margin: 0 0 8px; }
+.resultado a { color: var(--ambar); }
+
+/* Equipo por departamentos */
+.departamento { border: 0; margin: 0; padding: 0 0 6px; }
+.departamento + .departamento { margin-top: 10px; }
+.departamento__cabeza { padding: 0; width: 100%; }
+.departamento__interruptor { display: flex; align-items: center; gap: 10px; padding: 10px 0 8px; cursor: pointer; border-bottom: 2px solid var(--linea); }
+.departamento__interruptor input { width: 20px; height: 20px; accent-color: var(--ambar); flex: none; }
+.departamento__interruptor strong { display: block; font-family: var(--font-display); font-weight: 700; font-size: 15px; }
+.departamento__interruptor small { display: block; font-size: 12px; opacity: 0.75; }
+.departamento__miembros { padding-left: 30px; }
+.equipo-opciones { border-top: 0; }
+
+/* Becarios por departamentos */
+.fichas__grupo { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; padding-top: 12px; border-bottom: 2px solid var(--linea); padding-bottom: 6px; }
+.fichas__grupo:first-child { padding-top: 0; }
+.fichas__grupo h2 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 20px; }
+.fichas__grupo p { margin: 0; font-size: 13px; opacity: 0.75; }
+.matriz__tabla tr.matriz__grupo th { position: sticky; left: 0; text-align: left; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ambar); background: var(--noche); border-bottom: 2px solid var(--linea); }
+
+/* Conexiones */
+.conexiones { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 400px); gap: 24px; align-items: start; margin-top: 20px; }
+.conexiones__lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.conexion { border: 2px solid var(--linea); background: var(--noche-2); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.conexion__cabeza { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.conexion__nombre { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 18px; }
+.conexion__repo { font-size: 12px; color: var(--claro); opacity: 0.8; }
+.conexion__detalle { margin: 0; font-size: 12px; line-height: 1.6; opacity: 0.85; overflow-wrap: anywhere; }
+.conexion__form { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 10px; align-items: end; }
+.conexion__form .error { grid-column: 1 / -1; }
+.conexion__botones { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; }
+.conexion__botones .btn { font-size: 13px; padding: 10px 14px; }
+.conexiones__guia { position: sticky; top: 84px; }
+.conexiones__guia li { margin-bottom: 8px; }
+.conexiones__guia p { margin: 10px 0 0; font-size: 12px; opacity: 0.85; }
+
+@media (max-width: 1360px) {
+  .sala .leyenda { display: none; }
+}
 @media (max-width: 900px) {
   .producto { grid-template-columns: minmax(0, 1fr); }
+  .conexiones { grid-template-columns: minmax(0, 1fr); }
+  .conexiones__guia { position: static; }
   .producto__peticion { position: static; }
 }
 @media (max-width: 640px) {
@@ -482,6 +563,12 @@
   .matriz__becario { font-size: 12px; gap: 6px; }
   .matriz__becario small { display: none; }
   .columna { flex-basis: 82vw; }
+  .habitaciones { gap: 6px; }
+  .habitacion { padding: 2px 4px 4px; border-width: 2px; }
+  .habitacion__cartel small, .sala__nube { display: none; }
+  .ritmos--tres { grid-template-columns: minmax(0, 1fr); }
+  .conexion__form { grid-template-columns: minmax(0, 1fr); }
+  .departamento__miembros { padding-left: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .panel *, .panel *::before, .panel *::after { animation: none !important; }

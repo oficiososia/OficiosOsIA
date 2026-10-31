@@ -26,6 +26,7 @@
       <a href="#producto" data-pestana="producto"><span class="texto-largo">Equipo de producto</span><span class="texto-corto">Producto</span></a>
       <a href="#tareas" data-pestana="tareas">Tareas</a>
       <a href="#becarios" data-pestana="becarios">Becarios</a>
+      <a href="#conexiones" data-pestana="conexiones"><span class="texto-largo">Conexiones</span><span class="texto-corto">Nube</span></a>
     </nav>
     <div class="panel-cabecera__usuario">
       <span data-usuario></span>
@@ -120,6 +121,7 @@
     <div class="barra-tablero">
       <h1 id="titulo-tareas">Tareas</h1>
       <label class="filtro">Proyecto<select data-filtro-proyecto><option value="">Todos</option></select></label>
+      <label class="filtro">Departamento<select data-filtro-departamento><option value="">Todos</option></select></label>
       <label class="filtro">Becario<select data-filtro-becario><option value="">Todos</option></select></label>
       <span class="barra-tablero__info">
         <span class="actualizado" data-actualizado-tablero></span>
@@ -134,7 +136,7 @@
     <div class="vista__cabecera">
       <div>
         <h1 id="titulo-becarios">Becarios</h1>
-        <p>Los agentes del plugin <code>becarios</code>. Aquí eliges su nombre, su papel, su aspecto, las instrucciones que siguen en todas sus tareas, si están pausados y en qué oficinas trabajan. Todo se guarda en Notion.</p>
+        <p>Los agentes de los plugins de <a href="https://github.com/oficiososia/becarios" target="_blank" rel="noopener">oficiososia/becarios</a>, por departamentos: desarrollo, QA y marketing. Aquí eliges su nombre, su papel, su aspecto, las instrucciones que siguen en todas sus tareas, si están pausados y en qué oficinas trabajan. Todo se guarda en Notion.</p>
       </div>
       <div class="vista__acciones">
         <a class="boton-texto" data-notion-becarios href="https://app.notion.com/p/9b1af9d367e446b4bd62b4018677721b" target="_blank" rel="noopener">Abrir en Notion</a>
@@ -146,7 +148,7 @@
     <div class="matriz">
       <div class="matriz__cabecera">
         <h2>Quién trabaja en cada oficina</h2>
-        <p>Marca en qué oficinas trabaja cada becario. Es lo mismo que el botón «Equipo» de cada sala. Sin CTO no se le pueden pasar tareas a esa oficina, porque todas entran por él.</p>
+        <p>Marca en qué oficinas trabaja cada becario. Es lo mismo que el botón «Equipo» de cada sala. Cada departamento recibe las tareas por su entrada (CTO, Jefa de QA o Dirección de marketing): sin ella, a ese departamento no se le pueden pasar tareas.</p>
       </div>
       <div class="matriz__tabla" data-matriz></div>
       <p class="matriz__aviso" data-matriz-aviso hidden></p>
@@ -156,6 +158,30 @@
         <button type="button" class="btn btn--ghost" data-deshacer-matriz disabled>Deshacer</button>
         <button type="button" class="btn btn--amber" data-guardar-matriz disabled>Guardar oficinas</button>
       </div>
+    </div>
+  </section>
+
+  <section class="vista" data-vista="conexiones" aria-labelledby="titulo-conexiones" hidden>
+    <div class="vista__cabecera">
+      <div>
+        <h1 id="titulo-conexiones">Conexiones</h1>
+        <p>Tu tarea programada de Claude Code en cada proyecto. Con ella, las tareas que asignas se hacen en la nube con <strong>tu suscripción de Claude</strong>, con los tokens de Vercel, Supabase y GitHub de ese proyecto que guardas en tu cuenta de Claude, hasta abrir el PR. Cada persona tiene las suyas: lo que guardes aquí solo lo usas tú.</p>
+      </div>
+    </div>
+    <div class="avisos" data-avisos-conexiones></div>
+    <div class="conexiones">
+      <ul class="conexiones__lista" data-conexiones aria-busy="true"><li class="cargando">Cargando conexiones…</li></ul>
+      <aside class="como conexiones__guia">
+        <h2>Cómo se conecta un proyecto</h2>
+        <ol>
+          <li><strong>GitHub.</strong> En <a href="https://claude.ai/code" target="_blank" rel="noopener">claude.ai/code</a>, que tu cuenta de Claude llegue al repositorio del proyecto (la app de Claude en GitHub o <code>/web-setup</code>).</li>
+          <li><strong>Entorno en la nube</strong>, uno por proyecto. Acceso a red: el de por defecto más <code>api.vercel.com</code>, <code>*.vercel.app</code>, <code>api.supabase.com</code>, <code>*.supabase.co</code> y <code>api.notion.com</code>. Secretos de red (Bearer): tu token de Vercel para <code>api.vercel.com</code> y el de Supabase para <code>api.supabase.com</code>, de la cuenta de ese proyecto. Variables: <code>VERCEL_PROJECT_ID</code>, <code>VERCEL_TEAM_ID</code>, <code>SUPABASE_PROJECT_REF</code> y las públicas de la app.</li>
+          <li><strong>Tarea programada</strong> en <a href="https://claude.ai/code/routines" target="_blank" rel="noopener">claude.ai/code/routines</a>: el repositorio del proyecto, ese entorno, el conector de Notion y, como instrucciones, <a href="https://github.com/oficiososia/becarios/blob/HEAD/plugins/oficina/rutina/prompt.md" target="_blank" rel="noopener">este prompt</a> <button type="button" class="boton-texto" data-copiar-prompt>(copiar)</button>.</li>
+          <li><strong>Disparador por API.</strong> Añádele un disparador «API», genera el token (solo se ve una vez) y pega aquí la URL y el token.</li>
+        </ol>
+        <p>Cada lanzamiento abre una sesión en tu cuenta que puedes seguir y contestar desde la app de Claude. Gasta tu suscripción como una sesión normal. Hay un límite de 30 lanzamientos por hora en cada tarea programada y de 100 por cuenta. El token se guarda cifrado y no vuelve a salir del servidor.</p>
+        <p class="enviada" data-prompt-copiado role="status" hidden></p>
+      </aside>
     </div>
   </section>
 </main>
@@ -176,7 +202,14 @@
     </div>
     <div class="dialogo__cuerpo">
       <p class="dialogo__nota" data-nota></p>
+      <fieldset class="grupo">
+        <legend>Departamento</legend>
+        <div class="ritmos ritmos--tres" data-departamentos-asignar></div>
+      </fieldset>
+      <label class="interruptor"><input type="checkbox" name="lanzar"><span><strong>Lanzarlas ya en la nube con mi suscripción ☁</strong><small data-ayuda-lanzar></small></span></label>
+      <label class="campo" data-nota-lanzar hidden>Indicaciones para esta vez (opcional)<textarea name="nota" rows="2" maxlength="500" placeholder="Ej.: céntrate en la versión móvil."></textarea></label>
       <ul class="asignar" data-lista-asignar></ul>
+      <div class="resultado" data-resultado-asignar role="status" hidden></div>
       <p class="error" data-error-asignar role="alert" hidden></p>
     </div>
     <div class="dialogo__pie">
@@ -195,7 +228,7 @@
     </div>
     <div class="dialogo__cuerpo">
       <p class="dialogo__nota" data-nota></p>
-      <fieldset class="equipo-opciones" data-opciones><legend class="sr-only">Becarios del equipo</legend></fieldset>
+      <div class="equipo-opciones" data-opciones></div>
       <p class="error" data-error-equipo role="alert" hidden></p>
     </div>
     <div class="dialogo__pie">
@@ -204,6 +237,25 @@
     </div>
   </form>
 </dialog>
+<dialog class="dialogo" data-dialogo-lanzar aria-labelledby="dialogo-lanzar-titulo">
+  <form method="dialog" data-form-lanzar>
+    <div class="dialogo__cabecera">
+      <h2 id="dialogo-lanzar-titulo" data-titulo></h2>
+      <button type="button" class="dialogo__cerrar" data-cerrar aria-label="Cerrar">×</button>
+    </div>
+    <div class="dialogo__cuerpo">
+      <div data-cuerpo-lanzar></div>
+      <label class="campo">Indicaciones para esta vez (opcional)<textarea name="nota" rows="3" maxlength="500" placeholder="Ej.: no toques el diseño de la portada."></textarea></label>
+      <div class="resultado" data-resultado-lanzar role="status" hidden></div>
+      <p class="error" data-error-lanzar role="alert" hidden></p>
+    </div>
+    <div class="dialogo__pie">
+      <button type="button" class="btn btn--ghost" data-cerrar>Cerrar</button>
+      <button type="submit" class="btn btn--amber" data-confirmar-lanzar>Lanzar en la nube ☁</button>
+    </div>
+  </form>
+</dialog>
+
 <dialog class="dialogo dialogo--ancho" data-dialogo-becario aria-labelledby="dialogo-becario-titulo">
   <form method="dialog" data-form-becario>
     <div class="dialogo__cabecera">

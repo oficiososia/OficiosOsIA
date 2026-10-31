@@ -115,3 +115,28 @@ test('una tarea con varios becarios sale en la mesa de cada uno, y no como «sin
   assert.equal(energym.abiertas, 1, 'cuenta una tarea, no dos');
   assert.deepEqual(energym.puestos.find((p) => p.becario === 'frontend').actual.becarios, ['backend-datos', 'frontend']);
 });
+
+test('cada sala tiene una habitación por departamento del equipo o con tareas', () => {
+  const oficina = construirOficina({
+    proyectosNotion: [{ id: 'p1', nombre: 'Energym', clave: 'Energym', equipo: ['cto', 'frontend', 'qa-lead', 'qa-accesibilidad'], orden: 1 }],
+    tareas: [
+      tarea({ titulo: 'SEO', proyecto: 'Energym', becarios: ['mk-seo'], estado: 'En progreso', fase: 'Producción' }),
+      tarea({ titulo: 'Auditoría', proyecto: 'Energym', becarios: ['qa-lead'], estado: 'Por hacer', fase: 'Preparación' }),
+    ],
+  });
+  const [energym] = oficina.proyectos;
+  assert.deepEqual(energym.habitaciones.map((d) => [d.id, d.activo, d.conEntrada, d.abiertas, d.trabajando]), [
+    ['desarrollo', true, true, 0, false],
+    ['qa', true, true, 1, false],
+    ['marketing', false, false, 1, true],
+  ], 'marketing no está en el equipo, pero sale porque tiene trabajo');
+  assert.deepEqual(energym.puestos.map((p) => [p.becario, p.departamento]), [
+    ['cto', 'desarrollo'], ['frontend', 'desarrollo'], ['qa-lead', 'qa'], ['qa-accesibilidad', 'qa'], ['mk-seo', 'marketing'],
+  ]);
+  assert.equal(energym.puestos.find((p) => p.becario === 'qa-lead').actual.departamento, 'qa');
+});
+
+test('una sala sin equipo ni tareas no tiene habitaciones', () => {
+  const oficina = construirOficina({ proyectosNotion: [{ id: 'p1', nombre: 'JPR', clave: 'JPR', equipo: [], orden: 1 }], tareas: [] });
+  assert.deepEqual(oficina.proyectos[0].habitaciones, []);
+});

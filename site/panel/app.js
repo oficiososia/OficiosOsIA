@@ -1,12 +1,13 @@
 // Arranque del panel: pestañas, usuario y salida.
 import { cargarBecarios, iniciarBecarios } from './becarios.js';
 import { iniciarChat } from './chat.js';
+import { cargarConexiones, iniciarConexiones } from './conexiones.js';
 import { cargarOficina, iniciarOficina } from './oficina.js';
 import { iniciarProducto, mostrarSubpestana } from './producto.js';
 import { cargarTablero, iniciarTablero } from './tablero.js';
 import { api } from './util.js';
 
-const VISTAS = ['oficina', 'producto', 'tareas', 'becarios'];
+const VISTAS = ['oficina', 'producto', 'tareas', 'becarios', 'conexiones'];
 // La oficina y el tablero ocupan la pantalla entera sin scroll de página; producto y becarios sí se desplazan.
 const FIJAS = new Set(['oficina', 'tareas']);
 
@@ -18,6 +19,7 @@ function mostrarVista() {
   document.body.classList.toggle('panel--fija', FIJAS.has(actual));
   if (actual === 'tareas') cargarTablero();
   if (actual === 'becarios') cargarBecarios();
+  if (actual === 'conexiones') cargarConexiones();
   if (actual === 'producto') mostrarSubpestana();
   document.querySelectorAll('[data-pestana]').forEach((a) => {
     if (a.dataset.pestana === actual) a.setAttribute('aria-current', 'page');
@@ -41,4 +43,5 @@ iniciarProducto();
 iniciarChat();
 iniciarTablero();
 iniciarBecarios();
+iniciarConexiones();
 cargarOficina();

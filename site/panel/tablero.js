@@ -7,6 +7,7 @@ const vista = document.querySelector('[data-vista="tareas"]');
 const tablero = document.querySelector('[data-tablero]');
 const filtroProyecto = document.querySelector('[data-filtro-proyecto]');
 const filtroBecario = document.querySelector('[data-filtro-becario]');
+const filtroDepartamento = document.querySelector('[data-filtro-departamento]');
 const avisos = document.querySelector('[data-avisos-tablero]');
 const actualizado = document.querySelector('[data-actualizado-tablero]');
 
@@ -29,6 +30,7 @@ function tarjeta(t) {
     etiquetas.push(`<span class="etiqueta${clase}">${escapar(t.estado)}</span>`);
   }
   if (t.prioridad) etiquetas.push(`<span class="etiqueta">Prioridad ${escapar(t.prioridad.toLowerCase())}</span>`);
+  if (enlace(t.pr)) etiquetas.push(`<a class="etiqueta etiqueta--enlace" href="${enlace(t.pr)}" target="_blank" rel="noopener">PR ↗</a>`);
   // Una tarea padre puede tenerla uno o varios becarios a la vez.
   const becarios = t.becarios?.length
     ? `<span class="tarjeta__becarios">${t.becarios.map((id) => `<span class="tarjeta__becario">${sprite(id, { dormido: t.estado !== 'En progreso' })}${escapar(nombres[id] || id)}</span>`).join('')}</span>`
@@ -46,8 +48,11 @@ function tarjeta(t) {
 function pintar() {
   const proyecto = filtroProyecto.value;
   const becario = filtroBecario.value;
-  const tareas = datos.tareas.filter((t) => (!proyecto || t.sala === proyecto) && (!becario || t.becarios?.includes(becario)));
-  tablero.innerHTML = datos.columnas.map((c) => {
+  const dep = filtroDepartamento.value;
+  const tareas = datos.tareas.filter((t) => (!proyecto || t.sala === proyecto) && (!becario || t.becarios?.includes(becario)) && (!dep || t.departamento === dep));
+  // Con un departamento elegido, solo sus fases. Con todos, las de QA y marketing solo si tienen algo.
+  const columnas = datos.columnas.filter((c) => (dep ? c.departamentos.includes(dep) : c.departamentos.includes('desarrollo') || tareas.some((t) => t.columna === c.id)));
+  tablero.innerHTML = columnas.map((c) => {
     const suyas = tareas.filter((t) => t.columna === c.id);
     return `<section class="columna columna--${slug(c.id)}" aria-label="${escapar(c.nombre)}">
       <header class="columna__cabeza"><h2>${escapar(c.nombre)}</h2><span class="columna__num">${suyas.length}</span></header>
@@ -64,6 +69,8 @@ export async function cargarTablero() {
     avisos.innerHTML = '';
     opciones(filtroProyecto, [...new Set(datos.tareas.map((t) => t.sala).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es')));
     opciones(filtroBecario, [...new Set(datos.tareas.flatMap((t) => t.becarios || []))].sort(), (id) => nombres[id] || id);
+    const deps = Object.fromEntries((datos.departamentos || []).map((d) => [d.id, d.nombre]));
+    opciones(filtroDepartamento, Object.keys(deps), (id) => deps[id]);
     pintar();
     actualizado.textContent = `Actualizado a las ${hora()}`;
   } catch (error) {
@@ -78,6 +85,7 @@ export async function cargarTablero() {
 export function iniciarTablero() {
   filtroProyecto.addEventListener('change', () => datos && pintar());
   filtroBecario.addEventListener('change', () => datos && pintar());
+  filtroDepartamento.addEventListener('change', () => datos && pintar());
   // Se refresca con la oficina (cada minuto), pero solo mientras se está mirando.
   document.addEventListener('oficina:datos', (e) => {
     nombres = Object.fromEntries(e.detail.becarios.map((b) => [b.id, b.nombre]));
