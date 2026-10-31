@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, test } from 'node:test';
 import {
-  aBecario, aPeticion, aProyecto, aTarea, BECARIOS_DS, crearPeticion, guardarBecario, enviarPeticion, guardarEquipo, leerBecarios, leerPeticiones, pasarAlEquipo, PETICIONES_DS, PROYECTOS_DS, TAREAS_DS, tareasAbiertas,
+  aBecario, aMensaje, aPeticion, aProyecto, aTarea, BECARIOS_DS, CHAT_DS, crearPeticion, escribirMensaje, guardarBecario, leerChat, enviarPeticion, guardarEquipo, leerBecarios, leerPeticiones, pasarAlEquipo, PETICIONES_DS, PROYECTOS_DS, TAREAS_DS, tareasAbiertas,
   tareasTablero, tituloPeticion,
 } from '../lib/notion.js';
 
@@ -245,4 +245,53 @@ test('guardarBecario crea la fila si el becario aún no tiene', async () => {
   assert.deepEqual(peticiones[1].cuerpo.parent, { type: 'data_source_id', data_source_id: BECARIOS_DS });
   assert.deepEqual(peticiones[1].cuerpo.properties.Instrucciones, { rich_text: [] });
   assert.deepEqual(peticiones[1].cuerpo.properties.Id, { select: { name: 'cto' } });
+});
+
+const paginaMensaje = (datos = {}) => ({
+  id: 'm1',
+  url: 'https://app.notion.com/p/m1',
+  created_time: '2026-10-31T12:00:00.000Z',
+  properties: {
+    Mensaje: { title: [{ plain_text: 'Va bien' }] },
+    Texto: { rich_text: [{ plain_text: 'Va bien.\nFalta ' }, { plain_text: 'QA en DEMO.' }] },
+    Autor: { rich_text: [{ plain_text: 'CTO' }] },
+    De: { select: { name: 'equipo' } },
+    Estado: { select: { name: 'Respuesta' } },
+    Proyecto: { rich_text: [{ plain_text: 'Energym' }] },
+    Tareas: { relation: [{ id: 't1' }, { id: 't2' }] },
+  },
+  ...datos,
+});
+
+test('aMensaje lee un mensaje del chat con sus tareas', () => {
+  assert.deepEqual(aMensaje(paginaMensaje()), {
+    id: 'm1', url: 'https://app.notion.com/p/m1', texto: 'Va bien.\nFalta QA en DEMO.', autor: 'CTO', deEquipo: true, estado: 'Respuesta',
+    proyecto: 'Energym', tareas: ['t1', 't2'], creado: '2026-10-31T12:00:00.000Z',
+  });
+});
+
+test('leerChat pide los últimos mensajes y los devuelve del más antiguo al más nuevo', async () => {
+  simularNotion([{ results: [paginaMensaje({ id: 'nuevo' }), paginaMensaje({ id: 'viejo' })], has_more: false }]);
+  const lista = await leerChat();
+  assert.deepEqual(lista.map((m) => m.id), ['viejo', 'nuevo']);
+  assert.equal(peticiones[0].url, `https://api.notion.com/v1/data_sources/${CHAT_DS}/query`);
+  assert.deepEqual(peticiones[0].cuerpo.sorts, [{ timestamp: 'created_time', direction: 'descending' }]);
+});
+
+test('escribirMensaje deja el mensaje de la persona en «Pendiente»', async () => {
+  simularNotion([paginaMensaje({ id: 'nuevo' })]);
+  await escribirMensaje({ textoMensaje: '¿Cómo va Energym?\nSobre todo las reservas', usuario: 'Pablo', proyecto: 'Energym' });
+  const { cuerpo, method } = peticiones[0];
+  assert.equal(method, 'POST');
+  assert.deepEqual(cuerpo.parent, { type: 'data_source_id', data_source_id: CHAT_DS });
+  assert.deepEqual(cuerpo.properties.Mensaje, { title: [{ text: { content: '¿Cómo va Energym?' } }] });
+  assert.deepEqual(cuerpo.properties.Texto, { rich_text: [{ text: { content: '¿Cómo va Energym?\nSobre todo las reservas' } }] });
+  assert.deepEqual(cuerpo.properties.Autor, { rich_text: [{ text: { content: 'Pablo' } }] });
+  assert.deepEqual(cuerpo.properties.De, { select: { name: 'persona' } });
+  assert.deepEqual(cuerpo.properties.Estado, { select: { name: 'Pendiente' } });
+
+  peticiones = [];
+  simularNotion([paginaMensaje({ id: 'general' })]);
+  await escribirMensaje({ textoMensaje: '¿Algo bloqueado?', usuario: 'Miguel' });
+  assert.deepEqual(peticiones[0].cuerpo.properties.Proyecto, { rich_text: [] }, 'sin proyecto: pregunta general');
 });

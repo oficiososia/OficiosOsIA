@@ -1,5 +1,6 @@
 // Arranque del panel: pestañas, usuario y salida.
 import { cargarBecarios, iniciarBecarios } from './becarios.js';
+import { bajarChat, iniciarChat } from './chat.js';
 import { cargarOficina, iniciarOficina } from './oficina.js';
 import { iniciarProducto } from './producto.js';
 import { cargarTablero, iniciarTablero } from './tablero.js';
@@ -15,6 +16,7 @@ function mostrarVista() {
   document.body.classList.toggle('panel--fija', FIJAS.has(actual));
   if (actual === 'tareas') cargarTablero();
   if (actual === 'becarios') cargarBecarios();
+  if (actual === 'producto') bajarChat();
   document.querySelectorAll('[data-pestana]').forEach((a) => {
     if (a.dataset.pestana === actual) a.setAttribute('aria-current', 'page');
     else a.removeAttribute('aria-current');
@@ -34,6 +36,7 @@ window.addEventListener('hashchange', mostrarVista);
 mostrarVista();
 iniciarOficina();
 iniciarProducto();
+iniciarChat();
 iniciarTablero();
 iniciarBecarios();
 cargarOficina();

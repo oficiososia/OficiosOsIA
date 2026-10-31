@@ -6,7 +6,7 @@ import { api, enlace, escapar } from './util.js';
 const ROLES = [
   { id: 'po', nombre: 'Product Owner', papel: 'Historias y criterios de aceptación' },
   { id: 'pm', nombre: 'Project Manager', papel: 'Prioridad, tiempos, orden y duplicados' },
-  { id: 'cto', nombre: 'CTO', papel: 'Plan técnico y qué becario empieza' },
+  { id: 'cto', nombre: 'CTO', papel: 'Plan técnico y cómo van las tareas' },
 ];
 const CLASE_ESTADO = { Guardada: 'guardada', Pendiente: 'pendiente', 'En curso': 'en-curso', 'Con dudas': 'dudas', Hecha: 'hecha', Descartada: 'descartada' };
 

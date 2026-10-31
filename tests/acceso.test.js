@@ -7,6 +7,7 @@ import oficina from '../api/oficina.js';
 import peticiones from '../api/peticiones.js';
 import asignar from '../api/asignar.js';
 import becariosApi from '../api/becarios.js';
+import chat from '../api/chat.js';
 import middleware, { config } from '../middleware.js';
 import { cookieSesion, firmar } from '../lib/sesion.js';
 import { BECARIOS_DS, TAREAS_DS } from '../lib/notion.js';
@@ -189,6 +190,42 @@ test('/api/becarios exige sesión, valida la ficha y la guarda', async () => {
     assert.equal(becario.nombre, 'Lupa');
     assert.equal(becario.pausado, true);
     assert.equal(guardado.parent.data_source_id, BECARIOS_DS);
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
+});
+
+test('/api/chat exige sesión, valida el mensaje y lo firma con el usuario de la sesión', async () => {
+  const sinSesion = await chat.fetch(new Request('https://panel.test/api/chat'));
+  assert.equal(sinSesion.status, 401);
+  process.env.NOTION_TOKEN = 'token-de-prueba';
+  const cookie = cookieSesion(await firmar('Miguel', process.env.SESION_SECRETO)).split(';')[0];
+  const pedir = (cuerpo) => chat.fetch(new Request('https://panel.test/api/chat', { method: 'POST', headers: { cookie, 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) }));
+  assert.equal((await pedir({ texto: '   ' })).status, 400);
+  assert.equal((await pedir({ texto: 'x'.repeat(2001) })).status, 400);
+  assert.equal((await pedir({ texto: 'Hola', proyecto: 7 })).status, 400);
+
+  const fetchOriginal = globalThis.fetch;
+  let enviado = null;
+  globalThis.fetch = async (url, opciones) => {
+    if (url.endsWith('/query')) {
+      return Response.json({ results: [
+        { id: 'r', properties: { De: { select: { name: 'equipo' } }, Estado: { select: { name: 'Respuesta' } } } },
+        { id: 'p', properties: { De: { select: { name: 'persona' } }, Estado: { select: { name: 'Pendiente' } } } },
+      ], has_more: false });
+    }
+    enviado = JSON.parse(opciones.body);
+    return Response.json({ id: 'nuevo', properties: enviado.properties });
+  };
+  try {
+    const respuesta = await pedir({ texto: ' ¿Cómo va JPR? ', proyecto: 'JPR', autor: 'Pablo' });
+    assert.equal(respuesta.status, 201);
+    assert.deepEqual(enviado.properties.Autor, { rich_text: [{ text: { content: 'Miguel' } }] }, 'el autor sale de la sesión, no del cuerpo');
+    assert.deepEqual(enviado.properties.Texto, { rich_text: [{ text: { content: '¿Cómo va JPR?' } }] });
+    const lista = await chat.fetch(new Request('https://panel.test/api/chat', { headers: { cookie } }));
+    const datos = await lista.json();
+    assert.equal(datos.mensajes.length, 2);
+    assert.equal(datos.pendientes, 1);
   } finally {
     globalThis.fetch = fetchOriginal;
   }
