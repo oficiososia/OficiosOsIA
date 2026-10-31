@@ -1,5 +1,6 @@
 // Equipo de producto: el panel guarda la petición en Notion y la lista con su estado.
 // La PO, el PM y el CTO la procesan en Claude Code con el skill /producto.
+// Tres subpestañas para no hacer scroll: Nueva petición, Peticiones y Chat.
 import { sprite } from './sprites.js';
 import { api, enlace, escapar } from './util.js';
 
@@ -16,6 +17,13 @@ const errorPeticion = document.querySelector('[data-error-peticion]');
 const enviada = document.querySelector('[data-enviada]');
 const lista = document.querySelector('[data-peticiones]');
 const avisos = document.querySelector('[data-avisos-peticiones]');
+const subpestanas = document.querySelector('[data-subpestanas]');
+const numPeticiones = document.querySelector('[data-num-peticiones]');
+
+const SUBPESTANAS = ['pedir', 'peticiones', 'chat'];
+const CLAVE_SUB = 'panel-producto';
+// Las que aún esperan algo del equipo o de ti.
+const ACTIVAS = new Set(['Pendiente', 'En curso', 'Con dudas']);
 
 let proyectos = [];
 
@@ -38,6 +46,10 @@ export async function cargarPeticiones() {
     const { peticiones } = await api('/api/peticiones');
     avisos.innerHTML = '';
     lista.innerHTML = peticiones.length ? peticiones.map(htmlPeticion).join('') : '<li class="cargando">Todavía no hay peticiones.</li>';
+    const activas = peticiones.filter((p) => ACTIVAS.has(p.estado)).length;
+    numPeticiones.hidden = !activas;
+    numPeticiones.textContent = activas || '';
+    numPeticiones.title = activas ? `${activas} en marcha` : '';
     document.dispatchEvent(new CustomEvent('peticiones:datos', {
       detail: {
         pendientes: peticiones.filter((p) => p.estado === 'Pendiente').length,
@@ -70,9 +82,9 @@ async function enviar(e) {
   try {
     await api('/api/peticiones', { method: 'POST', body: { proyecto: { nombre: proyecto.nombre, clave: proyecto.clave }, peticion, guardar } });
     form.elements.peticion.value = '';
-    enviada.textContent = guardar
-      ? `Guardada para más tarde en ${proyecto.nombre}. Nadie la tocará hasta que pulses «Enviar al equipo» en la lista.`
-      : `Enviada al equipo de producto de ${proyecto.nombre}. Ejecuta /producto en Claude Code para que la conviertan en tareas.`;
+    enviada.innerHTML = `${escapar(guardar
+      ? `Guardada para más tarde en ${proyecto.nombre}. Nadie la tocará hasta que pulses «Enviar al equipo» en Peticiones.`
+      : `Enviada al equipo de producto de ${proyecto.nombre}. Ejecuta /producto en Claude Code para que la conviertan en tareas.`)} <button type="button" class="boton-texto" data-ir="peticiones">Ver en Peticiones →</button>`;
     enviada.hidden = false;
     await cargarPeticiones();
   } catch (error) {
@@ -94,6 +106,27 @@ async function enviarGuardada(boton) {
   }
 }
 
+// La subpestaña sale del enlace (#producto/chat) o, si no lo dice, de la última que se usó.
+function leerSub() {
+  const [vista, sub] = location.hash.slice(1).split('/');
+  if (vista === 'producto' && SUBPESTANAS.includes(sub)) return sub;
+  try { return SUBPESTANAS.includes(localStorage.getItem(CLAVE_SUB)) ? localStorage.getItem(CLAVE_SUB) : 'pedir'; } catch { return 'pedir'; }
+}
+
+export function mostrarSubpestana(sub = leerSub(), enfocar = false) {
+  subpestanas.querySelectorAll('[data-sub]').forEach((b) => {
+    const activa = b.dataset.sub === sub;
+    b.setAttribute('aria-selected', String(activa));
+    b.tabIndex = activa ? 0 : -1;
+    if (activa && enfocar) b.focus();
+  });
+  document.querySelectorAll('[data-subpanel]').forEach((panel) => { panel.hidden = panel.dataset.subpanel !== sub; });
+  try { localStorage.setItem(CLAVE_SUB, sub); } catch {}
+  // El enlace refleja la subpestaña, sin llenar el historial.
+  if (location.hash.slice(1).split('/')[0] === 'producto') history.replaceState(null, '', `#producto/${sub}`);
+  document.dispatchEvent(new CustomEvent('producto:subpestana', { detail: sub }));
+}
+
 function actualizarProyectos(nuevos) {
   const anterior = selector.value ? proyectos[Number(selector.value)]?.clave : null;
   proyectos = nuevos;
@@ -104,6 +137,22 @@ export function iniciarProducto() {
   document.querySelector('[data-roles]').innerHTML = ROLES.map((r) => `<li class="rol">
     <div class="rol__cabeza">${sprite(r.id)}<div><p class="rol__nombre">${r.nombre}</p><p class="rol__papel">${r.papel}</p></div></div></li>`).join('');
   form.addEventListener('submit', enviar);
+  subpestanas.addEventListener('click', (e) => {
+    const boton = e.target.closest('[data-sub]');
+    if (boton) mostrarSubpestana(boton.dataset.sub, true);
+  });
+  // Flechas, Inicio y Fin, como en cualquier lista de pestañas.
+  subpestanas.addEventListener('keydown', (e) => {
+    const actual = SUBPESTANAS.indexOf(subpestanas.querySelector('[aria-selected="true"]')?.dataset.sub);
+    const paso = { ArrowRight: 1, ArrowLeft: -1, Home: -actual, End: SUBPESTANAS.length - 1 - actual }[e.key];
+    if (paso === undefined) return;
+    e.preventDefault();
+    mostrarSubpestana(SUBPESTANAS[(actual + paso + SUBPESTANAS.length) % SUBPESTANAS.length], true);
+  });
+  enviada.addEventListener('click', (e) => {
+    const boton = e.target.closest('[data-ir]');
+    if (boton) mostrarSubpestana(boton.dataset.ir, true);
+  });
   lista.addEventListener('click', (e) => {
     const boton = e.target.closest('[data-enviar]');
     if (boton) enviarGuardada(boton);
