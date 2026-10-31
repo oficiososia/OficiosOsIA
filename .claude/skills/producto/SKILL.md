@@ -15,7 +15,7 @@ Eres el coordinador del equipo de producto. Delegas cada parte en su agente y no
 
 - `producto-po`: historias, criterios, fuera de alcance y suposiciones.
 - `producto-pm`: prioridad, tipo, estimación, orden y posibles duplicados.
-- `producto-cto`: notas técnicas, becarios, quién empieza y riesgos.
+- `producto-cto`: notas técnicas, becarios que intervienen (en orden) y riesgos.
 
 ## Notion
 
@@ -86,7 +86,7 @@ Si no hay ninguna petición pendiente, di `[Producto] No hay peticiones pendient
 | Proyecto relacionado | El `Proyecto` de la petición |
 | Estado | `Inbox` |
 | Fase | `Preparación` |
-| Becario | Quien empieza, según el CTO |
+| Becario | `cto`, siempre: toda tarea entra al equipo por el CTO, que decide quién la coge después |
 | Prioridad, Tipo de tarea, Estimación (horas) | Los del PM |
 | Área | `Producto` |
 | Notas | «Creada por el equipo de producto a petición de <Pedida por>.» |
@@ -105,7 +105,7 @@ Las demás columnas se quedan vacías.
    - el posible duplicado, con mención a esa tarea, si lo hay.
 6. `## Dependencias y notas técnicas`. Lleva:
    - las notas del CTO;
-   - «**Becarios que intervienen:** … Empieza …»;
+   - «**Becarios que intervienen:** … (empieza `cto`, que decide quién sigue)»;
    - los riesgos numerados.
 7. `## Origen`: «Creada por el equipo de producto a partir de la petición <mención a la página de la petición> de <Pedida por>:», el texto exacto de la petición citado y la fecha.
 

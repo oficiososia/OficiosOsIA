@@ -8,6 +8,7 @@ import peticiones from '../api/peticiones.js';
 import asignar from '../api/asignar.js';
 import middleware, { config } from '../middleware.js';
 import { cookieSesion, firmar } from '../lib/sesion.js';
+import { TAREAS_DS } from '../lib/notion.js';
 
 beforeEach(() => {
   process.env.SESION_SECRETO = 'secreto-de-prueba';
@@ -108,13 +109,35 @@ test('/api/peticiones exige sesión, valida y guarda la petición a nombre de qu
   }
 });
 
-test('/api/asignar exige sesión y rechaza tareas o becarios que no valen', async () => {
+test('/api/asignar exige sesión, rechaza tareas que no valen y siempre se las pasa al CTO', async () => {
   const sinSesion = await asignar.fetch(new Request('https://panel.test/api/asignar', { method: 'PUT' }));
   assert.equal(sinSesion.status, 401);
   const cookie = cookieSesion(await firmar('Pablo', process.env.SESION_SECRETO)).split(';')[0];
   const pedir = (cuerpo) =>
     asignar.fetch(new Request('https://panel.test/api/asignar', { method: 'PUT', headers: { cookie, 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) }));
-  assert.equal((await pedir({ cambios: [] })).status, 400);
-  assert.equal((await pedir({ cambios: [{ tareaId: 'no-es-un-id', becario: 'cto' }] })).status, 400);
-  assert.equal((await pedir({ cambios: [{ tareaId: '40a3221d-8eb7-81c3-bb5d-dd1359a188ee', becario: 'jefe' }] })).status, 400);
+  assert.equal((await pedir({ tareas: [] })).status, 400);
+  assert.equal((await pedir({ tareas: ['no-es-un-id'] })).status, 400);
+  assert.equal((await pedir({ cambios: [{ tareaId: '40a3221d-8eb7-81c3-bb5d-dd1359a188ee', becario: 'frontend' }] })).status, 400, 'ya no se elige becario');
+
+  process.env.NOTION_TOKEN = 'token-de-prueba';
+  const fetchOriginal = globalThis.fetch;
+  const enviados = [];
+  globalThis.fetch = async (url, opciones) => {
+    if (opciones.method === 'PATCH') {
+      enviados.push(JSON.parse(opciones.body).properties);
+      return Response.json({ id: 'ok' });
+    }
+    return Response.json({ parent: { type: 'data_source_id', data_source_id: TAREAS_DS }, properties: { Estado: { status: { name: 'Inbox' } }, Becario: { select: null } } });
+  };
+  try {
+    const id = '40a3221d-8eb7-81c3-bb5d-dd1359a188ee';
+    const respuesta = await pedir({ tareas: [id, id], becario: 'frontend' });
+    assert.equal(respuesta.status, 200);
+    assert.deepEqual((await respuesta.json()).hechas, [id]);
+    assert.equal(enviados.length, 1, 'una tarea repetida se pasa una sola vez');
+    assert.deepEqual(enviados[0].Becario, { select: { name: 'cto' } }, 'empieza el CTO aunque pidan otro becario');
+    assert.deepEqual(enviados[0].Fase, { select: { name: 'Preparación' } });
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
 });
