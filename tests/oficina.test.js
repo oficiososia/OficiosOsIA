@@ -121,6 +121,7 @@ test('cada sala tiene una habitación por departamento del equipo o con tareas',
     proyectosNotion: [{ id: 'p1', nombre: 'Energym', clave: 'Energym', equipo: ['cto', 'frontend', 'qa-lead', 'qa-accesibilidad'], orden: 1 }],
     tareas: [
       tarea({ titulo: 'SEO', proyecto: 'Energym', becarios: ['mk-seo'], estado: 'En progreso', fase: 'Producción' }),
+      tarea({ titulo: 'Correo que no llega', proyecto: 'Energym', becarios: ['it-comunicaciones'], estado: 'En espera', fase: 'Intervención' }),
       tarea({ titulo: 'Auditoría', proyecto: 'Energym', becarios: ['qa-lead'], estado: 'Por hacer', fase: 'Preparación' }),
     ],
   });
@@ -129,9 +130,10 @@ test('cada sala tiene una habitación por departamento del equipo o con tareas',
     ['desarrollo', true, true, 0, false],
     ['qa', true, true, 1, false],
     ['marketing', false, false, 1, true],
-  ], 'marketing no está en el equipo, pero sale porque tiene trabajo');
+    ['soporte', false, false, 1, false],
+  ], 'marketing y soporte no están en el equipo, pero salen porque tienen trabajo');
   assert.deepEqual(energym.puestos.map((p) => [p.becario, p.departamento]), [
-    ['cto', 'desarrollo'], ['frontend', 'desarrollo'], ['qa-lead', 'qa'], ['qa-accesibilidad', 'qa'], ['mk-seo', 'marketing'],
+    ['cto', 'desarrollo'], ['frontend', 'desarrollo'], ['qa-lead', 'qa'], ['qa-accesibilidad', 'qa'], ['mk-seo', 'marketing'], ['it-comunicaciones', 'soporte'],
   ]);
   assert.equal(energym.puestos.find((p) => p.becario === 'qa-lead').actual.departamento, 'qa');
 });

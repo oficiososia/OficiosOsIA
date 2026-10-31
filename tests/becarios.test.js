@@ -7,10 +7,11 @@ test('sin fichas en Notion, los becarios son los de por defecto', () => {
   assert.deepEqual(combinarBecarios().filter((b) => b.departamento === 'desarrollo').map((b) => b.id), ['cto', 'frontend', 'backend-datos', 'backend-servicios', 'qa-funcional', 'qa-tecnico', 'delivery']);
   assert.deepEqual(miembrosDe('qa'), ['qa-lead', 'qa-automatizacion', 'qa-accesibilidad', 'qa-rendimiento', 'qa-seguridad', 'qa-visual', 'qa-exploratorio']);
   assert.deepEqual(miembrosDe('marketing'), ['mk-lead', 'mk-seo', 'mk-contenidos', 'mk-rrss', 'mk-local', 'mk-analitica']);
+  assert.deepEqual(miembrosDe('soporte'), ['it-lead', 'it-soporte', 'it-infraestructura', 'it-sistemas', 'it-comunicaciones', 'it-conectividad']);
 });
 
 test('cada departamento entra por uno de los suyos y todos los becarios tienen departamento', () => {
-  assert.deepEqual(DEPARTAMENTOS.map((d) => [d.id, d.entrada]), [['desarrollo', 'cto'], ['qa', 'qa-lead'], ['marketing', 'mk-lead']]);
+  assert.deepEqual(DEPARTAMENTOS.map((d) => [d.id, d.entrada]), [['desarrollo', 'cto'], ['qa', 'qa-lead'], ['marketing', 'mk-lead'], ['soporte', 'it-lead']]);
   for (const d of DEPARTAMENTOS) {
     assert.equal(departamentoDe(d.entrada), d.id);
     assert.equal(d.fases[0], 'Preparación', 'todos empiezan en Preparación');
