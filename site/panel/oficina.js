@@ -28,6 +28,8 @@ const avisos = document.querySelector('[data-avisos]');
 const actualizado = document.querySelector('[data-actualizado]');
 const dialogoPuesto = document.querySelector('[data-dialogo-puesto]');
 const dialogoEquipo = document.querySelector('[data-dialogo-equipo]');
+const dialogoAsignar = document.querySelector('[data-dialogo-asignar]');
+const POR_HACER = new Set(['Inbox', 'Por hacer']);
 
 const becario = (id) => datos.becarios.find((b) => b.id === id) || { id, nombre: id, papel: '' };
 const repoCorto = (url) => url.replace(/^https?:\/\/(www\.)?github\.com\//i, '').replace(/^https?:\/\//i, '');
@@ -156,7 +158,8 @@ function htmlSala(p, i) {
   return `<article class="sala sala--${tema.id}" style="${estiloTema(tema)}">
     <div class="sala__cabecera">${logoPequeno(p, tema)}<div><h2 class="sala__nombre">${escapar(p.nombre)}</h2>
     <p class="sala__meta">${tema.sector ? `<span>${escapar(tema.sector)}</span><span aria-hidden="true">·</span>` : ''}${meta.join('<span aria-hidden="true">·</span>')}</p></div>
-    ${LEYENDA}<button type="button" class="sala__boton" data-equipo="${i}">Equipo</button></div>
+    ${LEYENDA}<button type="button" class="sala__boton sala__boton--principal" data-asignar="${i}"><span class="texto-largo">Asignar tareas</span><span class="texto-corto">Asignar</span></button>
+    <button type="button" class="sala__boton" data-equipo="${i}">Equipo</button></div>
     <div class="sala__suelo sala__suelo--${tema.suelo}">${decorado(p, tema)}${puestos}${bandeja}</div></article>`;
 }
 
@@ -203,11 +206,76 @@ function abrirPuesto(i, j) {
   dialogoPuesto.showModal();
 }
 
-function abrirBandeja(i) {
+// Tareas por hacer (Inbox o Por hacer) del proyecto, primero las que no tienen becario.
+function tareasPorHacer(proyecto) {
+  const todas = [
+    ...proyecto.sinBecario.map((t) => ({ ...t, becario: null })),
+    ...proyecto.puestos.flatMap((pu) => pu.tareas.map((t) => ({ ...t, becario: pu.becario }))),
+  ];
+  const prioridad = { Alta: 0, Media: 1, Baja: 2 };
+  return todas
+    .filter((t) => POR_HACER.has(t.estado))
+    .sort((a, b) => Number(Boolean(a.becario)) - Number(Boolean(b.becario)) || (prioridad[a.prioridad] ?? 9) - (prioridad[b.prioridad] ?? 9));
+}
+
+function abrirAsignar(i) {
   const proyecto = datos.proyectos[i];
-  dialogoPuesto.querySelector('[data-titulo]').textContent = `Sin becario · ${proyecto.nombre}`;
-  dialogoPuesto.querySelector('[data-cuerpo]').innerHTML = `<p class="dialogo__nota">Tareas abiertas de este proyecto sin becario asignado en Notion.</p>${htmlTareas(proyecto.sinBecario)}`;
-  dialogoPuesto.showModal();
+  const tareas = tareasPorHacer(proyecto);
+  // Se elige entre el equipo de la sala; sin equipo, entre todos los becarios.
+  const equipo = proyecto.equipo.length ? datos.becarios.filter((b) => proyecto.equipo.includes(b.id)) : datos.becarios;
+  dialogoAsignar.dataset.indice = i;
+  dialogoAsignar.querySelector('[data-titulo]').textContent = `Asignar tareas · ${proyecto.nombre}`;
+  dialogoAsignar.querySelector('[data-nota]').textContent = tareas.length
+    ? 'Elige qué becario coge cada tarea. Se guarda en Notion (columna «Becario»); las que estén en Inbox pasan a «Por hacer».'
+    : 'Este proyecto no tiene tareas por hacer: todo está en marcha, en espera o hecho.';
+  dialogoAsignar.querySelector('[data-lista-asignar]').innerHTML = tareas.map((t) => {
+    const opciones = [...equipo];
+    if (t.becario && !opciones.some((b) => b.id === t.becario)) opciones.push(becario(t.becario));
+    const titulo = enlace(t.url) ? `<a href="${enlace(t.url)}" target="_blank" rel="noopener">${escapar(t.titulo)}</a>` : escapar(t.titulo);
+    const etiquetas = [`<span class="etiqueta">${escapar(t.estado)}</span>`];
+    if (t.prioridad) etiquetas.push(`<span class="etiqueta">Prioridad ${escapar(t.prioridad.toLowerCase())}</span>`);
+    return `<li class="asignar__fila${t.becario ? '' : ' asignar__fila--libre'}">
+      <div class="asignar__tarea">${titulo}<span class="etiquetas">${etiquetas.join('')}</span></div>
+      <label class="asignar__becario"><span class="sr-only">Becario para «${escapar(t.titulo)}»</span>
+        <select data-tarea="${escapar(t.id)}" data-actual="${escapar(t.becario || '')}">
+          <option value="">Sin asignar</option>
+          ${opciones.map((b) => `<option value="${escapar(b.id)}"${b.id === t.becario ? ' selected' : ''}>${escapar(b.nombre)}</option>`).join('')}
+        </select></label></li>`;
+  }).join('');
+  dialogoAsignar.querySelector('[data-error-asignar]').hidden = true;
+  contarCambios();
+  dialogoAsignar.showModal();
+}
+
+function cambiosAsignar() {
+  return [...dialogoAsignar.querySelectorAll('select[data-tarea]')]
+    .filter((s) => s.value !== s.dataset.actual)
+    .map((s) => ({ tareaId: s.dataset.tarea, becario: s.value || null }));
+}
+
+function contarCambios() {
+  const n = cambiosAsignar().length;
+  dialogoAsignar.querySelector('[data-cambios]').textContent = n ? `${n} ${n === 1 ? 'cambio' : 'cambios'} sin guardar` : '';
+  dialogoAsignar.querySelector('[data-guardar-asignar]').disabled = !n;
+}
+
+async function guardarAsignaciones(e) {
+  e.preventDefault();
+  const cambios = cambiosAsignar();
+  if (!cambios.length) return;
+  const boton = dialogoAsignar.querySelector('[data-guardar-asignar]');
+  const error = dialogoAsignar.querySelector('[data-error-asignar]');
+  boton.disabled = true;
+  error.hidden = true;
+  try {
+    await api('/api/asignar', { method: 'PUT', body: { cambios } });
+    dialogoAsignar.close();
+  } catch (err) {
+    error.textContent = err.message;
+    error.hidden = false;
+    boton.disabled = false;
+  }
+  await cargarOficina();
 }
 
 function abrirEquipo(i) {
@@ -271,14 +339,18 @@ export function iniciarOficina() {
     const equipo = e.target.closest('[data-equipo]');
     if (equipo) return abrirEquipo(Number(equipo.dataset.equipo));
     const bandeja = e.target.closest('[data-bandeja]');
-    if (bandeja) abrirBandeja(Number(bandeja.dataset.bandeja));
+    if (bandeja) return abrirAsignar(Number(bandeja.dataset.bandeja));
+    const asignar = e.target.closest('[data-asignar]');
+    if (asignar) abrirAsignar(Number(asignar.dataset.asignar));
   });
-  for (const dialogo of [dialogoPuesto, dialogoEquipo]) {
+  for (const dialogo of [dialogoPuesto, dialogoEquipo, dialogoAsignar]) {
     dialogo.addEventListener('click', (e) => {
       if (e.target === dialogo || e.target.closest('[data-cerrar]')) dialogo.close();
     });
   }
   dialogoEquipo.querySelector('[data-form-equipo]').addEventListener('submit', guardarEquipo);
+  dialogoAsignar.querySelector('[data-form-asignar]').addEventListener('submit', guardarAsignaciones);
+  dialogoAsignar.addEventListener('change', (e) => { if (e.target.matches('select[data-tarea]')) contarCambios(); });
   document.querySelector('[data-recargar]').addEventListener('click', cargarOficina);
   document.addEventListener('oficina:recargar', cargarOficina);
   document.addEventListener('peticiones:datos', (e) => {
@@ -291,6 +363,6 @@ export function iniciarOficina() {
   });
   // Notion cambia mientras los becarios trabajan: se refresca cada minuto si se está mirando.
   setInterval(() => {
-    if (document.visibilityState === 'visible' && !dialogoPuesto.open && !dialogoEquipo.open) cargarOficina();
+    if (document.visibilityState === 'visible' && !dialogoPuesto.open && !dialogoEquipo.open && !dialogoAsignar.open) cargarOficina();
   }, 60_000);
 }

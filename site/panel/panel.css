@@ -232,6 +232,23 @@
 .dialogo__nota { margin: 0; opacity: 0.85; }
 .dialogo__pie { display: flex; justify-content: flex-end; gap: 8px; padding: 0 20px 20px; }
 .dialogo__pie .btn { font-size: 13px; padding: 10px 14px; }
+.dialogo--ancho { width: min(780px, calc(100% - 32px)); overflow: hidden; }
+/* Cabecera y botones fijos; solo se desplaza la lista de tareas. */
+.dialogo--ancho form { display: flex; flex-direction: column; max-height: calc(100vh - 48px); max-height: calc(100dvh - 48px); }
+.dialogo--ancho .dialogo__cabecera, .dialogo--ancho .dialogo__pie { flex: none; }
+.dialogo--ancho .dialogo__cuerpo { flex: 1; min-height: 0; overflow-y: auto; }
+.dialogo--ancho .dialogo__pie { padding-top: 12px; border-top: 2px solid var(--linea); }
+.dialogo__pie { align-items: center; }
+.dialogo__cambios { margin-right: auto; font-size: 12px; color: var(--ambar); }
+.asignar { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--linea); }
+.asignar__fila { display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--linea); }
+.asignar__fila--libre { box-shadow: inset 3px 0 0 var(--e-en-cola); padding-left: 10px; }
+.asignar__tarea { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.asignar__tarea a { color: var(--claro); font-weight: 500; overflow-wrap: anywhere; text-decoration-color: var(--linea); }
+.asignar__tarea a:hover { color: var(--ambar); }
+.asignar__becario select { width: 100%; background: var(--noche); border: 2px solid var(--linea); color: var(--claro); padding: 8px 10px; font-size: 13px; border-radius: 0; }
+.asignar__becario select:focus { border-color: var(--ambar); outline: none; }
+.sala__boton--principal { border-color: var(--acento); color: var(--acento); }
 
 .lista-tareas { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--linea); }
 .lista-tareas li { padding: 10px 0; border-bottom: 1px solid var(--linea); display: flex; flex-direction: column; gap: 4px; }
@@ -312,6 +329,7 @@
   .sala__cabecera { padding: 8px 12px; flex-wrap: nowrap; gap: 10px; }
   .sala__cabecera > div { min-width: 0; }
   .sala__meta { display: none; }
+  .asignar__fila { grid-template-columns: minmax(0, 1fr); gap: 8px; }
   .sala__nombre { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .sala__nombre { font-size: 18px; }
   .sala__suelo { --pared-alto: 54px; --px: 3px; padding: calc(var(--pared-alto) + 8px) 8px 52px; }
