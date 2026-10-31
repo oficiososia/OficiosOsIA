@@ -1,0 +1,19 @@
+{
+  "name": "oficiososia-panel",
+  "private": true,
+  "type": "module",
+  "description": "Panel interno de OficiosOsIA: oficina de becarios y equipo de producto conectados con Notion.",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@vercel/functions": "^3.10.5"
+  },
+  "overrides": {
+    "zod": "^4.6.7"
+  }
+}
