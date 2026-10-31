@@ -387,6 +387,21 @@
 .matriz__tabla td input { width: 20px; height: 20px; accent-color: var(--ambar); cursor: pointer; vertical-align: middle; }
 .matriz__tabla td.cambiada { background: rgba(255, 176, 0, 0.14); }
 .matriz__aviso { margin: 0; font-size: 12px; color: var(--e-bloqueado); }
+.subpanel .matriz__cabecera h2 { font-size: 18px; }
+.matriz__comun { display: flex; flex-direction: column; gap: 10px; }
+.matriz__comun[hidden] { display: none; }
+.tabla-equipos td { min-width: 96px; }
+.celda-equipo { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.celda-equipo input { width: 20px; height: 20px; accent-color: var(--ambar); cursor: pointer; margin: 0; }
+.celda-equipo__num { font-size: 11px; opacity: 0.65; min-width: 28px; text-align: left; }
+.celda-fija { color: #7fd18b; }
+.filtro-departamentos { display: flex; flex-wrap: wrap; gap: 6px; }
+.filtro-departamentos[hidden], .filtro-departamentos:empty { display: none; }
+.panel .filtro-departamentos__boton { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; background: transparent; border: 2px solid var(--linea); color: var(--claro); font-size: 12px; cursor: pointer; }
+.filtro-departamentos__boton span { font-size: 11px; opacity: 0.65; }
+.panel .filtro-departamentos__boton:hover { color: var(--ambar); }
+.panel .filtro-departamentos__boton[aria-pressed="true"] { border-color: var(--ambar); color: var(--ambar); background: rgba(255, 176, 0, 0.08); }
+.filtro-departamentos__boton:focus-visible { outline: 2px solid var(--ambar); outline-offset: 2px; }
 .matriz__pie { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
 .matriz__pie .btn { font-size: 13px; padding: 10px 14px; }
 .panel .matriz__pie .btn--ghost { background: transparent; }

@@ -1,5 +1,5 @@
 // Arranque del panel: pestañas, usuario y salida.
-import { cargarBecarios, iniciarBecarios } from './becarios.js';
+import { cargarBecarios, iniciarBecarios, mostrarSubBecarios } from './becarios.js';
 import { iniciarChat } from './chat.js';
 import { cargarConexiones, iniciarConexiones } from './conexiones.js';
 import { cargarOficina, iniciarOficina } from './oficina.js';
@@ -18,7 +18,10 @@ function mostrarVista() {
   document.querySelectorAll('[data-vista]').forEach((v) => { v.hidden = v.dataset.vista !== actual; });
   document.body.classList.toggle('panel--fija', FIJAS.has(actual));
   if (actual === 'tareas') cargarTablero();
-  if (actual === 'becarios') cargarBecarios();
+  if (actual === 'becarios') {
+    mostrarSubBecarios();
+    cargarBecarios();
+  }
   if (actual === 'conexiones') cargarConexiones();
   if (actual === 'producto') mostrarSubpestana();
   document.querySelectorAll('[data-pestana]').forEach((a) => {

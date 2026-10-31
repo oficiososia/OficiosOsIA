@@ -143,14 +143,35 @@
       </div>
     </div>
     <div class="avisos" data-avisos-becarios></div>
-    <ul class="fichas" data-fichas aria-busy="true"><li class="cargando">Cargando becarios…</li></ul>
+    <div class="subpestanas" role="tablist" aria-label="Becarios" data-subpestanas-becarios>
+      <button type="button" role="tab" id="sub-b-fichas" aria-controls="panel-b-fichas" aria-selected="true" data-sub-becarios="fichas">Fichas</button>
+      <button type="button" role="tab" id="sub-b-equipos" aria-controls="panel-b-equipos" aria-selected="false" tabindex="-1" data-sub-becarios="equipos"><span class="texto-largo">Equipos por oficina</span><span class="texto-corto">Equipos</span></button>
+      <button type="button" role="tab" id="sub-b-detalle" aria-controls="panel-b-detalle" aria-selected="false" tabindex="-1" data-sub-becarios="detalle"><span class="texto-largo">Becario a becario</span><span class="texto-corto">Uno a uno</span><span class="subpestana__num" data-num-cambios hidden></span></button>
+    </div>
 
-    <div class="matriz">
+    <div class="filtro-departamentos" role="group" aria-label="Departamento" data-filtro-becarios></div>
+
+    <div class="subpanel" role="tabpanel" id="panel-b-fichas" aria-labelledby="sub-b-fichas" data-subpanel-becarios="fichas">
+      <ul class="fichas" data-fichas aria-busy="true"><li class="cargando">Cargando becarios…</li></ul>
+    </div>
+
+    <div class="subpanel" role="tabpanel" id="panel-b-equipos" aria-labelledby="sub-b-equipos" data-subpanel-becarios="equipos" hidden>
+      <div class="matriz__cabecera">
+        <h2>Qué equipos hay en cada oficina</h2>
+        <p>Marca qué departamentos trabajan en cada oficina: al marcar uno entran todos sus becarios y al desmarcarlo salen. Producto está siempre. Para elegir becarios sueltos, usa «Becario a becario». Es lo mismo que el botón «Equipo» de cada sala.</p>
+      </div>
+      <div class="matriz__tabla" data-equipos></div>
+    </div>
+
+    <div class="subpanel" role="tabpanel" id="panel-b-detalle" aria-labelledby="sub-b-detalle" data-subpanel-becarios="detalle" hidden>
       <div class="matriz__cabecera">
         <h2>Quién trabaja en cada oficina</h2>
-        <p>Marca en qué oficinas trabaja cada becario. Es lo mismo que el botón «Equipo» de cada sala. Cada departamento recibe las tareas por su entrada (Jefatura de arranque, CTO, Responsable de seguridad, Dirección de marketing o Jefatura de soporte IT): sin ella, a ese departamento no se le pueden pasar tareas.</p>
+        <p>Marca en qué oficinas trabaja cada becario. Cada departamento recibe las tareas por su entrada (Jefatura de arranque, CTO, Responsable de seguridad, Dirección de marketing o Jefatura de soporte IT): sin ella, a ese departamento no se le pueden pasar tareas.</p>
       </div>
       <div class="matriz__tabla" data-matriz></div>
+    </div>
+
+    <div class="matriz__comun" data-pie-oficinas hidden>
       <p class="matriz__aviso" data-matriz-aviso hidden></p>
       <p class="error" data-error-matriz role="alert" hidden></p>
       <div class="matriz__pie">
