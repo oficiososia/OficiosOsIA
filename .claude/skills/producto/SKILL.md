@@ -9,6 +9,8 @@ disable-model-invocation: true
 
 Encargo: $ARGUMENTS. Si está vacío, trabaja todas las peticiones en estado `Pendiente`, de la más antigua a la más nueva.
 
+Las peticiones en `Guardada` no se trabajan: son ideas guardadas para más tarde desde el panel. Si te pasan la URL de una guardada, pregunta antes de empezar.
+
 Eres el coordinador del equipo de producto. Delegas cada parte en su agente y no redactas tú las historias, la planificación ni el plan técnico:
 
 - `producto-po`: historias, criterios, fuera de alcance y suposiciones.
@@ -23,7 +25,7 @@ Todo vive en el espacio de equipo «Sede de Espacio de Oficios Os»:
 
 | Base | Fuente de datos | Para qué |
 | --- | --- | --- |
-| Peticiones | `collection://7faed1fa-0f84-4078-8800-9350d4746262` | Lo que se pide desde el panel. Estado: `Pendiente`, `En curso`, `Con dudas`, `Hecha` o `Descartada`. |
+| Peticiones | `collection://7faed1fa-0f84-4078-8800-9350d4746262` | Lo que se pide desde el panel. Estado: `Guardada`, `Pendiente`, `En curso`, `Con dudas`, `Hecha` o `Descartada`. |
 | Proyectos | `collection://c295eb77-c4a5-4c32-8027-f06f4412bf7d` | `Proyecto en tareas`, `Repositorio` y `Becarios` (equipo) de cada proyecto. |
 | OficiosOS | `collection://2ad3221d-8eb7-8065-904d-000b57a0fe2a` | Las tareas. Aquí se crean las nuevas. |
 

@@ -59,3 +59,29 @@ test('con base «Proyectos», el equipo asignado tiene puesto aunque esté libre
   assert.deepEqual(nexo.equipo, ['frontend', 'qa-tecnico'], 'se ignoran becarios que no existen');
   assert.equal(nuevo.id, null, 'un proyecto que solo está en las tareas no se puede editar');
 });
+
+test('una sala puede recoger varios textos de proyecto y la fila duplicada no crea otra sala', () => {
+  const oficina = construirOficina({
+    proyectosNotion: [
+      { id: 'p-nexo', url: null, nombre: 'Nexo', clave: 'Atletas, Nexo', equipo: ['frontend'], repo: null, orden: 3, logo: null, color: '#2ec4b6' },
+      { id: 'p-viejo', url: null, nombre: 'Nexo', clave: 'Nexo', equipo: [], repo: null, orden: 3, logo: null, color: null },
+    ],
+    tareas: [
+      tarea({ titulo: 'Chat', proyecto: 'Atletas', becario: 'frontend', estado: 'En progreso' }),
+      tarea({ titulo: 'Alta', proyecto: 'Nexo', becario: null, estado: 'Por hacer' }),
+    ],
+  });
+  assert.deepEqual(oficina.proyectos.map((p) => p.id), ['p-nexo']);
+  const [nexo] = oficina.proyectos;
+  assert.equal(nexo.clave, 'Atletas', 'las tareas nuevas usan la primera clave');
+  assert.deepEqual(nexo.claves, ['Atletas', 'Nexo']);
+  assert.equal(nexo.abiertas, 2);
+  assert.equal(nexo.color, '#2ec4b6');
+});
+
+test('sin base «Proyectos», Atletas y Nexo son la misma sala', () => {
+  const oficina = construirOficina({ proyectosNotion: null, tareas: [tarea({ titulo: 'Chat', proyecto: 'Atletas', estado: 'Por hacer' })] });
+  assert.equal(oficina.proyectos.filter((p) => p.nombre === 'Nexo').length, 1);
+  assert.equal(oficina.proyectos.find((p) => p.nombre === 'Nexo').abiertas, 1);
+  assert.ok(!oficina.proyectos.some((p) => p.nombre === 'Atletas'));
+});

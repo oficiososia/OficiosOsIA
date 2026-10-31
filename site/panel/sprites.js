@@ -91,10 +91,15 @@ const PERSONAJES = {
 
 const OSCURO = { e: '#18191b', m: '#7a3b2e' };
 
-function mapa(personaje) {
+// Ojos cerrados: se tapan los ojos con piel y se dibuja una línea debajo. Va antes que
+// los accesorios para que las gafas sigan encima.
+const DORMIDO = ['', '', '', '', '', '.....s....s.....', '....mm....mm....'];
+
+function mapa(personaje, dormido) {
   const filas = CARA.map((f) => f.split(''));
-  for (const nombre of personaje.capas) {
-    CAPAS[nombre].forEach((fila, y) => {
+  const capas = (dormido ? [DORMIDO] : []).concat(personaje.capas.map((nombre) => CAPAS[nombre]));
+  for (const capa of capas) {
+    capa.forEach((fila, y) => {
       [...fila].forEach((letra, x) => {
         if (letra !== '.') filas[y][x] = letra;
       });
@@ -105,12 +110,13 @@ function mapa(personaje) {
 
 const cache = new Map();
 
-export function sprite(id, { titulo = '' } = {}) {
-  if (!cache.has(id)) {
+export function sprite(id, { titulo = '', dormido = false } = {}) {
+  const clave = `${id}${dormido ? ':dormido' : ''}`;
+  if (!cache.has(clave)) {
     const personaje = PERSONAJES[id] || PERSONAJES.cto;
     const colores = { ...OSCURO, ...personaje };
     const rects = [];
-    mapa(personaje).forEach((fila, y) => {
+    mapa(personaje, dormido).forEach((fila, y) => {
       // Agrupa píxeles seguidos del mismo color en un solo rectángulo.
       for (let x = 0; x < fila.length; ) {
         const letra = fila[x];
@@ -120,8 +126,8 @@ export function sprite(id, { titulo = '' } = {}) {
         x += ancho;
       }
     });
-    cache.set(id, rects.join(''));
+    cache.set(clave, rects.join(''));
   }
   const etiqueta = titulo ? ` role="img" aria-label="${titulo}"` : ' aria-hidden="true"';
-  return `<svg class="sprite" viewBox="0 0 16 16" shape-rendering="crispEdges"${etiqueta}>${cache.get(id)}</svg>`;
+  return `<svg class="sprite" viewBox="0 0 16 16" shape-rendering="crispEdges"${etiqueta}>${cache.get(clave)}</svg>`;
 }
