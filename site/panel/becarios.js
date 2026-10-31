@@ -18,6 +18,9 @@ const form = dialogo.querySelector('[data-form-becario]');
 let datos = null;
 // Oficinas marcadas en la tabla, aún sin guardar: id del proyecto → Set de becarios.
 let marcadas = new Map();
+let cargando = false;
+// Sube con cada cambio que se guarda desde aquí: una carga que salió antes trae datos viejos y se descarta.
+let version = 0;
 
 const nombreAccesorio = { gafas: 'Gafas', cascos: 'Cascos', barba: 'Barba', corbata: 'Corbata', placa: 'Placa' };
 const nombrePeinado = { corto: 'Corto', largo: 'Largo', rizado: 'Rizado', mono: 'Moño', gorra: 'Gorra', gorro: 'Gorro' };
@@ -46,21 +49,31 @@ function comoTrabaja(b) {
 const iguales = (a, b) => a.size === b.size && [...a].every((x) => b.has(x));
 const proyectosCambiados = () => datos.proyectos.filter((p) => !iguales(new Set(p.equipo), marcadas.get(p.id)));
 
+// No se pisa lo que se está tocando: una ficha abierta o cambios sin guardar en la tabla.
+const ocupada = () => dialogo.open || Boolean(datos && proyectosCambiados().length);
+
 export async function cargarBecarios() {
-  // Si hay cambios sin guardar en la tabla, no se pisan al volver a la pestaña.
-  if (datos && proyectosCambiados().length) return;
+  if (cargando || ocupada()) return;
+  cargando = true;
+  const desde = version;
   fichas.setAttribute('aria-busy', 'true');
   try {
-    datos = await api('/api/becarios');
+    const nuevos = await api('/api/becarios');
+    // Mientras llegaba se ha podido empezar a editar o guardar algo: entonces se descarta.
+    if (desde !== version || ocupada()) return;
+    avisos.innerHTML = (nuevos.avisos || []).map((a) => `<div class="aviso"><strong>Notion:</strong> ${escapar(a)}</div>`).join('');
+    // Si en Notion no ha cambiado nada, no se repinta: así no se pierde el foco ni la posición en la tabla.
+    if (datos && JSON.stringify(nuevos) === JSON.stringify(datos)) return;
+    datos = nuevos;
     ponerAvatares(datos.becarios);
     marcadas = new Map(datos.proyectos.map((p) => [p.id, new Set(p.equipo)]));
-    avisos.innerHTML = (datos.avisos || []).map((a) => `<div class="aviso"><strong>Notion:</strong> ${escapar(a)}</div>`).join('');
     pintarFichas();
     pintarMatriz();
   } catch (error) {
     avisos.innerHTML = `<div class="aviso"><strong>No se han podido cargar los becarios.</strong> ${escapar(error.message)}</div>`;
     if (!datos) fichas.innerHTML = '';
   } finally {
+    cargando = false;
     fichas.setAttribute('aria-busy', 'false');
   }
 }
@@ -119,6 +132,7 @@ async function guardarOficinas() {
   guardarMatriz.disabled = true;
   deshacer.disabled = true;
   errorMatriz.hidden = true;
+  version++;
   let hechos = 0;
   try {
     // De uno en uno: Notion limita a unas 3 peticiones por segundo.
@@ -235,6 +249,7 @@ async function guardarBecario(e) {
   error.hidden = true;
   try {
     const { becario } = await api('/api/becarios', { method: 'PUT', body: cuerpo });
+    version++;
     datos.becarios = datos.becarios.map((b) => (b.id === becario.id ? becario : b));
     ponerAvatares(datos.becarios);
     dialogo.close();
@@ -279,5 +294,9 @@ export function iniciarBecarios() {
   });
   dialogo.addEventListener('click', (e) => {
     if (e.target === dialogo || e.target.closest('[data-cerrar]')) dialogo.close();
+  });
+  // Se refresca con la oficina (cada minuto), pero solo mientras se está mirando.
+  document.addEventListener('oficina:datos', () => {
+    if (!vista.hidden) cargarBecarios();
   });
 }
