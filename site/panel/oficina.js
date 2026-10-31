@@ -215,7 +215,8 @@ function tareasPorHacer(proyecto) {
   const ordenar = (lista) => lista.sort((a, b) => (prioridad[a.prioridad] ?? 9) - (prioridad[b.prioridad] ?? 9));
   return {
     libres: ordenar(proyecto.sinBecario.filter((t) => POR_HACER.has(t.estado))),
-    enFlujo: ordenar(proyecto.puestos.flatMap((pu) => pu.tareas.filter((t) => POR_HACER.has(t.estado)).map((t) => ({ ...t, becario: pu.becario })))),
+    // Una tarea con varios becarios está en varias mesas: sale una sola vez.
+    enFlujo: ordenar([...new Map(proyecto.puestos.flatMap((pu) => pu.tareas.filter((t) => POR_HACER.has(t.estado))).map((t) => [t.id, t])).values()]),
   };
 }
 
@@ -249,7 +250,7 @@ function abrirAsignar(i) {
   }
   if (enFlujo.length) {
     lista.push(`<li class="asignar__titulo">Ya en el flujo del equipo · ${enFlujo.length}</li>`);
-    lista.push(...enFlujo.map((t) => filaTarea(t, `<span class="asignar__quien">${sprite(t.becario)}${escapar(becario(t.becario).nombre)}${t.fase ? ` · ${escapar(t.fase)}` : ''}</span>`)));
+    lista.push(...enFlujo.map((t) => filaTarea(t, `<span class="asignar__quien">${t.becarios.map((id) => `${sprite(id)}${escapar(becario(id).nombre)}`).join(' ')}${t.fase ? ` · ${escapar(t.fase)}` : ''}</span>`)));
   }
   dialogoAsignar.querySelector('[data-lista-asignar]').innerHTML = lista.join('');
   dialogoAsignar.querySelector('[data-error-asignar]').hidden = true;

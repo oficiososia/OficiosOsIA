@@ -114,7 +114,8 @@ Si no hay ninguna petición pendiente, di `[Producto] No hay peticiones pendient
 | Proyecto relacionado | El `Proyecto` de la petición |
 | Estado | `Inbox` |
 | Fase | `Preparación` |
-| Becario | `cto`, siempre: toda tarea entra al equipo por el CTO, que decide quién la coge después |
+| Becario | `cto`, siempre: toda tarea entra al equipo por el CTO, que decide quién la coge después. Si la columna es de selección múltiple, como lista: `["cto"]` |
+| Tarea padre | Vacía: las tareas del equipo de producto son tareas padre. Las subtareas (las que tienen `Tarea padre`) no salen en el panel ni en el kanban |
 | Prioridad, Tipo de tarea, Estimación (horas) | Los del PM |
 | Área | `Producto` |
 | Notas | «Creada por el equipo de producto a petición de <Pedida por>.» |

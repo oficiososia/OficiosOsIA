@@ -40,8 +40,8 @@ const paginaTarea = {
 
 test('aTarea y aProyecto leen las propiedades de Notion', () => {
   assert.deepEqual(aTarea(paginaTarea), {
-    id: 't1', url: 'https://app.notion.com/p/t1', titulo: 'Botones de acción', proyecto: 'Casa Tomás', becario: 'cto',
-    fase: 'PR y revisión', estado: 'En progreso', prioridad: null, bloqueo: '', editada: '2026-10-30T10:00:00.000Z',
+    id: 't1', url: 'https://app.notion.com/p/t1', titulo: 'Botones de acción', proyecto: 'Casa Tomás', becarios: ['cto'],
+    fase: 'PR y revisión', estado: 'En progreso', prioridad: null, bloqueo: '', editada: '2026-10-30T10:00:00.000Z', subtareas: 0,
   });
   const proyecto = aProyecto({ id: 'p1', url: 'u', properties: { Nombre: { title: [{ plain_text: 'Cristalería BV' }] }, 'Proyecto en tareas': { rich_text: [{ plain_text: 'Cristalería' }] }, Becarios: { multi_select: [{ name: 'cto' }] }, Repositorio: { url: null }, Orden: { number: 3 }, Logo: { url: 'https://x.test/logo.png' }, Color: { rich_text: [{ plain_text: '#7ec8e3' }] } } });
   assert.deepEqual(proyecto, { id: 'p1', url: 'u', nombre: 'Cristalería BV', clave: 'Cristalería', equipo: ['cto'], repo: null, orden: 3, logo: 'https://x.test/logo.png', color: '#7ec8e3' });
@@ -56,7 +56,7 @@ test('tareasAbiertas pide las que no están hechas y recorre todas las páginas'
   assert.deepEqual(tareas.map((t) => t.id), ['t1', 't2']);
   assert.equal(peticiones[0].url, `https://api.notion.com/v1/data_sources/${TAREAS_DS}/query`);
   assert.equal(peticiones[0].headers['Notion-Version'], '2026-03-11');
-  assert.deepEqual(peticiones[0].cuerpo.filter, { property: 'Estado', status: { does_not_equal: 'Hecha' } });
+  assert.deepEqual(peticiones[0].cuerpo.filter, { and: [{ property: 'Estado', status: { does_not_equal: 'Hecha' } }, { property: 'Tarea padre', relation: { is_empty: true } }] }, 'solo tareas padre');
   assert.equal(peticiones[1].cuerpo.start_cursor, 'c2');
 });
 
@@ -153,9 +153,14 @@ test('tareasTablero pide las abiertas y las tocadas en el último mes', async ()
   simularNotion([{ results: [paginaTarea], has_more: false }]);
   await tareasTablero();
   assert.deepEqual(peticiones[0].cuerpo.filter, {
-    or: [
-      { property: 'Estado', status: { does_not_equal: 'Hecha' } },
-      { timestamp: 'last_edited_time', last_edited_time: { past_month: {} } },
+    and: [
+      {
+        or: [
+          { property: 'Estado', status: { does_not_equal: 'Hecha' } },
+          { timestamp: 'last_edited_time', last_edited_time: { past_month: {} } },
+        ],
+      },
+      { property: 'Tarea padre', relation: { is_empty: true } },
     ],
   });
 });
@@ -294,4 +299,41 @@ test('escribirMensaje deja el mensaje de la persona en «Pendiente»', async () 
   simularNotion([paginaMensaje({ id: 'general' })]);
   await escribirMensaje({ textoMensaje: '¿Algo bloqueado?', usuario: 'Miguel' });
   assert.deepEqual(peticiones[0].cuerpo.properties.Proyecto, { rich_text: [] }, 'sin proyecto: pregunta general');
+});
+
+test('una tarea padre puede tenerla uno o varios becarios, y cuenta sus subtareas', () => {
+  const varios = aTarea({ ...paginaTarea, properties: { ...paginaTarea.properties, Becario: { type: 'multi_select', multi_select: [{ name: 'backend-datos' }, { name: 'frontend' }] }, Subtareas: { relation: [{ id: 's1' }, { id: 's2' }] } } });
+  assert.deepEqual(varios.becarios, ['backend-datos', 'frontend']);
+  assert.equal(varios.subtareas, 2);
+  const nadie = aTarea({ ...paginaTarea, properties: { ...paginaTarea.properties, Becario: { type: 'select', select: null } } });
+  assert.deepEqual(nadie.becarios, []);
+});
+
+test('si la base aún no tiene «Tarea padre», las tareas se piden sin ese filtro', async () => {
+  let llamadas = 0;
+  globalThis.fetch = async (url, opciones) => {
+    llamadas++;
+    const cuerpo = JSON.parse(opciones.body);
+    if (cuerpo.filter.and) return Response.json({ message: 'Could not find property with name or id: Tarea padre' }, { status: 400 });
+    return Response.json({ results: [paginaTarea], has_more: false });
+  };
+  const tareas = await tareasAbiertas();
+  assert.equal(tareas.length, 1);
+  assert.equal(llamadas, 2);
+});
+
+test('pasarAlEquipo respeta el tipo de «Becario» y no toca subtareas', async () => {
+  const base = { parent: { type: 'data_source_id', data_source_id: TAREAS_DS } };
+  simularNotion([{ ...base, properties: { Estado: { status: { name: 'Por hacer' } }, Becario: { type: 'multi_select', multi_select: [] } } }, { id: 't1' }]);
+  await pasarAlEquipo('t1');
+  assert.deepEqual(peticiones[1].cuerpo.properties.Becario, { multi_select: [{ name: 'cto' }] }, 'en selección múltiple, como lista');
+
+  peticiones = [];
+  simularNotion([{ ...base, properties: { Becario: { type: 'multi_select', multi_select: [{ name: 'qa-funcional' }, { name: 'qa-tecnico' }] } } }]);
+  await assert.rejects(pasarAlEquipo('t1'), /la tiene qa-funcional, qa-tecnico/);
+
+  peticiones = [];
+  simularNotion([{ ...base, properties: { 'Tarea padre': { relation: [{ id: 'padre' }] }, Becario: { select: null } } }]);
+  await assert.rejects(pasarAlEquipo('t1'), /es una subtarea/);
+  assert.equal(peticiones.length, 1, 'no modifica la subtarea');
 });
