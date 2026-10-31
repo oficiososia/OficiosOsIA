@@ -113,10 +113,6 @@ si `Esfuerzo` tiene valor, pásalo como `effort`. Si están vacíos, o no encuen
 no pases ninguno de los dos: manda la cabecera de su fichero en `.claude/agents/`.
 ```
 
-## Tickets de demostración
-
-En OficiosOS hay 14 tickets cuyo título empieza por «[Demo]», repartidos por las fases y los proyectos para enseñar el flujo en la oficina y en el kanban. No son trabajo real (lo dicen sus Notas) y se pueden borrar cuando haya tareas reales en marcha. Las tareas reales no se han tocado.
-
 ## Equipo de producto en Claude Code
 
 1. Abre Claude Code en tu copia de este repositorio (`git pull` para tener `.claude/`).
