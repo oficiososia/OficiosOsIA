@@ -98,8 +98,9 @@ test('un becario pausado no tiene mesa, salvo donde aún tiene tareas abiertas',
   assert.deepEqual(energym.puestos.map((p) => p.becario), ['cto'], 'sin tareas, el pausado no sale');
   assert.deepEqual(energym.equipo, ['cto', 'frontend'], 'sigue en el equipo');
   assert.deepEqual(jpr.puestos.map((p) => [p.becario, p.pausado]), [['cto', false], ['frontend', true]]);
-  assert.equal(oficina.becarios[0].nombre, 'Jefa');
-  assert.equal(oficina.becarios[0].avatar.peinado, 'largo');
+  const cto = oficina.becarios.find((b) => b.id === 'cto');
+  assert.equal(cto.nombre, 'Jefa');
+  assert.equal(cto.avatar.peinado, 'largo');
   assert.ok(oficina.becarios.every((b) => !('instrucciones' in b)), 'las instrucciones no van a la oficina');
 });
 
