@@ -27,11 +27,10 @@ Los becarios son agentes de IA, por departamentos. Cada departamento recibe sus 
 
 - `sec-lead`: riesgos, prioridad, reparto y veredicto de seguridad.
 - `sec-aplicaciones`: OWASP, autenticación, sesiones, inyecciones, XSS y control de acceso.
-- `sec-nube`: Supabase (RLS), Vercel, cabeceras, cifrado, secretos y copias.
+- `sec-nube`: Supabase (RLS), Vercel, cabeceras, firewall (WAF) y límites de peticiones, cifrado, secretos y copias.
 - `sec-pentest`: pruebas de intrusión autorizadas sobre DEMO y preview.
 - `sec-dependencias`: librerías vulnerables, cadena de suministro, SBOM y secretos filtrados.
-- `sec-cumplimiento`: RGPD, LOPDGDD, LSSI y cookies, NIS2, políticas y concienciación.
-- `sec-respuesta`: logs, alertas, WAF, límites de peticiones y respuesta a incidentes.
+- `sec-cumplimiento`: RGPD, LOPDGDD, LSSI y cookies, NIS2, plan ante brechas e incidentes, políticas y concienciación.
 
 **Marketing** (entrada `mk-lead`): posicionamiento, SEO, contenidos y redes.
 
