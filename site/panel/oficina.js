@@ -1,6 +1,6 @@
 // La oficina: una sala por proyecto con los becarios en sus mesas, según las tareas de Notion.
 // Se ve una sala cada vez, a pantalla completa, y se cambia con las pestañas.
-import { sprite } from './sprites.js';
+import { ponerAvatares, sprite } from './sprites.js';
 import { decorado, estiloTema, logoPequeno, temaDe } from './temas.js';
 import { api, enlace, escapar, hora } from './util.js';
 
@@ -46,6 +46,7 @@ export async function cargarOficina() {
   salas.setAttribute('aria-busy', 'true');
   try {
     datos = await api('/api/oficina');
+    ponerAvatares(datos.becarios);
     pintar();
     const sinProyecto = datos.sinProyecto ? ` · ${datos.sinProyecto} ${datos.sinProyecto === 1 ? 'tarea' : 'tareas'} sin proyecto` : '';
     actualizado.textContent = `Actualizado ${hora()}${sinProyecto}`;
@@ -170,9 +171,10 @@ function htmlPuesto(pu, i, j) {
     : '<span class="puesto__tarea">Sin tareas</span>';
   const etiqueta = `${b.nombre}: ${ESTADOS[pu.estado]}${pu.actual ? `, «${pu.actual.titulo}»` : ''}`;
   const extra = pu.estado === 'en-cola' ? `<span class="pila">${pu.tareas.length}</span>` : DORMIDOS.has(pu.estado) ? '' : '<span class="globo"></span>';
-  return `<button type="button" class="puesto puesto--${pu.estado}${pu.asignado ? '' : ' puesto--fuera'}" data-puesto="${i}:${j}" aria-label="${escapar(etiqueta)}">
+  const marca = pu.pausado ? '<span class="puesto__fuera">Pausado</span>' : pu.asignado ? '' : '<span class="puesto__fuera">Fuera del equipo</span>';
+  return `<button type="button" class="puesto puesto--${pu.estado}${pu.asignado ? '' : ' puesto--fuera'}${pu.pausado ? ' puesto--pausado' : ''}" data-puesto="${i}:${j}" aria-label="${escapar(etiqueta)}${pu.pausado ? ' (pausado)' : ''}">
     ${escena(pu.becario, pu.estado, extra)}
-    <span class="puesto__nombre">${escapar(b.nombre)}</span>${tarea}${pu.asignado ? '' : '<span class="puesto__fuera">Fuera del equipo</span>'}</button>`;
+    <span class="puesto__nombre">${escapar(b.nombre)}</span>${tarea}${marca}</button>`;
 }
 
 function cambiarSala(clave, enfocar = false) {
@@ -201,7 +203,7 @@ function abrirPuesto(i, j) {
   const b = becario(puesto.becario);
   dialogoPuesto.querySelector('[data-titulo]').innerHTML = `${sprite(b.id)}${escapar(b.nombre)}`;
   dialogoPuesto.querySelector('[data-cuerpo]').innerHTML = `
-    <p class="dialogo__nota">${escapar(b.papel)}. En <strong>${escapar(proyecto.nombre)}</strong>: ${ESTADOS[puesto.estado].toLowerCase()}${puesto.asignado ? '' : ', aunque no está en el equipo de esta sala'}.</p>
+    <p class="dialogo__nota">${escapar(b.papel)}. En <strong>${escapar(proyecto.nombre)}</strong>: ${ESTADOS[puesto.estado].toLowerCase()}${puesto.asignado ? '' : ', aunque no está en el equipo de esta sala'}.${b.pausado ? ' <strong>Está pausado</strong>: sale aquí solo porque aún tiene tareas abiertas.' : ''}</p>
     ${htmlTareas(puesto.tareas)}`;
   dialogoPuesto.showModal();
 }
@@ -229,10 +231,13 @@ function filaTarea(t, control) {
 function abrirAsignar(i) {
   const proyecto = datos.proyectos[i];
   const { libres, enFlujo } = tareasPorHacer(proyecto);
-  const conCto = !proyecto.equipo.length || proyecto.equipo.includes('cto');
+  const ctoPausado = becario('cto').pausado;
+  const conCto = !ctoPausado && (!proyecto.equipo.length || proyecto.equipo.includes('cto'));
   dialogoAsignar.dataset.indice = i;
   dialogoAsignar.querySelector('[data-titulo]').textContent = `Asignar tareas · ${proyecto.nombre}`;
-  dialogoAsignar.querySelector('[data-nota]').innerHTML = !conCto
+  dialogoAsignar.querySelector('[data-nota]').innerHTML = ctoPausado
+    ? '<strong>El CTO está pausado.</strong> Las tareas siempre entran por él: reactívalo en la pestaña <a href="#becarios" data-cerrar>Becarios</a> para poder pasarlas.'
+    : !conCto
     ? '<strong>Este equipo no tiene CTO.</strong> Las tareas siempre entran por el CTO, que decide quién las coge: añádelo con el botón «Equipo».'
     : libres.length
       ? 'Marca las tareas que pasan al equipo. Las recibe el <strong>CTO</strong> en <strong>Preparación</strong>: hace el plan técnico y decide qué becario sigue (datos, servicios, interfaz, despliegue, QA). Las que estén en Inbox pasan a «Por hacer».'
@@ -295,7 +300,7 @@ function abrirEquipo(i) {
   opciones.querySelectorAll('label').forEach((l) => l.remove());
   opciones.insertAdjacentHTML('beforeend', datos.becarios.map((b) => `<label class="equipo-opcion">
       <input type="checkbox" name="becario" value="${escapar(b.id)}"${proyecto.equipo.includes(b.id) ? ' checked' : ''}${puedeGuardar ? '' : ' disabled'}>
-      ${sprite(b.id)}<span><strong>${escapar(b.nombre)}</strong><small>${escapar(b.papel)}</small></span></label>`).join(''));
+      ${sprite(b.id, { dormido: b.pausado })}<span><strong>${escapar(b.nombre)}${b.pausado ? ' · pausado' : ''}</strong><small>${escapar(b.papel)}</small></span></label>`).join(''));
   dialogoEquipo.querySelector('[data-guardar]').disabled = !puedeGuardar;
   dialogoEquipo.querySelector('[data-error-equipo]').hidden = true;
   dialogoEquipo.showModal();

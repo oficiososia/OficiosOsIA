@@ -6,9 +6,10 @@ import logout from '../api/logout.js';
 import oficina from '../api/oficina.js';
 import peticiones from '../api/peticiones.js';
 import asignar from '../api/asignar.js';
+import becariosApi from '../api/becarios.js';
 import middleware, { config } from '../middleware.js';
 import { cookieSesion, firmar } from '../lib/sesion.js';
-import { TAREAS_DS } from '../lib/notion.js';
+import { BECARIOS_DS, TAREAS_DS } from '../lib/notion.js';
 
 beforeEach(() => {
   process.env.SESION_SECRETO = 'secreto-de-prueba';
@@ -127,6 +128,7 @@ test('/api/asignar exige sesión, rechaza tareas que no valen y siempre se las p
       enviados.push(JSON.parse(opciones.body).properties);
       return Response.json({ id: 'ok' });
     }
+    if (url.endsWith('/query')) return Response.json({ results: [], has_more: false });
     return Response.json({ parent: { type: 'data_source_id', data_source_id: TAREAS_DS }, properties: { Estado: { status: { name: 'Inbox' } }, Becario: { select: null } } });
   };
   try {
@@ -137,6 +139,56 @@ test('/api/asignar exige sesión, rechaza tareas que no valen y siempre se las p
     assert.equal(enviados.length, 1, 'una tarea repetida se pasa una sola vez');
     assert.deepEqual(enviados[0].Becario, { select: { name: 'cto' } }, 'empieza el CTO aunque pidan otro becario');
     assert.deepEqual(enviados[0].Fase, { select: { name: 'Preparación' } });
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
+});
+
+test('/api/asignar no pasa nada si el CTO está pausado', async () => {
+  process.env.NOTION_TOKEN = 'token-de-prueba';
+  const cookie = cookieSesion(await firmar('Pablo', process.env.SESION_SECRETO)).split(';')[0];
+  const fetchOriginal = globalThis.fetch;
+  const llamadas = [];
+  globalThis.fetch = async (url, opciones) => {
+    llamadas.push(`${opciones.method} ${url}`);
+    return Response.json({ results: [{ id: 'b1', properties: { Id: { select: { name: 'cto' } }, Pausado: { checkbox: true } } }], has_more: false });
+  };
+  try {
+    const respuesta = await asignar.fetch(new Request('https://panel.test/api/asignar', {
+      method: 'PUT', headers: { cookie, 'Content-Type': 'application/json' }, body: JSON.stringify({ tareas: ['40a3221d-8eb7-81c3-bb5d-dd1359a188ee'] }),
+    }));
+    assert.equal(respuesta.status, 409);
+    assert.match((await respuesta.json()).error, /CTO está pausado/);
+    assert.deepEqual(llamadas, [`POST https://api.notion.com/v1/data_sources/${BECARIOS_DS}/query`], 'no toca ninguna tarea');
+  } finally {
+    globalThis.fetch = fetchOriginal;
+  }
+});
+
+test('/api/becarios exige sesión, valida la ficha y la guarda', async () => {
+  const sinSesion = await becariosApi.fetch(new Request('https://panel.test/api/becarios'));
+  assert.equal(sinSesion.status, 401);
+  process.env.NOTION_TOKEN = 'token-de-prueba';
+  const cookie = cookieSesion(await firmar('Miguel', process.env.SESION_SECRETO)).split(';')[0];
+  const pedir = (cuerpo) => becariosApi.fetch(new Request('https://panel.test/api/becarios', { method: 'PUT', headers: { cookie, 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) }));
+  const ficha = { id: 'qa-tecnico', nombre: 'Lupa', papel: 'Regresión', pausado: true, instrucciones: '', avatar: { peinado: 'largo', accesorios: ['gafas'], piel: '#e0ac69', pelo: '#121212', ropa: '#c9473f', detalle: '#ffb000' } };
+  assert.equal((await pedir({ ...ficha, id: 'jefe' })).status, 400);
+  assert.equal((await pedir({ ...ficha, avatar: { ...ficha.avatar, piel: 'rosa' } })).status, 400);
+
+  const fetchOriginal = globalThis.fetch;
+  let guardado = null;
+  globalThis.fetch = async (url, opciones) => {
+    if (url.endsWith('/query')) return Response.json({ results: [], has_more: false });
+    guardado = JSON.parse(opciones.body);
+    return Response.json({ id: 'nuevo', url: 'https://app.notion.com/p/nuevo', properties: { ...guardado.properties, Nombre: { title: [{ plain_text: 'Lupa' }] }, Id: { select: { name: 'qa-tecnico' } }, Pausado: { checkbox: true } } });
+  };
+  try {
+    const respuesta = await pedir(ficha);
+    assert.equal(respuesta.status, 200);
+    const { becario } = await respuesta.json();
+    assert.equal(becario.nombre, 'Lupa');
+    assert.equal(becario.pausado, true);
+    assert.equal(guardado.parent.data_source_id, BECARIOS_DS);
   } finally {
     globalThis.fetch = fetchOriginal;
   }

@@ -312,6 +312,65 @@
 .estado--hecha { color: #7fd18b; border-color: #7fd18b; }
 .estado--descartada { color: var(--e-libre); }
 
+/* Becarios: fichas, editor y tabla de oficinas */
+.fichas { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.ficha { border: 2px solid var(--linea); background: var(--noche-2); padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.ficha__cabeza { display: flex; align-items: center; gap: 12px; }
+.ficha__cabeza .sprite { width: 56px; height: 56px; flex: none; }
+.ficha__cabeza > div { min-width: 0; flex: 1; }
+.ficha__nombre { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 18px; letter-spacing: -0.01em; overflow-wrap: anywhere; }
+.ficha__id { margin: 2px 0 0; font-size: 11px; opacity: 0.6; }
+.ficha__papel { margin: 0; font-size: 12px; line-height: 1.6; opacity: 0.85; flex: 1; }
+.panel .ficha__boton { font-size: 13px; padding: 8px 14px; text-align: center; background: transparent; }
+.ficha--pausada { border-style: dashed; }
+.ficha--pausada .sprite { filter: grayscale(1); opacity: 0.6; }
+.estado--activo { color: #7fd18b; border-color: #7fd18b; }
+.estado--pausado { color: var(--e-libre); border-style: dashed; }
+
+.matriz { display: flex; flex-direction: column; gap: 12px; border-top: 2px solid var(--linea); padding-top: 20px; }
+.matriz__cabecera h2 { margin: 0 0 6px; font-family: var(--font-display); font-weight: 700; font-size: 22px; letter-spacing: -0.02em; }
+.matriz__cabecera p { margin: 0; font-size: 13px; line-height: 1.6; opacity: 0.85; max-width: 760px; }
+.matriz__tabla { overflow-x: auto; border: 2px solid var(--linea); background: var(--noche-2); }
+.matriz__tabla table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.matriz__tabla th, .matriz__tabla td { padding: 8px 10px; border-bottom: 1px solid var(--linea); text-align: center; white-space: nowrap; }
+.matriz__tabla thead th { font-size: 12px; font-weight: 500; border-bottom: 2px solid var(--linea); }
+.matriz__tabla tbody tr:last-child > * { border-bottom: 0; }
+.matriz__tabla th[scope="row"], .matriz__tabla thead th:first-child { position: sticky; left: 0; z-index: 1; background: var(--noche-2); text-align: left; border-right: 2px solid var(--linea); }
+.matriz__becario { display: flex; align-items: center; gap: 8px; font-weight: 400; }
+.matriz__becario .sprite { width: 28px; height: 28px; flex: none; }
+.matriz__becario small { font-size: 10px; opacity: 0.6; }
+.matriz__tabla tr.pausado .sprite { filter: grayscale(1); opacity: 0.6; }
+.matriz__tabla td input { width: 20px; height: 20px; accent-color: var(--ambar); cursor: pointer; vertical-align: middle; }
+.matriz__tabla td.cambiada { background: rgba(255, 176, 0, 0.14); }
+.matriz__aviso { margin: 0; font-size: 12px; color: var(--e-bloqueado); }
+.matriz__pie { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.matriz__pie .btn { font-size: 13px; padding: 10px 14px; }
+.panel .matriz__pie .btn--ghost { background: transparent; }
+
+.editor { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 20px; align-items: start; }
+.editor__vista { position: sticky; top: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 12px; border: 2px solid var(--linea); background: var(--suelo); }
+.editor__sprite .sprite { width: 144px; height: 144px; display: block; }
+.editor__nombre { font-family: var(--font-display); font-weight: 700; font-size: 15px; text-align: center; overflow-wrap: anywhere; }
+.editor__campos { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.grupo { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.grupo legend { font-size: 12px; padding: 0; margin-bottom: 6px; }
+.opciones-avatar { display: flex; flex-wrap: wrap; gap: 6px; }
+.opcion-avatar { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; width: 62px; padding: 6px 4px 4px; border: 2px solid var(--linea); background: var(--noche); cursor: pointer; font-size: 11px; }
+.opcion-avatar input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.opcion-avatar .sprite { width: 40px; height: 40px; }
+.opcion-avatar:has(input:checked) { border-color: var(--ambar); color: var(--ambar); background: rgba(255, 176, 0, 0.08); }
+.opcion-avatar:has(input:focus-visible) { outline: 2px solid var(--ambar); outline-offset: 2px; }
+.colores { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.color { display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
+.color input { width: 100%; height: 38px; padding: 2px; border: 2px solid var(--linea); background: var(--noche); cursor: pointer; }
+.interruptor { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border: 2px solid var(--linea); cursor: pointer; }
+.interruptor input { width: 20px; height: 20px; flex: none; margin: 0; accent-color: var(--ambar); }
+.interruptor strong { display: block; font-weight: 500; font-size: 13px; }
+.interruptor small { display: block; font-size: 12px; opacity: 0.75; line-height: 1.5; }
+.interruptor:has(input:checked) { border-color: var(--ambar); }
+.campo__ayuda { display: flex; justify-content: space-between; gap: 12px; font-size: 11px; opacity: 0.7; }
+.puesto--pausado .sprite { filter: grayscale(1); opacity: 0.7; }
+
 @media (max-width: 900px) {
   .producto { grid-template-columns: minmax(0, 1fr); }
   .producto__peticion { position: static; }
@@ -340,6 +399,19 @@
   .sala__logo { width: 32px; height: 32px; }
   .sala__logo img { max-width: 26px; max-height: 26px; }
   .barra-tablero h1 { font-size: 22px; }
+  .pestanas { gap: 2px; }
+  .pestanas a { padding: 8px 4px; }
+  .fichas { grid-template-columns: minmax(0, 1fr); }
+  .editor { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .editor__vista { position: static; flex-direction: row; justify-content: center; padding: 10px; }
+  .editor__sprite .sprite { width: 88px; height: 88px; }
+  .colores { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .opcion-avatar { width: calc((100% - 12px) / 3); }
+  .matriz__tabla th, .matriz__tabla td { padding: 8px 6px; }
+  .matriz__tabla thead th { white-space: normal; min-width: 64px; font-size: 11px; }
+  .matriz__tabla th[scope="row"] { white-space: normal; width: 112px; min-width: 112px; }
+  .matriz__becario { font-size: 12px; gap: 6px; }
+  .matriz__becario small { display: none; }
   .columna { flex-basis: 82vw; }
 }
 @media (prefers-reduced-motion: reduce) {

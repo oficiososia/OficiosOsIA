@@ -1,5 +1,6 @@
 import { ErrorConfiguracion, json, rutaPanel } from '../lib/http.js';
-import { ErrorNotion, leerProyectos, tareasAbiertas } from '../lib/notion.js';
+import { combinarBecarios } from '../lib/becarios.js';
+import { ErrorNotion, leerBecarios, leerProyectos, tareasAbiertas } from '../lib/notion.js';
 import { construirOficina } from '../lib/oficina.js';
 
 // Si Notion falla o falta configurarlo, la oficina se pinta igual (vacía) con un aviso,
@@ -13,11 +14,15 @@ const avisoDe = (resultado) => {
 
 export default rutaPanel({
   async GET(_request, { usuario }) {
-    const [tareas, proyectos] = await Promise.allSettled([tareasAbiertas(), leerProyectos()]);
+    const [tareas, proyectos, fichas] = await Promise.allSettled([tareasAbiertas(), leerProyectos(), leerBecarios()]);
     const avisos = [...new Set([avisoDe(tareas), avisoDe(proyectos)].filter(Boolean))];
+    // Sin la base «Becarios», los becarios salen como vienen por defecto.
+    const avisoFichas = avisoDe(fichas);
+    if (avisoFichas && !avisos.length) avisos.push(`No se leen las fichas de los becarios (${avisoFichas}).`);
     const oficina = construirOficina({
       tareas: tareas.status === 'fulfilled' ? tareas.value : [],
       proyectosNotion: proyectos.status === 'fulfilled' ? proyectos.value : null,
+      becarios: combinarBecarios(fichas.status === 'fulfilled' ? fichas.value : []),
     });
     return json({ usuario, avisos, ...oficina });
   },
