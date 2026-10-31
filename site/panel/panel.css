@@ -433,6 +433,7 @@
 .habitacion--producto { --pared-cuarto: #6c5a8a; }
 .habitacion--qa { --pared-cuarto: #2f7f78; }
 .habitacion--marketing { --pared-cuarto: #9a4f73; }
+.habitacion--soporte { --pared-cuarto: #3f6b94; }
 .habitacion--fuera { border-style: dashed; }
 .habitacion--vacia { border-style: dashed; --pared-cuarto: var(--linea); }
 .habitacion__cartel { flex: none; margin: 0 0 4px; height: 24px; display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; min-width: 0; }
@@ -458,7 +459,7 @@
 .lista-tareas__fila { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .lista-tareas__fila > a { min-width: 0; overflow-wrap: anywhere; }
 .etiqueta--enlace { color: var(--ambar); text-decoration: none; border-color: var(--ambar); }
-.ritmos--tres { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ritmos--departamentos { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
 .ritmo--apagado { opacity: 0.5; cursor: not-allowed; }
 .ritmo--apagado input { cursor: not-allowed; }
 .dialogo__cuerpo > .grupo, .dialogo__cuerpo > .interruptor, .dialogo__cuerpo > .campo { margin-bottom: 12px; }
@@ -566,7 +567,7 @@
   .habitaciones { gap: 6px; }
   .habitacion { padding: 2px 4px 4px; border-width: 2px; }
   .habitacion__cartel small, .sala__nube { display: none; }
-  .ritmos--tres { grid-template-columns: minmax(0, 1fr); }
+  .ritmos--departamentos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .conexion__form { grid-template-columns: minmax(0, 1fr); }
   .departamento__miembros { padding-left: 0; }
 }

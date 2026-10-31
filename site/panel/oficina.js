@@ -1,5 +1,5 @@
 // La oficina: una sala por proyecto, dividida en habitaciones (producto y los departamentos del
-// equipo: desarrollo, QA y marketing), con los becarios en sus mesas según las tareas de Notion.
+// equipo: desarrollo, QA, marketing y soporte IT), con los becarios en sus mesas según las tareas de Notion.
 // Se ve una sala cada vez, a pantalla completa, y se cambia con las pestañas.
 import { ponerAvatares, sprite } from './sprites.js';
 import { decorado, estiloTema, logoPequeno, temaDe } from './temas.js';
@@ -359,7 +359,7 @@ function opcionesDepartamento(proyecto) {
 }
 
 // La asignación pasa siempre por el departamento entero: la tarea entra por su entrada (CTO,
-// Jefa de QA o Dirección de marketing), en Preparación, y decide quién la coge después.
+// Jefa de QA, Dirección de marketing o Jefatura de soporte IT), en Preparación, y decide quién la coge después.
 function abrirAsignar(i) {
   const proyecto = datos.proyectos[i];
   const { libres, enFlujo } = tareasPorHacer(proyecto);
