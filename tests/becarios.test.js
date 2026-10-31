@@ -6,13 +6,14 @@ test('sin fichas en Notion, los becarios son los de por defecto', () => {
   assert.deepEqual(combinarBecarios([]), BECARIOS);
   assert.deepEqual(combinarBecarios().filter((b) => b.departamento === 'desarrollo').map((b) => b.id), ['cto', 'diseno', 'frontend', 'backend-datos', 'backend-servicios', 'ia-automatizacion', 'qa-funcional', 'qa-tecnico', 'delivery']);
   assert.deepEqual(miembrosDe('seguridad'), ['sec-lead', 'sec-aplicaciones', 'sec-nube', 'sec-pentest', 'sec-dependencias', 'sec-cumplimiento']);
+  assert.deepEqual(miembrosDe('arranque'), ['ar-lead', 'ar-analisis', 'ar-plataforma', 'ar-diseno', 'ar-frontend', 'ar-backend', 'ar-calidad', 'ar-documentacion']);
   assert.deepEqual(miembrosDe('qa'), [], 'ya no hay departamento de QA (los dos QA de desarrollo siguen)');
   assert.deepEqual(miembrosDe('marketing'), ['mk-lead', 'mk-seo', 'mk-contenidos', 'mk-rrss', 'mk-local', 'mk-analitica']);
   assert.deepEqual(miembrosDe('soporte'), ['it-lead', 'it-soporte', 'it-infraestructura', 'it-sistemas', 'it-comunicaciones', 'it-conectividad']);
 });
 
 test('cada departamento entra por uno de los suyos y todos los becarios tienen departamento', () => {
-  assert.deepEqual(DEPARTAMENTOS.map((d) => [d.id, d.entrada]), [['desarrollo', 'cto'], ['seguridad', 'sec-lead'], ['marketing', 'mk-lead'], ['soporte', 'it-lead']]);
+  assert.deepEqual(DEPARTAMENTOS.map((d) => [d.id, d.entrada]), [['arranque', 'ar-lead'], ['desarrollo', 'cto'], ['seguridad', 'sec-lead'], ['marketing', 'mk-lead'], ['soporte', 'it-lead']]);
   for (const d of DEPARTAMENTOS) {
     assert.equal(departamentoDe(d.entrada), d.id);
     assert.equal(d.fases[0], 'Preparación', 'todos empiezan en Preparación');
@@ -24,17 +25,21 @@ test('cada departamento entra por uno de los suyos y todos los becarios tienen d
 });
 
 test('la ficha de Notion manda, pero lo que no vale se queda como estaba', () => {
-  const [cto, frontend] = combinarBecarios([
+  const fichas = combinarBecarios([
     { id: 'cto', notionId: 'n1', url: 'u', nombre: ' Jefa técnica ', papel: '', pausado: true, instrucciones: 'Tests primero', avatar: { peinado: 'largo', accesorios: ['gafas', 'capa'], piel: '#FFAA00', pelo: 'negro', ropa: '', detalle: null } },
     { id: 'becario-falso', nombre: 'No existe' },
   ]);
+  const base = (id) => BECARIOS.find((b) => b.id === id);
+  const cto = fichas.find((b) => b.id === 'cto');
+  const frontend = fichas.find((b) => b.id === 'frontend');
+  assert.ok(!fichas.some((b) => b.id === 'becario-falso'), 'lo que no es un becario se ignora');
   assert.equal(cto.nombre, 'Jefa técnica');
-  assert.equal(cto.papel, BECARIOS[0].papel, 'sin papel, el de por defecto');
+  assert.equal(cto.papel, base('cto').papel, 'sin papel, el de por defecto');
   assert.equal(cto.pausado, true);
   assert.equal(cto.instrucciones, 'Tests primero');
   assert.equal(cto.notionId, 'n1');
-  assert.deepEqual(cto.avatar, { peinado: 'largo', accesorios: ['gafas'], piel: '#ffaa00', pelo: BECARIOS[0].avatar.pelo, ropa: BECARIOS[0].avatar.ropa, detalle: BECARIOS[0].avatar.detalle });
-  assert.deepEqual(frontend, BECARIOS[1]);
+  assert.deepEqual(cto.avatar, { peinado: 'largo', accesorios: ['gafas'], piel: '#ffaa00', pelo: base('cto').avatar.pelo, ropa: base('cto').avatar.ropa, detalle: base('cto').avatar.detalle });
+  assert.deepEqual(frontend, base('frontend'));
 });
 
 const valida = { id: 'frontend', nombre: 'Front', papel: 'Interfaces', pausado: false, instrucciones: ' Usa TypeScript ', avatar: { peinado: 'rizado', accesorios: ['cascos', 'cascos'], piel: '#8D5524', pelo: '#1c1c1c', ropa: '#3f7fd6', detalle: '#ffb000' } };

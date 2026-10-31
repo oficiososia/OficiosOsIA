@@ -1,5 +1,5 @@
 // Pasa tareas por hacer a un departamento de la oficina. Siempre entran por su entrada (cto,
-// sec-lead, mk-lead o it-lead), en Preparación: hace el plan y decide qué becario sigue (ver
+// sec-lead, mk-lead, it-lead o ar-lead), en Preparación: hace el plan y decide qué becario sigue (ver
 // lib/notion.js). Con `lanzar`, además, se lanzan en la nube con la tarea programada de quien
 // asigna (lib/lanzar.js), una sesión por tarea, que trabaja hasta el PR.
 import { departamento as buscarDepartamento } from '../lib/becarios.js';

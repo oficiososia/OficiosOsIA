@@ -1,5 +1,5 @@
 // La oficina: una sala por proyecto, dividida en habitaciones (producto y los departamentos del
-// equipo: desarrollo, ciberseguridad, marketing y soporte IT), con los becarios en sus mesas según las tareas de Notion.
+// equipo: arranque, desarrollo, ciberseguridad, marketing y soporte IT), con los becarios en sus mesas según las tareas de Notion.
 // Se ve una sala cada vez, a pantalla completa, y se cambia con las pestañas.
 import { ponerAvatares, sprite } from './sprites.js';
 import { decorado, estiloTema, logoPequeno, temaDe } from './temas.js';

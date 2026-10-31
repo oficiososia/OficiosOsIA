@@ -5,11 +5,12 @@ import { columnaDe, COLUMNAS, construirTablero } from '../lib/tablero.js';
 const tarea = (datos) => ({ id: datos.titulo, url: 'https://app.notion.com/p/x', proyecto: 'Energym', becario: null, fase: null, estado: 'Por hacer', prioridad: null, bloqueo: '', editada: null, ...datos });
 
 test('las columnas siguen el flujo de los becarios, con «Sin empezar» delante y «Cerrada» al final', () => {
-  assert.deepEqual(COLUMNAS.map((c) => c.id), ['sin-empezar', 'Preparación', 'Desarrollo y unitarias', 'Auditoría', 'Producción', 'Intervención', 'Despliegue DEMO', 'QA DEMO', 'PR y revisión', 'Despliegue PROD', 'QA PROD', 'Cerrada']);
+  assert.deepEqual(COLUMNAS.map((c) => c.id), ['sin-empezar', 'Preparación', 'Cimientos', 'Desarrollo y unitarias', 'Auditoría', 'Producción', 'Intervención', 'Despliegue DEMO', 'QA DEMO', 'PR y revisión', 'Despliegue PROD', 'QA PROD', 'Cerrada']);
   const de = (dep) => COLUMNAS.filter((c) => c.departamentos.includes(dep)).map((c) => c.id);
   assert.deepEqual(de('seguridad'), ['sin-empezar', 'Preparación', 'Auditoría', 'PR y revisión', 'Cerrada']);
   assert.deepEqual(de('marketing'), ['sin-empezar', 'Preparación', 'Producción', 'PR y revisión', 'Cerrada']);
   assert.deepEqual(de('soporte'), ['sin-empezar', 'Preparación', 'Intervención', 'PR y revisión', 'Cerrada']);
+  assert.deepEqual(de('arranque'), ['sin-empezar', 'Preparación', 'Cimientos', 'PR y revisión', 'Cerrada']);
   assert.ok(!de('desarrollo').includes('Auditoría'));
 });
 
