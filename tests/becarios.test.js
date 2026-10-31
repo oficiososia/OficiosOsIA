@@ -4,14 +4,15 @@ import { BECARIOS, combinarBecarios, DEPARTAMENTOS, departamentoDe, IDS_BECARIOS
 
 test('sin fichas en Notion, los becarios son los de por defecto', () => {
   assert.deepEqual(combinarBecarios([]), BECARIOS);
-  assert.deepEqual(combinarBecarios().filter((b) => b.departamento === 'desarrollo').map((b) => b.id), ['cto', 'frontend', 'backend-datos', 'backend-servicios', 'qa-funcional', 'qa-tecnico', 'delivery']);
-  assert.deepEqual(miembrosDe('qa'), ['qa-lead', 'qa-automatizacion', 'qa-accesibilidad', 'qa-rendimiento', 'qa-seguridad', 'qa-visual', 'qa-exploratorio']);
+  assert.deepEqual(combinarBecarios().filter((b) => b.departamento === 'desarrollo').map((b) => b.id), ['cto', 'diseno', 'frontend', 'backend-datos', 'backend-servicios', 'ia-automatizacion', 'qa-funcional', 'qa-tecnico', 'delivery']);
+  assert.deepEqual(miembrosDe('seguridad'), ['sec-lead', 'sec-aplicaciones', 'sec-nube', 'sec-pentest', 'sec-dependencias', 'sec-cumplimiento', 'sec-respuesta']);
+  assert.deepEqual(miembrosDe('qa'), [], 'ya no hay departamento de QA (los dos QA de desarrollo siguen)');
   assert.deepEqual(miembrosDe('marketing'), ['mk-lead', 'mk-seo', 'mk-contenidos', 'mk-rrss', 'mk-local', 'mk-analitica']);
   assert.deepEqual(miembrosDe('soporte'), ['it-lead', 'it-soporte', 'it-infraestructura', 'it-sistemas', 'it-comunicaciones', 'it-conectividad']);
 });
 
 test('cada departamento entra por uno de los suyos y todos los becarios tienen departamento', () => {
-  assert.deepEqual(DEPARTAMENTOS.map((d) => [d.id, d.entrada]), [['desarrollo', 'cto'], ['qa', 'qa-lead'], ['marketing', 'mk-lead'], ['soporte', 'it-lead']]);
+  assert.deepEqual(DEPARTAMENTOS.map((d) => [d.id, d.entrada]), [['desarrollo', 'cto'], ['seguridad', 'sec-lead'], ['marketing', 'mk-lead'], ['soporte', 'it-lead']]);
   for (const d of DEPARTAMENTOS) {
     assert.equal(departamentoDe(d.entrada), d.id);
     assert.equal(d.fases[0], 'Preparación', 'todos empiezan en Preparación');
@@ -63,7 +64,8 @@ test('validarBecario rechaza lo que no se puede guardar', () => {
 });
 
 test('modelo y esfuerzo: vacíos manda el plugin, y solo valen los de Claude Code', () => {
-  const [cto, frontend, datos] = combinarBecarios([{ id: 'frontend', modelo: 'haiku', esfuerzo: 'low' }, { id: 'backend-datos', modelo: 'gpt-5', esfuerzo: 'turbo' }]);
+  const fichas = combinarBecarios([{ id: 'frontend', modelo: 'haiku', esfuerzo: 'low' }, { id: 'backend-datos', modelo: 'gpt-5', esfuerzo: 'turbo' }]);
+  const [cto, frontend, datos] = ['cto', 'frontend', 'backend-datos'].map((id) => fichas.find((b) => b.id === id));
   assert.deepEqual([cto.modelo, cto.esfuerzo, cto.plugin], [null, null, { modelo: 'opus', esfuerzo: 'high' }]);
   assert.deepEqual([frontend.modelo, frontend.esfuerzo, frontend.plugin], ['haiku', 'low', { modelo: 'sonnet', esfuerzo: null }]);
   assert.deepEqual([datos.modelo, datos.esfuerzo], [null, null], 'lo desconocido se ignora');

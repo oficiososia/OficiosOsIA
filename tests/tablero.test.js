@@ -5,22 +5,22 @@ import { columnaDe, COLUMNAS, construirTablero } from '../lib/tablero.js';
 const tarea = (datos) => ({ id: datos.titulo, url: 'https://app.notion.com/p/x', proyecto: 'Energym', becario: null, fase: null, estado: 'Por hacer', prioridad: null, bloqueo: '', editada: null, ...datos });
 
 test('las columnas siguen el flujo de los becarios, con «Sin empezar» delante y «Cerrada» al final', () => {
-  assert.deepEqual(COLUMNAS.map((c) => c.id), ['sin-empezar', 'Preparación', 'Desarrollo y unitarias', 'Pruebas', 'Producción', 'Intervención', 'Despliegue DEMO', 'QA DEMO', 'PR y revisión', 'Despliegue PROD', 'QA PROD', 'Cerrada']);
+  assert.deepEqual(COLUMNAS.map((c) => c.id), ['sin-empezar', 'Preparación', 'Desarrollo y unitarias', 'Auditoría', 'Producción', 'Intervención', 'Despliegue DEMO', 'QA DEMO', 'PR y revisión', 'Despliegue PROD', 'QA PROD', 'Cerrada']);
   const de = (dep) => COLUMNAS.filter((c) => c.departamentos.includes(dep)).map((c) => c.id);
-  assert.deepEqual(de('qa'), ['sin-empezar', 'Preparación', 'Pruebas', 'PR y revisión', 'Cerrada']);
+  assert.deepEqual(de('seguridad'), ['sin-empezar', 'Preparación', 'Auditoría', 'PR y revisión', 'Cerrada']);
   assert.deepEqual(de('marketing'), ['sin-empezar', 'Preparación', 'Producción', 'PR y revisión', 'Cerrada']);
   assert.deepEqual(de('soporte'), ['sin-empezar', 'Preparación', 'Intervención', 'PR y revisión', 'Cerrada']);
-  assert.ok(!de('desarrollo').includes('Pruebas'));
+  assert.ok(!de('desarrollo').includes('Auditoría'));
 });
 
 test('cada tarjeta dice de qué departamento es, según quién la tiene', () => {
   const { tareas } = construirTablero([
-    tarea({ titulo: 'a', becarios: ['qa-accesibilidad', 'qa-visual'], fase: 'Pruebas' }),
+    tarea({ titulo: 'a', becarios: ['sec-pentest', 'sec-nube'], fase: 'Auditoría' }),
     tarea({ titulo: 'b', becarios: ['mk-seo'], fase: 'Producción' }),
     tarea({ titulo: 'c', becarios: ['frontend'] }),
     tarea({ titulo: 'd' }),
   ]);
-  assert.deepEqual(tareas.map((t) => [t.titulo, t.departamento, t.columna]), [['a', 'qa', 'Pruebas'], ['b', 'marketing', 'Producción'], ['c', 'desarrollo', 'sin-empezar'], ['d', null, 'sin-empezar']]);
+  assert.deepEqual(tareas.map((t) => [t.titulo, t.departamento, t.columna]), [['a', 'seguridad', 'Auditoría'], ['b', 'marketing', 'Producción'], ['c', 'desarrollo', 'sin-empezar'], ['d', null, 'sin-empezar']]);
 });
 
 test('cada tarea va a la columna de su fase; sin fase, a «Sin empezar»; hecha, a «Cerrada»', () => {

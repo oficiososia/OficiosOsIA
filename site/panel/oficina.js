@@ -1,5 +1,5 @@
 // La oficina: una sala por proyecto, dividida en habitaciones (producto y los departamentos del
-// equipo: desarrollo, QA, marketing y soporte IT), con los becarios en sus mesas según las tareas de Notion.
+// equipo: desarrollo, ciberseguridad, marketing y soporte IT), con los becarios en sus mesas según las tareas de Notion.
 // Se ve una sala cada vez, a pantalla completa, y se cambia con las pestañas.
 import { ponerAvatares, sprite } from './sprites.js';
 import { decorado, estiloTema, logoPequeno, temaDe } from './temas.js';
@@ -254,7 +254,7 @@ function htmlSala(p, i) {
   const habitaciones = [htmlHabitacionProducto(p), ...p.habitaciones.map((h) => htmlHabitacion(p, i, h))];
   if (!p.habitaciones.length) {
     habitaciones.push(`<section class="habitacion habitacion--vacia"><h3 class="habitacion__cartel"><span>Sin departamentos</span></h3>
-      <p class="habitacion__vacia">${datos.guardable && p.id ? 'Pulsa «Equipo» para añadir Desarrollo, QA o Marketing a esta oficina.' : 'Añade el proyecto a la base «Proyectos» de Notion para darle departamentos.'}</p></section>`);
+      <p class="habitacion__vacia">${datos.guardable && p.id ? 'Pulsa «Equipo» para añadir departamentos a esta oficina.' : 'Añade el proyecto a la base «Proyectos» de Notion para darle departamentos.'}</p></section>`);
   }
   const bandeja = p.sinBecario.length
     ? `<button type="button" class="bandeja" data-bandeja="${i}"><span class="bandeja__papeles" aria-hidden="true"></span>${p.sinBecario.length} sin departamento</button>`
@@ -359,7 +359,7 @@ function opcionesDepartamento(proyecto) {
 }
 
 // La asignación pasa siempre por el departamento entero: la tarea entra por su entrada (CTO,
-// Jefa de QA, Dirección de marketing o Jefatura de soporte IT), en Preparación, y decide quién la coge después.
+// Responsable de seguridad, Dirección de marketing o Jefatura de soporte IT), en Preparación, y decide quién la coge después.
 function abrirAsignar(i) {
   const proyecto = datos.proyectos[i];
   const { libres, enFlujo } = tareasPorHacer(proyecto);

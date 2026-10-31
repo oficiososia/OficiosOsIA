@@ -431,7 +431,7 @@
 .habitaciones { position: relative; z-index: 2; height: 100%; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 10px; }
 .habitacion { --pared-cuarto: color-mix(in srgb, var(--acento) 35%, #18191b); flex: none; min-width: 0; min-height: 0; display: flex; flex-direction: column; padding: 4px 8px 6px; border: 3px solid var(--pared-cuarto); background: rgba(10, 10, 12, 0.22); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3); }
 .habitacion--producto { --pared-cuarto: #6c5a8a; }
-.habitacion--qa { --pared-cuarto: #2f7f78; }
+.habitacion--seguridad { --pared-cuarto: #8a3a3a; }
 .habitacion--marketing { --pared-cuarto: #9a4f73; }
 .habitacion--soporte { --pared-cuarto: #3f6b94; }
 .habitacion--fuera { border-style: dashed; }
