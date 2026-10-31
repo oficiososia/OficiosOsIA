@@ -1,13 +1,13 @@
 ---
 name: producto
-description: "Llama al equipo de producto (PO, PM y CTO). Recoge las peticiones que Miguel y Pablo dejan desde el panel en la base «Peticiones» de Notion y las convierte en tareas de OficiosOS con historia, criterios, planificación y plan técnico. Crea las tareas solo cuando confirmas."
-argument-hint: "[URL de una petición concreta]"
+description: "Llama al equipo de producto (PO, PM y CTO). Primero contesta el chat del panel sobre cómo van las tareas; después recoge las peticiones que Miguel y Pablo dejan en la base «Peticiones» de Notion y las convierte en tareas de OficiosOS con historia, criterios, planificación y plan técnico. Crea las tareas solo cuando confirmas."
+argument-hint: "[chat | URL de una petición concreta]"
 disable-model-invocation: true
 ---
 
 # Equipo de producto
 
-Encargo: $ARGUMENTS. Si está vacío, trabaja todas las peticiones en estado `Pendiente`, de la más antigua a la más nueva.
+Encargo: $ARGUMENTS. Si está vacío, contesta primero el chat (ver «Chat») y luego trabaja todas las peticiones en estado `Pendiente`, de la más antigua a la más nueva. Si es `chat`, contesta solo el chat.
 
 Las peticiones en `Guardada` no se trabajan: son ideas guardadas para más tarde desde el panel. Si te pasan la URL de una guardada, pregunta antes de empezar.
 
@@ -28,6 +28,7 @@ Todo vive en el espacio de equipo «Sede de Espacio de Oficios Os»:
 | Peticiones | `collection://7faed1fa-0f84-4078-8800-9350d4746262` | Lo que se pide desde el panel. Estado: `Guardada`, `Pendiente`, `En curso`, `Con dudas`, `Hecha` o `Descartada`. |
 | Proyectos | `collection://c295eb77-c4a5-4c32-8027-f06f4412bf7d` | `Proyecto en tareas`, `Repositorio` y `Becarios` (equipo) de cada proyecto. |
 | OficiosOS | `collection://2ad3221d-8eb7-8065-904d-000b57a0fe2a` | Las tareas. Aquí se crean las nuevas. |
+| Chat | `collection://5a4ba784-8970-49b7-a9cb-5125630cecb0` | Preguntas del panel sobre cómo van las tareas y las respuestas del equipo. `De`: `persona` o `equipo`. `Estado`: `Pendiente`, `Respondido` o `Respuesta`. |
 
 En Peticiones, la columna `Proyecto` tiene el mismo texto que `Proyecto relacionado` en OficiosOS. La petición completa está en el cuerpo de la página; el título es solo su primera línea.
 
@@ -49,6 +50,33 @@ Líneas cortas, una por rol cuando termina, como los becarios:
 
 - Unas 15 palabras como mucho por línea. Al final, ✅ hecho, ❌ fallo o ⏸ esperando algo.
 - Con «detalle», muestra las historias, la planificación y el plan técnico completos.
+
+## Chat (antes que las peticiones)
+
+En la pestaña «Equipo de producto» del panel, Miguel y Pablo preguntan cómo van las tareas. Contesta los mensajes de la base Chat con `De = persona` y `Estado = Pendiente`, del más antiguo al más nuevo. Lo haces tú, sin lanzar agentes, con el rol que toque.
+
+Con cada mensaje:
+
+1. **Leer**: `Texto`, `Autor` y `Proyecto` (vacío: pregunta general). Lee también los 10 mensajes anteriores para seguir el hilo.
+2. **Buscar**: en OficiosOS, las tareas de las que habla (por título o por proyecto; si es general, las abiertas de todos). De cada una: `Estado`, `Fase`, `Becario`, `Bloqueo`, `Versión`, `PR` y, si lo hay, su último registro de entrega.
+3. **Contestar** con el rol que toca: `CTO` para el avance técnico, las fases, los bloqueos y los becarios; `PM` para prioridades, plazos y orden; `PO` para qué incluye una historia o sus criterios.
+4. **Escribir** la respuesta como fila nueva de Chat:
+   - `Mensaje`: la primera línea.
+   - `Texto`: la respuesta completa (máximo 2000 caracteres).
+   - `Autor`: `CTO`, `PM` o `PO`.
+   - `De = equipo` y `Estado = Respuesta`.
+   - `Proyecto`: el mismo que la pregunta.
+   - `Tareas`: las tareas de las que hablas.
+5. Pon `Estado = Respondido` en la pregunta.
+6. Línea: `[CTO] Chat · «<pregunta corta>» · contestado ✅` (con el rol que haya contestado).
+
+Cómo es la respuesta:
+
+- En español, de 3 a 10 líneas y sin jerga: qué está hecho, qué está en marcha y con quién, qué lo bloquea y qué falta. Con el título exacto de cada tarea.
+- Solo lo que dice Notion. Si no encuentras la tarea, dilo y pregunta a cuál se refiere.
+- Desde el chat no se cambian tareas ni peticiones. Si piden trabajo nuevo, contesta que lo pongan como petición en el panel. Si piden cambiar una tarea, di qué habría que cambiar y quién lo haría.
+
+Si no hay mensajes pendientes: `[Producto] Chat sin mensajes pendientes ✅`, y sigue con las peticiones.
 
 ## Pasos con cada petición
 

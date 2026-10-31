@@ -84,6 +84,24 @@
         <ul class="peticiones" data-peticiones aria-busy="true"><li class="cargando">Cargando peticiones…</li></ul>
       </div>
     </div>
+
+    <section class="chat" aria-labelledby="titulo-chat">
+      <div class="chat__cabecera">
+        <div>
+          <h2 id="titulo-chat">Chat con el equipo</h2>
+          <p>Pregunta cómo van las tareas. Contesta el equipo cuando ejecutas <code>/producto</code> en Claude Code: miran las tareas en Notion y responden aquí.</p>
+        </div>
+        <span class="chat__estado" data-chat-estado aria-live="polite"></span>
+      </div>
+      <div class="avisos" data-avisos-chat></div>
+      <ol class="chat__mensajes" data-chat aria-busy="true" tabindex="0" aria-label="Mensajes del chat"><li class="cargando">Cargando el chat…</li></ol>
+      <form class="chat__form" data-form-chat>
+        <label class="campo chat__proyecto">Proyecto<select name="proyecto"><option value="">General</option></select></label>
+        <label class="campo chat__texto"><span class="sr-only">Mensaje</span><textarea name="texto" rows="2" maxlength="2000" required placeholder="Ej.: ¿Cómo va la reserva de clases de Energym? ¿Qué falta para producción?"></textarea></label>
+        <button type="submit" class="btn btn--amber chat__enviar">Enviar</button>
+      </form>
+      <p class="error" data-error-chat role="alert" hidden></p>
+    </section>
   </section>
 
   <section class="vista vista--fija" data-vista="tareas" aria-labelledby="titulo-tareas" hidden>
