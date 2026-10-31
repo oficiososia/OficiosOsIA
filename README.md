@@ -119,10 +119,6 @@ La base OficiosOS tiene la relación **Tarea padre ↔ Subtareas**. Una tarea co
 
 «Becario» dice quién tiene la tarea ahora. El panel lo lee tanto si la columna es de selección (uno) como de selección múltiple (varios), y al pasar una tarea al equipo escribe `cto` en el formato que tenga.
 
-## Tickets de demostración
-
-En OficiosOS hay 14 tickets cuyo título empieza por «[Demo]», repartidos por las fases y los proyectos para enseñar el flujo en la oficina y en el kanban. No son trabajo real (lo dicen sus Notas) y se pueden borrar cuando haya tareas reales en marcha. Las tareas reales no se han tocado.
-
 ## Equipo de producto en Claude Code
 
 1. Abre Claude Code en tu copia de este repositorio (`git pull` para tener `.claude/`).
