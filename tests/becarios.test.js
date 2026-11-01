@@ -7,13 +7,13 @@ test('sin fichas en Notion, los becarios son los de por defecto', () => {
   assert.deepEqual(combinarBecarios().filter((b) => b.departamento === 'desarrollo').map((b) => b.id), ['cto', 'diseno', 'frontend', 'backend-datos', 'backend-servicios', 'ia-automatizacion', 'qa-funcional', 'qa-tecnico', 'delivery']);
   assert.deepEqual(miembrosDe('seguridad'), ['sec-lead', 'sec-aplicaciones', 'sec-nube', 'sec-pentest', 'sec-dependencias', 'sec-cumplimiento']);
   assert.deepEqual(miembrosDe('arranque'), ['ar-lead', 'ar-analisis', 'ar-plataforma', 'ar-diseno', 'ar-frontend', 'ar-backend', 'ar-calidad', 'ar-documentacion']);
-  assert.deepEqual(miembrosDe('qa'), [], 'ya no hay departamento de QA (los dos QA de desarrollo siguen)');
+  assert.deepEqual(miembrosDe('qa'), ['qa-lead', 'qa-reconocimiento', 'qa-rompedor', 'qa-api', 'qa-verificador', 'qa-poblacion', 'qa-enjambre', 'qa-informe']);
   assert.deepEqual(miembrosDe('marketing'), ['mk-lead', 'mk-seo', 'mk-contenidos', 'mk-rrss', 'mk-local', 'mk-analitica']);
   assert.deepEqual(miembrosDe('soporte'), ['it-lead', 'it-soporte', 'it-infraestructura', 'it-sistemas', 'it-comunicaciones', 'it-conectividad']);
 });
 
 test('cada departamento entra por uno de los suyos y todos los becarios tienen departamento', () => {
-  assert.deepEqual(DEPARTAMENTOS.map((d) => [d.id, d.entrada]), [['arranque', 'ar-lead'], ['desarrollo', 'cto'], ['seguridad', 'sec-lead'], ['marketing', 'mk-lead'], ['soporte', 'it-lead']]);
+  assert.deepEqual(DEPARTAMENTOS.map((d) => [d.id, d.entrada]), [['arranque', 'ar-lead'], ['desarrollo', 'cto'], ['qa', 'qa-lead'], ['seguridad', 'sec-lead'], ['marketing', 'mk-lead'], ['soporte', 'it-lead']]);
   for (const d of DEPARTAMENTOS) {
     assert.equal(departamentoDe(d.entrada), d.id);
     assert.equal(d.fases[0], 'Preparación', 'todos empiezan en Preparación');
